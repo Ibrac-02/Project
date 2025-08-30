@@ -62,7 +62,6 @@ export default function HeadteacherDashboardScreen() {
 
         <View style={styles.content}>
           <Text style={styles.dashboardTitle}>Headteacher Dashboard</Text>
-          <Text style={styles.welcomeMessage}>Welcome, {loading ? 'Loading...' : userName || 'Headteacher'}</Text>
 
           <View style={styles.cardsContainer}>
             <DashboardCard iconName="checkbox-outline" title="Approve Results" onPress={() => console.log('Approve Results')} />
@@ -164,12 +163,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 5,
     color: '#333',
-    textAlign: 'center',
-  },
-  welcomeMessage: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 30,
     textAlign: 'center',
   },
   cardsContainer: {

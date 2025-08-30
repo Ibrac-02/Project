@@ -62,7 +62,6 @@ export default function TeacherDashboardScreen() {
 
         <View style={styles.content}>
           <Text style={styles.dashboardTitle}>Teacher Dashboard</Text>
-          <Text style={styles.welcomeMessage}>Welcome, {loading ? 'Loading...' : userName || 'Teacher'}</Text>
 
           <View style={styles.cardsContainer}>
             <DashboardCard iconName="easel-outline" title="Class Reports" onPress={() => console.log('Class Reports')} />
@@ -89,6 +88,10 @@ const styles = StyleSheet.create({
     paddingTop: 70, // Increased height
     paddingHorizontal: 20,
     paddingBottom: 35, // Increased height
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    borderBottomEndRadius: 0,
+    borderBottomStartRadius: 0,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -159,12 +162,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 5,
     color: '#333',
-    textAlign: 'center',
-  },
-  welcomeMessage: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 30,
     textAlign: 'center',
   },
   cardsContainer: {
