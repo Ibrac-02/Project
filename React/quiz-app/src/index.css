@@ -1,0 +1,83 @@
+/* styles for the quiz app */
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #fce4ec; /* Light pink background */
+  font-family: 'Arial', sans-serif;
+  color: #333;
+}
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.app {
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+}
+
+.question-section {
+  margin-bottom: 20px;
+}
+
+.question-count {
+  font-size: 18px;
+  color: #ff80ab; /* Pink */
+  margin-bottom: 10px;
+}
+
+.question-text {
+  font-size: 24px;
+  font-weight: bold;
+  color: #4a4a4a;
+}
+
+.answer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.answer-section button {
+  background-color: #ffe0f0; /* Lighter pink */
+  color: #333;
+  border: none;
+  border-radius: 10px;
+  padding: 15px 20px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.answer-section button:hover {
+  background-color: #ffc1e3; /* Slightly darker pink on hover */
+  transform: translateY(-3px);
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.answer-section button:active {
+  transform: translateY(0px);
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.score-section {
+  font-size: 28px;
+  font-weight: bold;
+  color: #ff80ab; /* Pink */
+  padding: 20px;
+  border: 2px dashed #ff80ab;
+  border-radius: 15px;
+  background-color: #fffafa;
+}

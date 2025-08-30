@@ -1,0 +1,117 @@
+/* Basic Styles */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Align items to the top instead of center */
+  min-height: 100vh;
+  margin: 0;
+  padding-top: 50px; /* Add some padding to the top */
+}
+
+.App {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+/* Todo Form */
+.todo-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.todo-form input[type="text"] {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.todo-form button {
+  background-color: #28a745; /* Green for add */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.todo-form button:hover {
+  background-color: #218838;
+}
+
+/* Todo List */
+.todo-list {
+  list-style: none;
+  padding: 0;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.todo-item:last-child {
+  border-bottom: none;
+}
+
+.todo-item input[type="checkbox"] {
+  margin-right: 15px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.todo-item span {
+  flex-grow: 1;
+  font-size: 18px;
+  color: #333;
+}
+
+.todo-item input[type="text"] {
+  flex-grow: 1;
+  padding: 8px;
+  border: 1px solid #007bff; /* Blue border for editing */
+  border-radius: 4px;
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+.todo-item button {
+  background-color: #007bff; /* Blue for edit */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.todo-item button:hover {
+  background-color: #0056b3;
+}
+
+.todo-item button:last-of-type {
+  background-color: #dc3545; /* Red for delete */
+}
+
+.todo-item button:last-of-type:hover {
+  background-color: #c82333;
+}
