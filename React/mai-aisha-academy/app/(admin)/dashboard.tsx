@@ -2,7 +2,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { useAuth } from '../../lib/auth';
 
 const { width } = Dimensions.get('window');
@@ -34,43 +34,45 @@ export default function AdminDashboardScreen() {
   );
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Image source={require('../../assets/images/maa.jpg')} style={styles.headerLogo} />
-          <Text style={styles.schoolName}>MAI AISHA ACADEMY</Text>
-        </View>
-        <TouchableOpacity onPress={() => setShowLogout(!showLogout)} style={styles.profileIconContainer}>
-          <View style={styles.profileIcon}>
-            <Text style={styles.profileText}>{loading ? '' : getInitials(userName)}</Text>
+    <TouchableWithoutFeedback onPress={() => setShowLogout(false)}>
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <Image source={require('../../assets/images/maa.jpg')} style={styles.headerLogo} />
+            <Text style={styles.schoolName}>MAI AISHA ACADEMY</Text>
           </View>
-        </TouchableOpacity>
-      </View>
-
-      {showLogout && (
-        <View style={styles.logoutDropdown}>
-          <TouchableOpacity style={styles.dropdownItem} onPress={() => router.push('/(admin)/profile')}>
-            <Text style={styles.dropdownItemText}>Profile</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleLogout} style={styles.dropdownItem}>
-            <Text style={styles.dropdownItemText}>Sign out</Text>
+          <TouchableOpacity onPress={(event) => { event.stopPropagation(); setShowLogout(!showLogout); }} style={styles.profileIconContainer}>
+            <View style={styles.profileIcon}>
+              <Text style={styles.profileText}>{loading ? '' : getInitials(userName)}</Text>
+            </View>
           </TouchableOpacity>
         </View>
-      )}
 
-      <View style={styles.content}>
-        <Text style={styles.dashboardTitle}>Admin Dashboard</Text>
-        <Text style={styles.welcomeMessage}>Welcome, {loading ? 'Loading...' : userName || 'User'}</Text>
+        {showLogout && (
+          <View style={styles.logoutDropdown}>
+            <TouchableOpacity style={styles.dropdownItem} onPress={() => router.push('/(admin)/profile')}>
+              <Text style={styles.dropdownItemText}>Profile</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleLogout} style={styles.dropdownItem}>
+              <Text style={styles.dropdownItemText}>Sign out</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
-        <View style={styles.cardsContainer}>
-          <DashboardCard iconName="people-outline" title="Manage Users" onPress={() => console.log('Manage Users')} />
-          <DashboardCard iconName="school-outline" title="Manage School Data" onPress={() => console.log('Manage School Data')} />
-          <DashboardCard iconName="bar-chart-outline" title="Generate Reports" onPress={() => console.log('Generate Reports')} />
-          <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => console.log('Academic Calendar')} />
+        <View style={styles.content}>
+          <Text style={styles.dashboardTitle}>Admin Dashboard</Text>
+          <Text style={styles.welcomeMessage}>Welcome, {loading ? 'Loading...' : userName || 'User'}</Text>
+
+          <View style={styles.cardsContainer}>
+            <DashboardCard iconName="people-outline" title="Manage Users" onPress={() => console.log('Manage Users')} />
+            <DashboardCard iconName="school-outline" title="Manage School Data" onPress={() => console.log('Manage School Data')} />
+            <DashboardCard iconName="bar-chart-outline" title="Generate Reports" onPress={() => console.log('Generate Reports')} />
+            <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => console.log('Academic Calendar')} />
+          </View>
         </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -83,14 +85,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#1E90FF', // Dodger Blue from login button
+    backgroundColor: '#1E90FF',
     paddingTop: 50,
     paddingHorizontal: 20,
     paddingBottom: 30,
-    borderBottomLeftRadius: 40,
-    borderBottomRightRadius: 40,
-    borderBottomEndRadius: 40,
-    borderBottomStartRadius: 40,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -130,8 +128,8 @@ const styles = StyleSheet.create({
   },
   logoutDropdown: {
     position: 'absolute',
-    top: 45, // Adjusted to be just below the profile icon
-    right: 20, // Moved slightly to the left from the right edge
+    top: 45,
+    right: 20,
     backgroundColor: '#fff',
     borderRadius: 8,
     shadowColor: '#000',
@@ -139,8 +137,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 3.84,
     elevation: 5,
-    zIndex: 999, // Increased zIndex to ensure it's above all other content
-    width: 150, // Added explicit width to ensure text fits and control aspect ratio
+    zIndex: 999,
+    width: 150,
   },
   dropdownItem: {
     paddingVertical: 12,
@@ -175,7 +173,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   card: {
-    width: (width / 2) - 30, // Two cards per row with padding
+    width: (width / 2) - 30,
     backgroundColor: '#fff',
     borderRadius: 15,
     padding: 20,

@@ -8,6 +8,7 @@ interface AuthState {
   user: User | null;
   loading: boolean;
   userName: string | null;
+  role: string | null;
 }
 
 export const useAuth = () => {
@@ -15,17 +16,20 @@ export const useAuth = () => {
     user: null,
     loading: true,
     userName: null,
+    role: null,
   });
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // Fetch user's name from Firestore
+        // Fetch user's name and role from Firestore
         const userDoc = await getDoc(doc(db, "users", user.uid));
-        const userName = userDoc.exists() ? userDoc.data().name : null;
-        setAuthState({ user, loading: false, userName });
+        const userData = userDoc.exists() ? userDoc.data() : null;
+        const userName = userData ? userData.name : null;
+        const role = userData ? userData.role : null;
+        setAuthState({ user, loading: false, userName, role });
       } else {
-        setAuthState({ user: null, loading: false, userName: null });
+        setAuthState({ user: null, loading: false, userName: null, role: null });
       }
     });
     return () => unsubscribe();

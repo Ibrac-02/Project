@@ -2,7 +2,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { useAuth } from '../../lib/auth';
 
 const { width } = Dimensions.get('window');
@@ -34,44 +34,46 @@ export default function HeadteacherDashboardScreen() {
   );
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Image source={require('../../assets/images/maa.jpg')} style={styles.headerLogo} />
-          <Text style={styles.schoolName}>MAI AISHA ACADEMY</Text>
-        </View>
-        <TouchableOpacity onPress={() => setShowLogout(!showLogout)} style={styles.profileIconContainer}>
-          <View style={styles.profileIcon}>
-            <Text style={styles.profileText}>{loading ? '' : getInitials(userName)}</Text>
+    <TouchableWithoutFeedback onPress={() => setShowLogout(false)}>
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <Image source={require('../../assets/images/maa.jpg')} style={styles.headerLogo} />
+            <Text style={styles.schoolName}>MAI AISHA ACADEMY</Text>
           </View>
-        </TouchableOpacity>
-      </View>
-
-      {showLogout && (
-        <View style={styles.logoutDropdown}>
-          <TouchableOpacity style={styles.dropdownItem} onPress={() => router.push('/(headteacher)/profile')}>
-            <Text style={styles.dropdownItemText}>Profile</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleLogout} style={styles.dropdownItem}>
-            <Text style={styles.dropdownItemText}>Sign out</Text>
+          <TouchableOpacity onPress={(event) => { event.stopPropagation(); setShowLogout(!showLogout); }} style={styles.profileIconContainer}>
+            <View style={styles.profileIcon}>
+              <Text style={styles.profileText}>{loading ? '' : getInitials(userName)}</Text>
+            </View>
           </TouchableOpacity>
         </View>
-      )}
 
-      <View style={styles.content}>
-        <Text style={styles.dashboardTitle}>Headteacher Dashboard</Text>
-        <Text style={styles.welcomeMessage}>Welcome, {loading ? 'Loading...' : userName || 'Headteacher'}</Text>
+        {showLogout && (
+          <View style={styles.logoutDropdown}>
+            <TouchableOpacity style={styles.dropdownItem} onPress={() => router.push('/(headteacher)/profile')}>
+              <Text style={styles.dropdownItemText}>Profile</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleLogout} style={styles.dropdownItem}>
+              <Text style={styles.dropdownItemText}>Sign out</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
-        <View style={styles.cardsContainer}>
-          <DashboardCard iconName="checkbox-outline" title="Approve Results" onPress={() => console.log('Approve Results')} />
-          <DashboardCard iconName="stats-chart-outline" title="View Attendance Reports" onPress={() => console.log('View Attendance Reports')} />
-          <DashboardCard iconName="megaphone-outline" title="Manage Announcements" onPress={() => console.log('Manage Announcements')} />
-          <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => console.log('Academic Calendar')} />
-          <DashboardCard iconName="people-outline" title="View Staff Performance" onPress={() => console.log('View Staff Performance')} />
+        <View style={styles.content}>
+          <Text style={styles.dashboardTitle}>Headteacher Dashboard</Text>
+          <Text style={styles.welcomeMessage}>Welcome, {loading ? 'Loading...' : userName || 'Headteacher'}</Text>
+
+          <View style={styles.cardsContainer}>
+            <DashboardCard iconName="checkbox-outline" title="Approve Results" onPress={() => console.log('Approve Results')} />
+            <DashboardCard iconName="stats-chart-outline" title="View Attendance Reports" onPress={() => console.log('View Attendance Reports')} />
+            <DashboardCard iconName="megaphone-outline" title="Manage Announcements" onPress={() => console.log('Manage Announcements')} />
+            <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => console.log('Academic Calendar')} />
+            <DashboardCard iconName="people-outline" title="View Staff Performance" onPress={() => console.log('View Staff Performance')} />
+          </View>
         </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 
