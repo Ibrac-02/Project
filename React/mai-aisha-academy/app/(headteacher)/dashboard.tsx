@@ -85,11 +85,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: '#1E90FF', // Dodger Blue from login button
-    paddingTop: 40,
+    paddingTop: 50,
     paddingHorizontal: 20,
-    paddingBottom: 25, // Increased padding to increase height
-    borderBottomLeftRadius: 15,
-    borderBottomRightRadius: 15,
+    paddingBottom: 30,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+    borderBottomEndRadius: 40,
+    borderBottomStartRadius: 40,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
