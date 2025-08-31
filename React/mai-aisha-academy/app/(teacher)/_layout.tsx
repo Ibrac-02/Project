@@ -1,29 +1,19 @@
 
 import { Stack } from 'expo-router';
+import React from 'react';
 
 export default function TeacherLayout() {
   return (
     <Stack>
-      <Stack.Screen name="dashboard" options={{ headerShown: false, title: 'Teacher Dashboard' }} />
+      <Stack.Screen name="dashboard" options={{ headerShown: false }} />
+      <Stack.Screen name="profile" options={{ title: 'My Profile' }} />
+      <Stack.Screen name="ManageSubjectsScreen" options={{ title: 'My Subjects' }} />
+      <Stack.Screen name="GradeEntryScreen" options={{ title: 'Grade Entry' }} />
       <Stack.Screen
-        name="profile"
+        name="TeacherPerformanceScreen"
         options={{
           headerShown: true,
-          title: 'Teacher Profile',
-          headerStyle: {
-            backgroundColor: '#1E90FF',
-          },
-          headerTintColor: '#fff', // White color for header title and back button
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-        }}
-      />
-      <Stack.Screen
-        name="students"
-        options={{
-          headerShown: true,
-          title: 'Manage Students',
+          title: 'My Performance',
           headerStyle: {
             backgroundColor: '#1E90FF',
           },

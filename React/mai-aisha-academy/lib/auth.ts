@@ -1,14 +1,16 @@
 
 import { createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, User } from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { auth, db } from './firebase';
+import { UserProfile } from './types'; // Import UserProfile from types.ts
 
 interface AuthState {
   user: User | null;
   loading: boolean;
   userName: string | null;
   role: string | null;
+  userProfile: UserProfile | null; // New userProfile field
 }
 
 export const useAuth = () => {
@@ -17,28 +19,120 @@ export const useAuth = () => {
     loading: true,
     userName: null,
     role: null,
+    userProfile: null, // Initialize userProfile
   });
+
+  // Function to fetch user data and update authState
+  const fetchAndUpdateUserProfile = async (user: User | null) => {
+    if (user) {
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      const userData = userDoc.exists() ? userDoc.data() : null;
+
+      const userProfile: UserProfile = {
+        uid: user.uid,
+        email: user.email,
+        name: userData ? userData.name : null,
+        role: userData ? userData.role : null,
+        title: userData ? userData.title : null,
+        contactNumber: userData?.contactNumber || null,
+        dateJoined: userData?.dateJoined || null,
+        status: userData?.status || null,
+        employeeId: userData?.employeeId || null,
+        department: userData?.department || null,
+        teachersSupervised: userData?.teachersSupervised || null,
+        attendanceApprovals: userData?.attendanceApprovals || null,
+        gradeApprovals: userData?.gradeApprovals || null,
+        subjects: userData?.subjects || null,
+        classes: userData?.classes || null,
+        qualifications: userData?.qualifications || null,
+        classesHandled: userData?.classesHandled || null,
+        attendanceSubmitted: userData?.attendanceSubmitted || null,
+        gradesSubmitted: userData?.gradesSubmitted || null,
+      };
+
+      const userName = userProfile.name;
+      const role = userProfile.role;
+
+      console.log("Auth State Changed - Fetched User Data: Name=", userName, ", Role=", role, ", Title=", userProfile.title);
+      setAuthState({ user, loading: false, userName, role, userProfile });
+    } else {
+      console.log("Auth State Changed - No user logged in.");
+      setAuthState({ user: null, loading: false, userName: null, role: null, userProfile: null });
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       console.log("Auth State Changed - User:", user ? user.uid : "null");
-      if (user) {
-        // Fetch user's name and role from Firestore
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        const userData = userDoc.exists() ? userDoc.data() : null;
-        const userName = userData ? userData.name : null;
-        const role = userData ? userData.role : null;
-        console.log("Auth State Changed - Fetched User Data: Name=", userName, ", Role=", role);
-        setAuthState({ user, loading: false, userName, role });
-      } else {
-        console.log("Auth State Changed - No user logged in.");
-        setAuthState({ user: null, loading: false, userName: null, role: null });
-      }
+      setAuthState((prev) => ({ ...prev, loading: true })); // Set loading true while fetching
+      await fetchAndUpdateUserProfile(user);
     });
     return () => unsubscribe();
   }, []);
 
-  return authState;
+  const refreshUserProfile = async () => {
+    if (authState.user) {
+      setAuthState((prev) => ({ ...prev, loading: true })); // Set loading true while fetching
+      await fetchAndUpdateUserProfile(authState.user);
+    }
+  };
+
+  return { ...authState, refreshUserProfile };
+};
+
+export const getAllUsers = async (): Promise<UserProfile[]> => {
+  try {
+    const usersCollection = collection(db, "users");
+    const usersSnapshot = await getDocs(usersCollection);
+    const usersList: UserProfile[] = usersSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        uid: doc.id,
+        email: data.email,
+        name: data.name || null,
+        role: data.role || null,
+        title: data.title || null,
+        contactNumber: data?.contactNumber || null,
+        dateJoined: data?.dateJoined || null,
+        status: data?.status || null,
+        employeeId: data?.employeeId || null,
+        department: data?.department || null,
+        teachersSupervised: data?.teachersSupervised || null,
+        attendanceApprovals: data?.attendanceApprovals || null,
+        gradeApprovals: data?.gradeApprovals || null,
+        subjects: data?.subjects || null,
+        classes: data?.classes || null,
+        qualifications: data?.qualifications || null,
+        classesHandled: data?.classesHandled || null,
+        attendanceSubmitted: data?.attendanceSubmitted || null,
+        gradesSubmitted: data?.gradesSubmitted || null,
+      };
+    });
+    return usersList;
+  } catch (error: any) {
+    console.error("Error fetching all users:", error);
+    throw new Error(error.message);
+  }
+};
+
+export const deleteUserById = async (uid: string) => {
+  try {
+    await deleteDoc(doc(db, "users", uid));
+  } catch (error: any) {
+    console.error("Error deleting user profile:", error);
+    throw new Error(error.message);
+  }
+};
+
+export const getStudents = async (): Promise<UserProfile[]> => {
+  try {
+    const q = query(collection(db, "users"), where("role", "==", "student"));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as UserProfile));
+  } catch (error: any) {
+    console.error("Error fetching students:", error);
+    throw new Error(error.message);
+  }
 };
 
 export const signIn = async (email: string, password: string) => {
@@ -53,14 +147,15 @@ export const signIn = async (email: string, password: string) => {
   }
 };
 
-export const signUp = async (email: string, password: string, name: string, role: string) => {
+export const signUp = async (email: string, password: string, name: string, role: string, title?: string) => {
   try {
     const response = await createUserWithEmailAndPassword(auth, email, password);
-    // Set default role as 'teacher' and store name in Firestore
+    // Set default role and store name, role, and title in Firestore
     await setDoc(doc(db, "users", response.user.uid), {
       email: response.user.email,
       role: role,
       name: name,
+      ...(title && { title }), // Add title if provided
     });
     return response.user;
   } catch (error: any) {
@@ -71,6 +166,15 @@ export const signUp = async (email: string, password: string, name: string, role
 export const sendPasswordReset = async (email: string) => {
   try {
     await sendPasswordResetEmail(auth, email);
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
+export const updateUserProfile = async (uid: string, updates: Partial<UserProfile>) => {
+  try {
+    const userDocRef = doc(db, "users", uid);
+    await updateDoc(userDocRef, updates);
   } catch (error: any) {
     throw new Error(error.message);
   }

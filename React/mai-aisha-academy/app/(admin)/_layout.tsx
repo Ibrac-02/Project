@@ -19,6 +19,62 @@ export default function AdminLayout() {
           },
         }}
       />
+      <Stack.Screen
+        name="ManageUsersScreen"
+        options={{
+          headerShown: true,
+          title: 'Manage Users',
+          headerStyle: {
+            backgroundColor: '#1E90FF',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
+      <Stack.Screen
+        name="EditUserScreen"
+        options={{
+          headerShown: true,
+          title: 'Edit User',
+          headerStyle: {
+            backgroundColor: '#1E90FF',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
+      <Stack.Screen
+        name="GradeReportsScreen"
+        options={{
+          headerShown: true,
+          title: 'Grade Reports',
+          headerStyle: {
+            backgroundColor: '#1E90FF',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
+      <Stack.Screen
+        name="ManageSchoolDataScreen"
+        options={{
+          headerShown: true,
+          title: 'Manage School Data',
+          headerStyle: {
+            backgroundColor: '#1E90FF',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
     </Stack>
   );
 }

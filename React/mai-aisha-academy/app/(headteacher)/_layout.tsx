@@ -19,6 +19,48 @@ export default function HeadteacherLayout() {
           },
         }}
       />
+      <Stack.Screen
+        name="ManageSubjectsScreen"
+        options={{
+          headerShown: true,
+          title: 'Manage Subjects',
+          headerStyle: {
+            backgroundColor: '#1E90FF',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
+      <Stack.Screen
+        name="GradeApprovalScreen"
+        options={{
+          headerShown: true,
+          title: 'Approve Grades',
+          headerStyle: {
+            backgroundColor: '#1E90FF',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
+      <Stack.Screen
+        name="ClassPerformanceAnalyticsScreen"
+        options={{
+          headerShown: true,
+          title: 'Class Performance',
+          headerStyle: {
+            backgroundColor: '#1E90FF',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
     </Stack>
   );
 }

@@ -1,20 +1,34 @@
 import { Ionicons } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker'; // Import Picker
 import React, { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { updateUserName, useAuth } from '../../lib/auth';
+import { updateUserProfile, useAuth } from '../../lib/auth';
+import { UserProfile } from '../../lib/types'; // Assuming UserProfile type is defined here
 
 export default function ProfileScreen() {
-  const { userName, user, role } = useAuth();
+  const { userName, user, role, userProfile, refreshUserProfile } = useAuth(); // Destructure userProfile
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(userName || '');
+  const [newTitle, setNewTitle] = useState(userProfile?.title || ''); // New state for title
   const [newContactNumber, setNewContactNumber] = useState('N/A'); // Placeholder for contact number
 
   const handleSave = async () => {
-    if (user?.uid && newName !== userName) {
+    if (!user?.uid) return;
+
+    const updates: Partial<UserProfile> = {};
+    if (newName !== userName) {
+      updates.name = newName;
+    }
+    if (newTitle !== (userProfile?.title || '')) {
+      updates.title = newTitle;
+    }
+    // Add other updatable fields here (e.g., contact number if it becomes part of UserProfile)
+
+    if (Object.keys(updates).length > 0) {
       try {
-        await updateUserName(user.uid, newName);
+        await updateUserProfile(user.uid, updates);
         Alert.alert("Success", "Profile updated successfully!");
-        setIsEditing(false);
+        refreshUserProfile(); // Refresh user profile after successful update
       } catch (error: any) {
         Alert.alert("Error", "Failed to update profile: " + error.message);
       }
@@ -32,17 +46,28 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Basic Information</Text>
           <View style={styles.detailContainer}>
-            <Text style={styles.labelText}>Full Name:</Text>
+            <Text style={styles.labelText}>Title:</Text>
             {isEditing ? (
-              <TextInput
-                style={styles.input}
-                value={newName}
-                onChangeText={setNewName}
-                placeholder="Enter new name"
-              />
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={newTitle}
+                  onValueChange={(itemValue) => setNewTitle(itemValue)}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Select Title" value="" />
+                  <Picker.Item label="Mr." value="Mr." />
+                  <Picker.Item label="Mrs." value="Mrs." />
+                  <Picker.Item label="Ms." value="Ms." />
+                  <Picker.Item label="Dr." value="Dr." />
+                </Picker>
+              </View>
             ) : (
-              <Text style={styles.text}>{userName || 'N/A'}</Text>
+              <Text style={styles.text}>{userProfile?.title || 'N/A'}</Text>
             )}
+          </View>
+          <View style={styles.detailContainer}>
+            <Text style={styles.labelText}>Full Name:</Text>
+            <Text style={styles.text}>{userName || 'N/A'}</Text>
           </View>
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Email:</Text>
@@ -50,7 +75,7 @@ export default function ProfileScreen() {
           </View>
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Username:</Text>
-            <Text style={styles.text}>admin_user (Placeholder)</Text>
+            <Text style={styles.text}>{userProfile?.name || 'N/A'}</Text>
           </View>
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Contact:</Text>
@@ -62,7 +87,7 @@ export default function ProfileScreen() {
                 placeholder="Enter contact number"
               />
             ) : (
-              <Text style={styles.text}>{newContactNumber}</Text>
+              <Text style={styles.text}>{userProfile?.contactNumber || 'N/A'}</Text>
             )}
           </View>
         </View>
@@ -75,7 +100,7 @@ export default function ProfileScreen() {
           </View>
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Access:</Text>
-            <Text style={styles.text}>Full System Access (Placeholder)</Text>
+            <Text style={styles.text}>{role === 'admin' ? 'Full System Access' : 'Limited Access'}</Text>
           </View>
         </View>
 
@@ -95,11 +120,11 @@ export default function ProfileScreen() {
           <Text style={styles.sectionTitle}>Other Information</Text>
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Date Joined:</Text>
-            <Text style={styles.text}>January 1, 2023 (Placeholder)</Text>
+            <Text style={styles.text}>{userProfile?.dateJoined || 'N/A'}</Text>
           </View>
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Status:</Text>
-            <Text style={styles.text}>Active (Placeholder)</Text>
+            <Text style={styles.text}>{userProfile?.status || 'Active'}</Text>
           </View>
         </View>
 
@@ -181,7 +206,15 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     fontSize: 16,
     color: '#333',
-    marginLeft: -5,
+  },
+  pickerContainer: {
+    flex: 1,
+    borderBottomWidth: 1,
+    borderBottomColor: '#1E90FF',
+  },
+  picker: {
+    height: 40,
+    width: '100%',
   },
   settingItem: {
     flexDirection: 'row',

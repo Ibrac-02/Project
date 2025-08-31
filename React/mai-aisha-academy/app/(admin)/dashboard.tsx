@@ -1,14 +1,43 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import React, { useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import React, { useCallback, useState } from 'react';
 import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { useAuth } from '../../lib/auth';
+import { getUnreadNotificationsCount } from '../../lib/notifications'; // Import getUnreadNotificationsCount
+
+// This is a no-op comment to trigger a linter refresh.
 
 const { width } = Dimensions.get('window');
 
 export default function AdminDashboardScreen() {
   const [showLogout, setShowLogout] = useState(false);
-  const { userName, loading } = useAuth(); // Destructure userName and loading from useAuth
+  const { userName, loading, userProfile, user } = useAuth(); // Destructure userName, loading, userProfile, and user from useAuth
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const fetchUnreadCount = useCallback(async () => {
+    if (user?.uid) {
+      try {
+        const count = await getUnreadNotificationsCount(user.uid);
+        setUnreadCount(count);
+      } catch (error) {
+        console.error("Error fetching unread notifications count:", error);
+      }
+    }
+  }, [user]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchUnreadCount();
+    }, [fetchUnreadCount])
+  );
+
+  // Function to get dynamic greeting based on time
+  const getGreetingTime = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
+  };
 
   const getInitials = (name: string | null) => {
     if (!name) return 'U'; // Default to 'U' if no name is available
@@ -27,7 +56,7 @@ export default function AdminDashboardScreen() {
 
   const DashboardCard = ({ iconName, title, onPress }: { iconName: any; title: string; onPress: () => void }) => (
     <TouchableOpacity style={styles.card} onPress={onPress}>
-      <Ionicons name={iconName} size={30} color="#1E90FF" />
+      <Ionicons name={iconName} size={40} color="#1E90FF" />
       <Text style={styles.cardTitle}>{title}</Text>
     </TouchableOpacity>
   );
@@ -39,13 +68,26 @@ export default function AdminDashboardScreen() {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Image source={require('../../assets/images/maa.jpg')} style={styles.headerLogo} />
-            <Text style={styles.schoolName}>MAI AISHA ACADEMY</Text>
-          </View>
-          <TouchableOpacity onPress={(event) => { event.stopPropagation(); setShowLogout(!showLogout); }} style={styles.profileIconContainer}>
-            <View style={styles.profileIcon}>
-              <Text style={styles.profileText}>{loading ? '' : getInitials(userName)}</Text>
+            <View>
+              <Text style={styles.schoolName}>MAI AISHA ACADEMY</Text>
+              <Text style={styles.headerDashboardTitle}>Admin Dashboard</Text>
             </View>
-          </TouchableOpacity>
+          </View>
+          <View style={styles.headerRight}>
+            <TouchableOpacity onPress={() => router.push('/(auth)/announcements')} style={styles.notificationIconContainer}>
+              <Ionicons name="notifications-outline" size={28} color="#fff" />
+              {unreadCount > 0 && (
+                <View style={styles.notificationBadge}>
+                  <Text style={styles.notificationBadgeText}>{unreadCount}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity onPress={(event) => { event.stopPropagation(); setShowLogout(!showLogout); }} style={styles.profileIconContainer}>
+              <View style={styles.profileIcon}>
+                <Text style={styles.profileText}>{loading ? '' : getInitials(userName)}</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {showLogout && (
@@ -59,20 +101,31 @@ export default function AdminDashboardScreen() {
           </View>
         )}
 
-        <Text style={styles.dashboardTitle}>Admin Dashboard</Text>
-        <Text style={styles.welcomeMessage}>Welcome, {loading ? 'Loading...' : userName || 'User'}</Text>
+        <View style={styles.greetingCard}>
+          <Text style={styles.welcomeMessage}>
+            {getGreetingTime()}, {userProfile?.title || ''} {loading ? 'Loading...' : userName || 'User'}
+          </Text>
+        </View>
+
         <ScrollView contentContainerStyle={styles.contentContainer}>
 
-          <View style={styles.cardsContainer}>
-            <DashboardCard iconName="people-outline" title="Manage Users" onPress={() => console.log('Manage Users')} />
-            <DashboardCard iconName="school-outline" title="Manage School Data" onPress={() => console.log('Manage School Data')} />
-            <DashboardCard iconName="bar-chart-outline" title="Generate Reports" onPress={() => console.log('Generate Reports')} />
-            <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => router.push('/(auth)/academicCalendar')} />
-            <DashboardCard iconName="megaphone-outline" title="Announcements" onPress={() => router.push('/(auth)/announcements')} />
-            <DashboardCard iconName="checkmark-done-outline" title="Attendance Overview" onPress={() => router.push('/(auth)/attendance')} />
-            <DashboardCard iconName="book-outline" title="Subjects & Curriculum" onPress={() => console.log('Subjects & Curriculum')} />
-            <DashboardCard iconName="calendar-sharp" title="Exam & Events Schedule" onPress={() => console.log('Exam & Events Schedule')} />
+          <Text style={styles.cardGroupTitle}>Data Management</Text>
+          <View style={styles.cardGroupContainer}>
+            <DashboardCard iconName="people-outline" title="Manage Users" onPress={() => router.push('/(admin)/ManageUsersScreen')} />
+            <DashboardCard iconName="school-outline" title="Manage School Data" onPress={() => router.push('/(admin)/ManageSchoolDataScreen')} />
           </View>
+
+          <Text style={styles.cardGroupTitle}>Reporting & Analytics</Text>
+          <View style={styles.cardGroupContainer}>
+            <DashboardCard iconName="bar-chart-outline" title="Generate Reports" onPress={() => router.push('/(admin)/GradeReportsScreen')} />
+            <DashboardCard iconName="checkmark-done-outline" title="Attendance Overview" onPress={() => router.push('/(auth)/attendance')} />
+          </View>
+
+          <Text style={styles.cardGroupTitle}>Scheduling & Information</Text>
+          <View style={styles.cardGroupContainer}>
+            <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => router.push('/(auth)/academicCalendar')} />
+          </View>
+
         </ScrollView>
       </View>
     </TouchableWithoutFeedback>
@@ -107,6 +160,31 @@ const styles = StyleSheet.create({
     shadowRadius: 1.5,
     elevation: 3,
   },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  notificationIconContainer: {
+    position: 'relative',
+    marginRight: 15,
+  },
+  notificationBadge: {
+    position: 'absolute',
+    right: -5,
+    top: -5,
+    backgroundColor: 'red',
+    borderRadius: 7,
+    width: 14,
+    height: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  notificationBadgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -114,13 +192,23 @@ const styles = StyleSheet.create({
   headerLogo: {
     width: 40,
     height: 40,
-    resizeMode: 'contain',
+    resizeMode: 'cover',
     marginRight: 10,
+    borderRadius: 20, // Make it circular (half of width/height)
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'whitesmoke',
   },
   schoolName: {
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  headerDashboardTitle: {
+    color: '#fff',
+    fontSize: 14,
+    // fontWeight: 'bold',
+    // marginTop: 2,
   },
   profileIconContainer: {
     position: 'relative',
@@ -132,6 +220,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'whitesmoke',
   },
   profileText: {
     color: '#1E90FF',
@@ -167,6 +257,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   dashboardTitle: {
+    // Original dashboardTitle style - keeping for reference but not used directly now
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 5,
@@ -174,10 +265,25 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   welcomeMessage: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 30,
+    fontSize: 18, // Slightly larger for greeting
+    color: '#333',
+    fontWeight: 'bold',
     textAlign: 'center',
+  },
+  greetingCard: {
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 20,
+    marginHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1.5,
+    elevation: 3,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cardsContainer: {
     flexDirection: 'row',
@@ -187,21 +293,34 @@ const styles = StyleSheet.create({
   card: {
     width: (width / 2) - 30,
     backgroundColor: '#fff',
-    borderRadius: 15,
-    padding: 20,
+    borderRadius: 12,
+    padding: 25,
     marginBottom: 20,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 1.5,
-    elevation: 3,
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 5,
   },
   cardTitle: {
     marginTop: 10,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
     color: '#333',
     textAlign: 'center',
+  },
+  cardGroupTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: 'gray',
+    marginBottom: 15,
+    marginLeft: 10,
+  },
+  cardGroupContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 20,
   },
 });

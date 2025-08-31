@@ -26,6 +26,7 @@ export default function RootLayout() {
   }, [loaded]);
 
   useEffect(() => {
+    console.log("RootLayout useEffect - User:", user ? user.uid : "null", "Loading:", loading, "Role:", role);
     if (!loading) {
       if (!user) {
         router.replace('/(auth)/login');

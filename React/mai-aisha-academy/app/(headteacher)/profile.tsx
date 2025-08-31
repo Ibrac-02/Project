@@ -1,20 +1,37 @@
 import { Ionicons } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker'; // Import Picker
 import React, { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { updateUserName, useAuth } from '../../lib/auth';
+import { updateUserProfile, useAuth } from '../../lib/auth';
+import { UserProfile } from '../../lib/types'; // Assuming UserProfile type is defined here
 
 export default function HeadteacherProfileScreen() {
-  const { userName, user } = useAuth();
+  const { userName, user, userProfile, refreshUserProfile } = useAuth(); // Destructure userProfile and refreshUserProfile
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(userName || '');
-  const [newContactNumber, setNewContactNumber] = useState('N/A'); // Placeholder for contact number
+  const [newTitle, setNewTitle] = useState(userProfile?.title || ''); // New state for title
+  const [newContactNumber, setNewContactNumber] = useState(userProfile?.contactNumber || ''); // Use userProfile for contact number
 
   const handleSave = async () => {
-    if (user?.uid && newName !== userName) {
+    if (!user?.uid) return;
+
+    const updates: Partial<UserProfile> = {};
+    if (newName !== userName) {
+      updates.name = newName;
+    }
+    if (newTitle !== (userProfile?.title || '')) {
+      updates.title = newTitle;
+    }
+    if (newContactNumber !== (userProfile?.contactNumber || '')) {
+      updates.contactNumber = newContactNumber;
+    }
+
+    if (Object.keys(updates).length > 0) {
       try {
-        await updateUserName(user.uid, newName);
+        await updateUserProfile(user.uid, updates);
         Alert.alert("Success", "Profile updated successfully!");
-        setIsEditing(false);
+        refreshUserProfile(); // Refresh user profile after successful update
+        setIsEditing(false); // Exit editing mode after saving
       } catch (error: any) {
         Alert.alert("Error", "Failed to update profile: " + error.message);
       }
@@ -32,6 +49,26 @@ export default function HeadteacherProfileScreen() {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Professional Information</Text>
+          <View style={styles.detailContainer}>
+            <Text style={styles.labelText}>Title:</Text>
+            {isEditing ? (
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={newTitle}
+                  onValueChange={(itemValue) => setNewTitle(itemValue)}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Select Title" value="" />
+                  <Picker.Item label="Mr." value="Mr." />
+                  <Picker.Item label="Mrs." value="Mrs." />
+                  <Picker.Item label="Ms." value="Ms." />
+                  <Picker.Item label="Dr." value="Dr." />
+                </Picker>
+              </View>
+            ) : (
+              <Text style={styles.text}>{userProfile?.title || 'N/A'}</Text>
+            )}
+          </View>
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Full Name:</Text>
             {isEditing ? (
@@ -51,11 +88,11 @@ export default function HeadteacherProfileScreen() {
           </View>
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Employee ID:</Text>
-            <Text style={styles.text}>HT001 (Placeholder)</Text>
+            <Text style={styles.text}>{userProfile?.employeeId || 'N/A'}</Text>
           </View>
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Department:</Text>
-            <Text style={styles.text}>Administration (Placeholder)</Text>
+            <Text style={styles.text}>{userProfile?.department || 'N/A'}</Text>
           </View>
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Contact:</Text>
@@ -67,7 +104,7 @@ export default function HeadteacherProfileScreen() {
                 placeholder="Enter contact number"
               />
             ) : (
-              <Text style={styles.text}>{newContactNumber}</Text>
+              <Text style={styles.text}>{userProfile?.contactNumber || 'N/A'}</Text>
             )}
           </View>
         </View>
@@ -88,15 +125,15 @@ export default function HeadteacherProfileScreen() {
           <Text style={styles.sectionTitle}>Activity / Oversight</Text>
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Teachers Supervised:</Text>
-            <Text style={styles.text}>5 (Placeholder)</Text>
+            <Text style={styles.text}>{userProfile?.teachersSupervised || 'N/A'}</Text>
           </View>
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Attendance Approvals:</Text>
-            <Text style={styles.text}>Pending: 3 (Placeholder)</Text>
+            <Text style={styles.text}>{userProfile?.attendanceApprovals || 'N/A'}</Text>
           </View>
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Grade Approvals:</Text>
-            <Text style={styles.text}>Pending: 2 (Placeholder)</Text>
+            <Text style={styles.text}>{userProfile?.gradeApprovals || 'N/A'}</Text>
           </View>
         </View>
 
@@ -104,14 +141,15 @@ export default function HeadteacherProfileScreen() {
           <Text style={styles.sectionTitle}>Other Information</Text>
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Date Joined:</Text>
-            <Text style={styles.text}>January 15, 2022 (Placeholder)</Text>
+            <Text style={styles.text}>{userProfile?.dateJoined || 'N/A'}</Text>
           </View>
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Status:</Text>
-            <Text style={styles.text}>Active (Placeholder)</Text>
+            <Text style={styles.text}>{userProfile?.status || 'Active'}</Text>
           </View>
         </View>
 
+        {/* Edit/Save Button */}
         {isEditing ? (
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
             <Text style={styles.buttonText}>Save Changes</Text>
@@ -185,6 +223,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     marginLeft: -5,
+  },
+  pickerContainer: {
+    flex: 1,
+    borderBottomWidth: 1,
+    borderBottomColor: '#1E90FF',
+  },
+  picker: {
+    height: 40,
+    width: '100%',
   },
   settingItem: {
     flexDirection: 'row',

@@ -1,5 +1,7 @@
 import { addDoc, collection, deleteDoc, doc, getDocs, orderBy, query, Timestamp, updateDoc, where } from 'firebase/firestore';
+import { getAllUsers } from './auth'; // Import getAllUsers and UserProfile
 import { db } from './firebase'; // Assuming firebase.ts exports 'db'
+import { createNotification } from './notifications'; // Import createNotification
 
 export interface AnnouncementData {
   title: string;
@@ -15,6 +17,43 @@ export interface Announcement extends AnnouncementData {
   createdAt: Timestamp;
 }
 
+// Helper function to generate notifications based on announcement
+export const generateNotificationsForAnnouncement = async (announcement: Announcement) => {
+  try {
+    const allUsers = await getAllUsers();
+    let targetUserIds: string[] = [];
+
+    if (announcement.scope === 'school-wide') {
+      targetUserIds = allUsers.map(user => user.uid);
+    } else if (announcement.scope === 'staff-only') {
+      targetUserIds = allUsers.filter(user => user.role === 'admin' || user.role === 'headteacher' || user.role === 'teacher').map(user => user.uid);
+    } else if (announcement.scope.startsWith('class-')) {
+      // For class-specific announcements, assume the scope is like 'class-[teacherUid]'
+      // In a real scenario, you'd filter users by class enrollment
+      const teacherUid = announcement.scope.split('-')[1];
+      const relevantUsers = allUsers.filter(user => user.uid === teacherUid || user.role === 'headteacher' || user.role === 'admin'); // Teachers of that class, plus admin/headteacher
+      targetUserIds = relevantUsers.map(user => user.uid);
+    } else if (announcement.scope.startsWith('teacher-')) {
+      const specificTeacherUid = announcement.scope.split('-')[1];
+      targetUserIds = [specificTeacherUid];
+    }
+    // For other scopes, or if no specific targeting, you might default to a subset or all.
+    // For now, if no specific scope match, we won't create notifications by default.
+
+    if (targetUserIds.length > 0) {
+      await createNotification(
+        announcement.title, // Use announcement title as notification message
+        'announcement',
+        targetUserIds,
+        '/(auth)/announcements' // Link to the announcements screen
+      );
+      console.log(`Notifications generated for announcement ${announcement.id}`);
+    }
+  } catch (error) {
+    console.error("Error generating notifications for announcement:", error);
+  }
+};
+
 // Create an announcement
 export const createAnnouncement = async (data: AnnouncementData): Promise<Announcement> => {
   try {
@@ -22,7 +61,9 @@ export const createAnnouncement = async (data: AnnouncementData): Promise<Announ
       ...data,
       createdAt: Timestamp.now(),
     });
-    return { id: docRef.id, createdAt: Timestamp.now(), ...data };
+    const newAnnouncement = { id: docRef.id, createdAt: Timestamp.now(), ...data };
+    await generateNotificationsForAnnouncement(newAnnouncement); // Generate notifications after creating announcement
+    return newAnnouncement;
   } catch (error: any) {
     throw new Error('Failed to create announcement: ' + error.message);
   }
