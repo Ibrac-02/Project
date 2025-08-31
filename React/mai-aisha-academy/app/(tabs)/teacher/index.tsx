@@ -1,12 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { useAuth } from '../../lib/auth';
+import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { useAuth } from '../../../lib/auth';
 
 const { width } = Dimensions.get('window');
 
-export default function AdminDashboardScreen() {
+export default function TeacherDashboardScreen() {
   const [showLogout, setShowLogout] = useState(false);
   const { userName, loading } = useAuth(); // Destructure userName and loading from useAuth
 
@@ -38,7 +38,7 @@ export default function AdminDashboardScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Image source={require('../../assets/images/maa.jpg')} style={styles.headerLogo} />
+            <Image source={require('../../../assets/images/maa.jpg')} style={styles.headerLogo} />
             <Text style={styles.schoolName}>MAI AISHA ACADEMY</Text>
           </View>
           <TouchableOpacity onPress={(event) => { event.stopPropagation(); setShowLogout(!showLogout); }} style={styles.profileIconContainer}>
@@ -50,7 +50,7 @@ export default function AdminDashboardScreen() {
 
         {showLogout && (
           <View style={styles.logoutDropdown}>
-            <TouchableOpacity style={styles.dropdownItem} onPress={() => router.push('/(admin)/profile')}>
+            <TouchableOpacity style={styles.dropdownItem} onPress={() => router.push('/(teacher)/profile')}>
               <Text style={styles.dropdownItemText}>My Profile</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={handleLogout} style={styles.dropdownItem}>
@@ -59,21 +59,23 @@ export default function AdminDashboardScreen() {
           </View>
         )}
 
-        <Text style={styles.dashboardTitle}>Admin Dashboard</Text>
-        <Text style={styles.welcomeMessage}>Welcome, {loading ? 'Loading...' : userName || 'User'}</Text>
-        <ScrollView contentContainerStyle={styles.contentContainer}>
+        <View style={styles.content}>
+          <Text style={styles.dashboardTitle}>Teacher Dashboard</Text>
+          <Text style={styles.welcomeMessage}>Welcome, {loading ? 'Loading...' : userName || 'Teacher'}</Text>
 
           <View style={styles.cardsContainer}>
-            <DashboardCard iconName="people-outline" title="Manage Users" onPress={() => console.log('Manage Users')} />
-            <DashboardCard iconName="school-outline" title="Manage School Data" onPress={() => console.log('Manage School Data')} />
-            <DashboardCard iconName="bar-chart-outline" title="Generate Reports" onPress={() => console.log('Generate Reports')} />
+            <DashboardCard iconName="checkmark-done-outline" title="Mark Attendance" onPress={() => router.push('/(auth)/attendance')} />
+            <DashboardCard iconName="book-outline" title="Manage Subjects" onPress={() => console.log('Manage Subjects')} />
+            <DashboardCard iconName="school-outline" title="Manage Classes" onPress={() => console.log('Manage Classes')} />
+            <DashboardCard iconName="people-outline" title="Manage Students" onPress={() => router.push('/(teacher)/students')} />
             <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => console.log('Academic Calendar')} />
-            <DashboardCard iconName="megaphone-outline" title="Announcements" onPress={() => router.push('/(auth)/announcements')} />
-            <DashboardCard iconName="checkmark-done-outline" title="Attendance Overview" onPress={() => router.push('/(auth)/attendance')} />
-            <DashboardCard iconName="book-outline" title="Subjects & Curriculum" onPress={() => console.log('Subjects & Curriculum')} />
-            <DashboardCard iconName="calendar-sharp" title="Exam & Events Schedule" onPress={() => console.log('Exam & Events Schedule')} />
+            <DashboardCard iconName="create-outline" title="Assignments Management" onPress={() => console.log('Assignments Management')} />
+            <DashboardCard iconName="stats-chart-outline" title="Gradebook / Marks Register" onPress={() => console.log('Gradebook / Marks Register')} />
+            <DashboardCard iconName="megaphone-outline" title="Class Announcements" onPress={() => router.push('/(auth)/announcements')} />
+            <DashboardCard iconName="chatbox-ellipses-outline" title="Messages / Staff Chat" onPress={() => console.log('Messages / Staff Chat')} />
+            <DashboardCard iconName="trending-up-outline" title="Performance Tracking" onPress={() => console.log('Performance Tracking (Own classes)')} />
           </View>
-        </ScrollView>
+        </View>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -83,11 +85,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f0f2f5',
-  },
-  contentContainer: {
-    padding: 20,
-    backgroundColor: '#f0f2f5',
-    paddingBottom: 20, // Add some bottom padding if needed
   },
   header: {
     flexDirection: 'row',

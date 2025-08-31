@@ -62,10 +62,10 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
+      <Stack screenOptions={{ headerShown: false }}>
         {user ? (
           // Authenticated routes
-          <Stack.Group>
+          <>
             {role === 'admin' && (
               <Stack.Screen name="(admin)" options={{ headerShown: false }} />
             )}
@@ -78,7 +78,7 @@ export default function RootLayout() {
             {role === null && (
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             )}
-          </Stack.Group>
+          </>
         ) : (
           // Unauthenticated routes
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />

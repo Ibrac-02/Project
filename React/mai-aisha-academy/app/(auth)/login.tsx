@@ -2,13 +2,14 @@
 import { signIn } from '@/lib/auth';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false); // New state for 'Remember me'
 
   const handleSignIn = async () => {
     try {
@@ -56,6 +57,22 @@ export default function SignInScreen() {
           <Ionicons name={showPassword ? "eye-off" : "eye"} size={24} color="gray" />
         </TouchableOpacity>
       </View>
+
+      {/* New container for 'Remember me' and 'Forgot password?' */}
+      <View style={styles.optionsContainer}>
+        <TouchableOpacity style={styles.checkboxContainer} onPress={() => setRememberMe(!rememberMe)}>
+          <Ionicons
+            name={rememberMe ? "checkbox-outline" : "square-outline"}
+            size={20} // Reduced size
+            color="#1E90FF"
+          />
+          <Text style={styles.rememberMeText}>Remember me</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('/(auth)/forgot-password')} style={styles.forgotPasswordButton}>
+          <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+        </TouchableOpacity>
+      </View>
+
       <TouchableOpacity style={styles.signInButton} onPress={handleSignIn}>
         <Text style={styles.buttonText}>Sign In</Text>
       </TouchableOpacity>
@@ -141,5 +158,28 @@ const styles = StyleSheet.create({
   signUpLink: {
     color: '#1E90FF',
     fontWeight: 'bold',
+  },
+  forgotPasswordButton: {
+    // Remove marginTop, marginBottom, alignSelf as they will be handled by optionsContainer
+  },
+  forgotPasswordText: {
+    color: '#1E90FF',
+    fontSize: 14,
+  },
+  optionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 20,
+    paddingHorizontal: 5, // Adjust padding as needed
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  rememberMeText: {
+    marginLeft: 5,
+    color: '#666',
+    fontSize: 14,
   },
 });

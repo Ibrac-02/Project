@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { useAuth } from '../../lib/auth';
+import { useAuth } from '../../../lib/auth';
 
 const { width } = Dimensions.get('window');
 
@@ -38,7 +38,7 @@ export default function AdminDashboardScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Image source={require('../../assets/images/maa.jpg')} style={styles.headerLogo} />
+            <Image source={require('../../../assets/images/maa.jpg')} style={styles.headerLogo} />
             <Text style={styles.schoolName}>MAI AISHA ACADEMY</Text>
           </View>
           <TouchableOpacity onPress={(event) => { event.stopPropagation(); setShowLogout(!showLogout); }} style={styles.profileIconContainer}>
@@ -59,9 +59,9 @@ export default function AdminDashboardScreen() {
           </View>
         )}
 
-        <Text style={styles.dashboardTitle}>Admin Dashboard</Text>
-        <Text style={styles.welcomeMessage}>Welcome, {loading ? 'Loading...' : userName || 'User'}</Text>
         <ScrollView contentContainerStyle={styles.contentContainer}>
+          <Text style={styles.dashboardTitle}>Admin Dashboard</Text>
+          <Text style={styles.welcomeMessage}>Welcome, {loading ? 'Loading...' : userName || 'User'}</Text>
 
           <View style={styles.cardsContainer}>
             <DashboardCard iconName="people-outline" title="Manage Users" onPress={() => console.log('Manage Users')} />

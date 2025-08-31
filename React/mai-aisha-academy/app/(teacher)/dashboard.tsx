@@ -1,8 +1,7 @@
-
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { useAuth } from '../../lib/auth';
 
 const { width } = Dimensions.get('window');
@@ -52,7 +51,7 @@ export default function TeacherDashboardScreen() {
         {showLogout && (
           <View style={styles.logoutDropdown}>
             <TouchableOpacity style={styles.dropdownItem} onPress={() => router.push('/(teacher)/profile')}>
-              <Text style={styles.dropdownItemText}>Profile</Text>
+              <Text style={styles.dropdownItemText}>My Profile</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={handleLogout} style={styles.dropdownItem}>
               <Text style={styles.dropdownItemText}>Sign out</Text>
@@ -60,16 +59,22 @@ export default function TeacherDashboardScreen() {
           </View>
         )}
 
-        <View style={styles.content}>
-          <Text style={styles.dashboardTitle}>Teacher Dashboard</Text>
-
+        <Text style={styles.dashboardTitle}>Teacher Dashboard</Text>
+        <Text style={styles.welcomeMessage}>Welcome, {loading ? 'Loading...' : userName || 'Teacher'}</Text>
+        <ScrollView contentContainerStyle={styles.contentContainer}>
           <View style={styles.cardsContainer}>
-            <DashboardCard iconName="easel-outline" title="Class Reports" onPress={() => console.log('Class Reports')} />
+            <DashboardCard iconName="checkmark-done-outline" title="Mark Attendance" onPress={() => router.push('/(auth)/attendance')} />
             <DashboardCard iconName="book-outline" title="Manage Subjects" onPress={() => console.log('Manage Subjects')} />
             <DashboardCard iconName="school-outline" title="Manage Classes" onPress={() => console.log('Manage Classes')} />
+            <DashboardCard iconName="people-outline" title="Manage Students" onPress={() => router.push('/(teacher)/students')} />
             <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => console.log('Academic Calendar')} />
+            <DashboardCard iconName="create-outline" title="Assignments Management" onPress={() => console.log('Assignments Management')} />
+            <DashboardCard iconName="stats-chart-outline" title="Gradebook / Marks Register" onPress={() => console.log('Gradebook / Marks Register')} />
+            <DashboardCard iconName="megaphone-outline" title="Class Announcements" onPress={() => router.push('/(auth)/announcements')} />
+            <DashboardCard iconName="chatbox-ellipses-outline" title="Messages / Staff Chat" onPress={() => console.log('Messages / Staff Chat')} />
+            <DashboardCard iconName="trending-up-outline" title="Performance Tracking" onPress={() => console.log('Performance Tracking (Own classes)')} />
           </View>
-        </View>
+        </ScrollView>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -79,6 +84,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f0f2f5',
+  },
+  contentContainer: {
+    padding: 20,
+    backgroundColor: '#f0f2f5',
+    paddingBottom: 20, // Add some bottom padding if needed
   },
   header: {
     flexDirection: 'row',
@@ -151,16 +161,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
-  content: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#f0f2f5',
-    zIndex: 1,
-  },
   dashboardTitle: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 5,
+    color: '#333',
+    marginBottom: 30,
+    textAlign: 'center',
+  },
+  welcomeMessage: {
+    fontSize: 16,
     color: '#333',
     textAlign: 'center',
   },

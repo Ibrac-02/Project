@@ -1,8 +1,7 @@
-
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { useAuth } from '../../lib/auth';
 
 const { width } = Dimensions.get('window');
@@ -52,7 +51,7 @@ export default function HeadteacherDashboardScreen() {
         {showLogout && (
           <View style={styles.logoutDropdown}>
             <TouchableOpacity style={styles.dropdownItem} onPress={() => router.push('/(headteacher)/profile')}>
-              <Text style={styles.dropdownItemText}>Profile</Text>
+              <Text style={styles.dropdownItemText}>My Profile</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={handleLogout} style={styles.dropdownItem}>
               <Text style={styles.dropdownItemText}>Sign out</Text>
@@ -60,17 +59,22 @@ export default function HeadteacherDashboardScreen() {
           </View>
         )}
 
-        <View style={styles.content}>
-          <Text style={styles.dashboardTitle}>Headteacher Dashboard</Text>
+        <Text style={styles.dashboardTitle}>Headteacher Dashboard</Text>
+        <Text style={styles.welcomeMessage}>Welcome, {loading ? 'Loading...' : userName || 'Headteacher'}</Text>
+        <ScrollView contentContainerStyle={styles.contentContainer}>
 
           <View style={styles.cardsContainer}>
-            <DashboardCard iconName="checkbox-outline" title="Approve Results" onPress={() => console.log('Approve Results')} />
-            <DashboardCard iconName="stats-chart-outline" title="View Attendance Reports" onPress={() => console.log('View Attendance Reports')} />
-            <DashboardCard iconName="megaphone-outline" title="Manage Announcements" onPress={() => console.log('Manage Announcements')} />
+            <DashboardCard iconName="checkbox-outline" title="Approve Marks/Gradebooks" onPress={() => console.log('Approve Marks/Gradebooks')} />
+            <DashboardCard iconName="stats-chart-outline" title="View Attendance Reports" onPress={() => router.push('/(auth)/attendance')} />
+            <DashboardCard iconName="megaphone-outline" title="Manage Announcements" onPress={() => router.push('/(auth)/announcements')} />
+            <DashboardCard iconName="people-circle-outline" title="Teacher Attendance" onPress={() => router.push({ pathname: '/(auth)/attendance', params: { recordType: 'teacher' } })} />
             <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => console.log('Academic Calendar')} />
             <DashboardCard iconName="people-outline" title="View Staff Performance" onPress={() => console.log('View Staff Performance')} />
+            <DashboardCard iconName="person-add-outline" title="Teacher Management" onPress={() => console.log('Teacher Management')} />
+            <DashboardCard iconName="analytics-outline" title="Class Performance Analytics" onPress={() => console.log('Class Performance Analytics')} />
+            <DashboardCard iconName="document-text-outline" title="Internal Memos / Staff Notices" onPress={() => console.log('Internal Memos / Staff Notices')} />
           </View>
-        </View>
+        </ScrollView>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -80,6 +84,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f0f2f5',
+  },
+  contentContainer: {
+    padding: 20,
+    backgroundColor: '#f0f2f5',
+    paddingBottom: 20, // Add some bottom padding if needed
   },
   header: {
     flexDirection: 'row',
@@ -163,6 +172,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 5,
     color: '#333',
+    textAlign: 'center',
+  },
+  welcomeMessage: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 30,
     textAlign: 'center',
   },
   cardsContainer: {
