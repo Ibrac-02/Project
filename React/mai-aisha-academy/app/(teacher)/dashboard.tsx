@@ -67,7 +67,7 @@ export default function TeacherDashboardScreen() {
             <DashboardCard iconName="book-outline" title="Manage Subjects" onPress={() => console.log('Manage Subjects')} />
             <DashboardCard iconName="school-outline" title="Manage Classes" onPress={() => console.log('Manage Classes')} />
             <DashboardCard iconName="people-outline" title="Manage Students" onPress={() => router.push('/(teacher)/students')} />
-            <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => console.log('Academic Calendar')} />
+            <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => router.push('/(auth)/academicCalendar')} />
             <DashboardCard iconName="create-outline" title="Assignments Management" onPress={() => console.log('Assignments Management')} />
             <DashboardCard iconName="stats-chart-outline" title="Gradebook / Marks Register" onPress={() => console.log('Gradebook / Marks Register')} />
             <DashboardCard iconName="megaphone-outline" title="Class Announcements" onPress={() => router.push('/(auth)/announcements')} />

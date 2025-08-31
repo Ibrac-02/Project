@@ -25,7 +25,7 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.container}>
+    <View style={styles.container}>
 
         {/* Removed the profileHeader section */}
 
@@ -112,7 +112,7 @@ export default function ProfileScreen() {
             <Text style={styles.buttonText}>Edit Profile</Text>
           </TouchableOpacity>
         )}
-      </View>
+    </View>
     </ScrollView>
   );
 }

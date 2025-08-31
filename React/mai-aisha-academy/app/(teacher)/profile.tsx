@@ -25,7 +25,7 @@ export default function TeacherProfileScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.container}>
+    <View style={styles.container}>
         {/* Removed the title as it's now in the stack header */}
 
         <View style={styles.section}>
@@ -131,7 +131,7 @@ export default function TeacherProfileScreen() {
             <Text style={styles.buttonText}>Edit Profile</Text>
           </TouchableOpacity>
         )}
-      </View>
+    </View>
     </ScrollView>
   );
 }

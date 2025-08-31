@@ -67,7 +67,7 @@ export default function AdminDashboardScreen() {
             <DashboardCard iconName="people-outline" title="Manage Users" onPress={() => console.log('Manage Users')} />
             <DashboardCard iconName="school-outline" title="Manage School Data" onPress={() => console.log('Manage School Data')} />
             <DashboardCard iconName="bar-chart-outline" title="Generate Reports" onPress={() => console.log('Generate Reports')} />
-            <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => console.log('Academic Calendar')} />
+            <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => router.push('/(auth)/academicCalendar')} />
             <DashboardCard iconName="megaphone-outline" title="Announcements" onPress={() => router.push('/(auth)/announcements')} />
             <DashboardCard iconName="checkmark-done-outline" title="Attendance Overview" onPress={() => router.push('/(auth)/attendance')} />
             <DashboardCard iconName="book-outline" title="Subjects & Curriculum" onPress={() => console.log('Subjects & Curriculum')} />

@@ -68,7 +68,7 @@ export default function HeadteacherDashboardScreen() {
             <DashboardCard iconName="stats-chart-outline" title="View Attendance Reports" onPress={() => router.push('/(auth)/attendance')} />
             <DashboardCard iconName="megaphone-outline" title="Manage Announcements" onPress={() => router.push('/(auth)/announcements')} />
             <DashboardCard iconName="people-circle-outline" title="Teacher Attendance" onPress={() => router.push({ pathname: '/(auth)/attendance', params: { recordType: 'teacher' } })} />
-            <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => console.log('Academic Calendar')} />
+            <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => router.push('/(auth)/academicCalendar')} />
             <DashboardCard iconName="people-outline" title="View Staff Performance" onPress={() => console.log('View Staff Performance')} />
             <DashboardCard iconName="person-add-outline" title="Teacher Management" onPress={() => console.log('Teacher Management')} />
             <DashboardCard iconName="analytics-outline" title="Class Performance Analytics" onPress={() => console.log('Class Performance Analytics')} />

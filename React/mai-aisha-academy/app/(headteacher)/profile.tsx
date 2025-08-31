@@ -25,7 +25,7 @@ export default function HeadteacherProfileScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.container}>
+    <View style={styles.container}>
         {/* Removed the title as it's now in the stack header */}
 
         {/* Removed the profileHeader section */}
@@ -121,7 +121,7 @@ export default function HeadteacherProfileScreen() {
             <Text style={styles.buttonText}>Edit Profile</Text>
           </TouchableOpacity>
         )}
-      </View>
+    </View>
     </ScrollView>
   );
 }

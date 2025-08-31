@@ -112,5 +112,37 @@ service cloud.firestore {
         (getUserRole() == 'teacher' && resource.data.teacherId == request.auth.uid)
       );
     }
+
+    // Academic Events collection rules
+    match /academicEvents/{eventId} {
+      // Helper function to get user's role
+      function getUserRole() {
+        return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+      }
+
+      // Read access for all authenticated users
+      allow read: if request.auth != null && (
+        getUserRole() == 'admin' ||
+        getUserRole() == 'headteacher' ||
+        getUserRole() == 'teacher'
+      );
+
+      // Create access for Admin and Headteacher
+      allow create: if request.auth != null && (
+        getUserRole() == 'admin' ||
+        getUserRole() == 'headteacher'
+      );
+
+      // Update access for Admin (any event) and Headteacher (their own events)
+      allow update: if request.auth != null && (
+        getUserRole() == 'admin' ||
+        (getUserRole() == 'headteacher' && resource.data.createdByUserId == request.auth.uid)
+      );
+
+      // Delete access for Admin only
+      allow delete: if request.auth != null && (
+        getUserRole() == 'admin'
+      );
+    }
   }
 }
