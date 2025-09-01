@@ -72,7 +72,6 @@ export default function TeacherManageSubjectsScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>My Subjects</Text>
       {subjects.length === 0 ? (
         <View style={styles.centered}>
           <Text>No subjects assigned to you.</Text>
@@ -96,7 +95,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f0f2f5',
-    paddingTop: 50,
     paddingHorizontal: 20,
   },
   centered: {

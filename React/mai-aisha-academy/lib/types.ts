@@ -75,3 +75,15 @@ export interface Term {
   startDate: string;
   endDate: string;
 }
+
+export interface Assignment {
+  id: string;
+  title: string;
+  description?: string;
+  subjectId: string;
+  classId: string; // Assuming assignments are tied to a specific class
+  teacherId: string;
+  dueDate: string; // YYYY-MM-DD format
+  totalMarks: number;
+  createdAt: string;
+}

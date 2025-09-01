@@ -114,7 +114,7 @@ export default function TeacherDashboardScreen() {
             <DashboardCard iconName="checkmark-done-outline" title="Mark Attendance" onPress={() => router.push('/(auth)/attendance')} />
             <DashboardCard iconName="book-outline" title="Manage Subjects" onPress={() => router.push('/(teacher)/ManageSubjectsScreen')} />
             <DashboardCard iconName="people-outline" title="Manage Students" onPress={() => router.push('/(teacher)/students')} />
-            <DashboardCard iconName="create-outline" title="Assignments Management" onPress={() => console.log('Assignments Management')} />
+            <DashboardCard iconName="create-outline" title="Assignments Management" onPress={() => router.push('/(teacher)/ManageAssignmentsScreen')} />
           </View>
 
           <Text style={styles.cardGroupTitle}>Academics & Grading</Text>

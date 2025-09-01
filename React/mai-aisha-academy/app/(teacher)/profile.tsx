@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     backgroundColor: '#f0f2f5',
-    paddingVertical: 20,
+    // Removed paddingTop as header handles it
   },
   container: {
     flex: 1,

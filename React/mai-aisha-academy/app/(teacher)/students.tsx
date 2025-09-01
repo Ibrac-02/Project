@@ -139,7 +139,7 @@ export default function TeacherStudentManagementScreen() {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.pageTitle}>My Students</Text>
+        {/* <Text style={styles.pageTitle}>My Students</Text> */}
 
         <TouchableOpacity style={styles.addButton} onPress={() => { resetForm(); setIsModalVisible(true); }}>
           <Ionicons name="add-circle-outline" size={24} color="#fff" />

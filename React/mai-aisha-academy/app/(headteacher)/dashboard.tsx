@@ -116,7 +116,7 @@ export default function HeadteacherDashboardScreen() {
           <Text style={styles.cardGroupTitle}>Data Management</Text>
           <View style={styles.cardGroupContainer}>
             <DashboardCard iconName="book-outline" title="Manage Subjects" onPress={() => router.push('/(headteacher)/ManageSubjectsScreen')} />
-            <DashboardCard iconName="person-add-outline" title="Teacher Management" onPress={() => console.log('Teacher Management')} />
+            <DashboardCard iconName="person-add-outline" title="Teacher Management" onPress={() => router.push('/(headteacher)/ManageTeachersScreen')} />
           </View>
 
           <Text style={styles.cardGroupTitle}>Scheduling & Information</Text>

@@ -61,6 +61,20 @@ export default function HeadteacherLayout() {
           },
         }}
       />
+      <Stack.Screen
+        name="ManageTeachersScreen"
+        options={{
+          headerShown: true,
+          title: 'Manage Teachers',
+          headerStyle: {
+            backgroundColor: '#1E90FF',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
     </Stack>
   );
 }
