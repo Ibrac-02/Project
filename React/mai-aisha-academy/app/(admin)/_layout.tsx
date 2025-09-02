@@ -12,11 +12,13 @@ export default function AdminLayout() {
           title: 'Admin Profile',
           headerStyle: {
             backgroundColor: '#1E90FF',
+            height: 120, // Set header height
           },
           headerTintColor: '#fff', // White color for header title and back button
           headerTitleStyle: {
             fontWeight: 'bold',
           },
+          headerTitleAlign: 'center', // Center the header title
         }}
       />
       <Stack.Screen
@@ -26,11 +28,13 @@ export default function AdminLayout() {
           title: 'Manage Users',
           headerStyle: {
             backgroundColor: '#1E90FF',
+            height: 120, // Set header height
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
             fontWeight: 'bold',
           },
+          headerTitleAlign: 'center', // Center the header title
         }}
       />
       <Stack.Screen
@@ -40,11 +44,13 @@ export default function AdminLayout() {
           title: 'Edit User',
           headerStyle: {
             backgroundColor: '#1E90FF',
+            height: 120, // Set header height
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
             fontWeight: 'bold',
           },
+          headerTitleAlign: 'center', // Center the header title
         }}
       />
       <Stack.Screen
@@ -54,11 +60,13 @@ export default function AdminLayout() {
           title: 'Grade Reports',
           headerStyle: {
             backgroundColor: '#1E90FF',
+            height: 120, // Set header height
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
             fontWeight: 'bold',
           },
+          headerTitleAlign: 'center', // Center the header title
         }}
       />
       <Stack.Screen
@@ -68,11 +76,13 @@ export default function AdminLayout() {
           title: 'Manage School Data',
           headerStyle: {
             backgroundColor: '#1E90FF',
+            height: 120, // Set header height
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
             fontWeight: 'bold',
           },
+          headerTitleAlign: 'center', // Center the header title
         }}
       />
     </Stack>

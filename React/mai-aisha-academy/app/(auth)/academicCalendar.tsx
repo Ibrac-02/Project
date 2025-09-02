@@ -74,6 +74,18 @@ export default function AcademicCalendarScreen() {
           currentDate.setDate(currentDate.getDate() + 1);
         }
       });
+
+      // Highlight today's date with a blue circle
+      const today = new Date().toISOString().split('T')[0];
+      newMarkedDates[today] = {
+        ...(newMarkedDates[today] || {}),
+        selected: true,
+        selectedColor: '#1E90FF',
+        // A 'customStyles' object can be used for more granular control
+        // but 'selected' and 'selectedColor' usually provide a circular background.
+        // If a specific circular style is needed beyond 'selected', we would add a custom style here.
+      };
+
       setMarkedDates(newMarkedDates);
       setPageLoading(false);
     }
@@ -460,11 +472,12 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center', // Center the content horizontally
     backgroundColor: '#1E90FF',
     paddingTop: 50,
     paddingHorizontal: 20,
     paddingBottom: 20,
+    height: 120, // Increased header height
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
     shadowColor: '#000',
@@ -474,7 +487,10 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   backButton: {
-    padding: 5,
+    position: 'absolute',
+    left: 20,
+    top: 65, // Adjusted vertical position
+    zIndex: 1,
   },
   headerTitle: {
     color: '#fff',
@@ -482,7 +498,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   addButton: {
-    padding: 5,
+    position: 'absolute',
+    right: 20,
+    top: 65, // Adjusted vertical position
+    zIndex: 1,
   },
   scrollViewContent: {
     paddingBottom: 20,

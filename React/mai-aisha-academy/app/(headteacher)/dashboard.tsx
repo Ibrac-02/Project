@@ -9,7 +9,7 @@ const { width } = Dimensions.get('window');
 
 export default function HeadteacherDashboardScreen() {
   const [showLogout, setShowLogout] = useState(false);
-  const { userName, loading, user } = useAuth(); // Destructure user from useAuth
+  const { userName, loading, userProfile, user } = useAuth(); // Destructure user from useAuth
   const [unreadCount, setUnreadCount] = useState(0);
 
   const fetchUnreadCount = useCallback(async () => {
@@ -99,7 +99,7 @@ export default function HeadteacherDashboardScreen() {
 
         <View style={styles.greetingCard}>
           <Text style={styles.welcomeMessage}>
-            {getGreetingTime()}, {loading ? 'Loading...' : userName || 'Headteacher'}
+            {getGreetingTime()}, {userProfile?.title || ''} {loading ? 'Loading...' : userName || 'User'}
           </Text>
         </View>
 
@@ -226,7 +226,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 20,
-    marginBottom: 20,
+    marginHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 30,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },

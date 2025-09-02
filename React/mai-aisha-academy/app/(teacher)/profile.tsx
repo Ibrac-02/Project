@@ -1,35 +1,70 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { updateUserName, useAuth } from '../../lib/auth';
+import { Picker } from '@react-native-picker/picker';
+import { updateUserProfile, useAuth } from '../../lib/auth';
 
 export default function TeacherProfileScreen() {
-  const { userName, user } = useAuth();
+  const { userName, user, userProfile, refreshUserProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+
+  // Profile states
+  const [title, setTitle] = useState(userProfile?.title || 'Mr.');
   const [newName, setNewName] = useState(userName || '');
-  const [newContactNumber, setNewContactNumber] = useState('N/A'); // Placeholder for contact number
+  const [newContactNumber, setNewContactNumber] = useState(userProfile?.contactNumber || '');
+  const [subjects, setSubjects] = useState(userProfile?.subjects || '');
+  const [classes, setClasses] = useState(userProfile?.classes || '');
+  const [qualifications, setQualifications] = useState(userProfile?.qualifications || '');
 
   const handleSave = async () => {
-    if (user?.uid && newName !== userName) {
+    if (user?.uid) {
       try {
-        await updateUserName(user.uid, newName);
+        const updates: any = {
+          title,
+          name: newName,
+          contactNumber: newContactNumber,
+          subjects,
+          classes,
+          qualifications,
+        };
+
+        await updateUserProfile(user.uid, updates);
+        await refreshUserProfile();
         Alert.alert("Success", "Profile updated successfully!");
         setIsEditing(false);
       } catch (error: any) {
         Alert.alert("Error", "Failed to update profile: " + error.message);
       }
     } else {
-      setIsEditing(false);
+      Alert.alert("Error", "User not authenticated.");
     }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-    <View style={styles.container}>
-        {/* Removed the title as it's now in the stack header */}
+      <View style={styles.container}>
 
+        {/* Basic Info */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Basic Information</Text>
+          {/* Title */}
+          <View style={styles.detailContainer}>
+            <Text style={styles.labelText}>Title:</Text>
+            {isEditing ? (
+              <Picker
+                selectedValue={title}
+                onValueChange={(itemValue) => setTitle(itemValue)}
+                style={styles.picker}
+              >
+                <Picker.Item label="Mr." value="Mr." />
+                <Picker.Item label="Mrs." value="Mrs." />
+                <Picker.Item label="Ms." value="Ms." />
+              </Picker>
+            ) : (
+              <Text style={styles.text}>{title}</Text>
+            )}
+          </View>
+          {/* Full Name */}
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Full Name:</Text>
             {isEditing ? (
@@ -37,16 +72,18 @@ export default function TeacherProfileScreen() {
                 style={styles.input}
                 value={newName}
                 onChangeText={setNewName}
-                placeholder="Enter new name"
+                placeholder="Enter full name"
               />
             ) : (
-              <Text style={styles.text}>{userName || 'N/A'}</Text>
+              <Text style={styles.text}>{newName || 'N/A'}</Text>
             )}
           </View>
+          {/* Email */}
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Email:</Text>
             <Text style={styles.text}>{user?.email || 'N/A'}</Text>
           </View>
+          {/* Contact */}
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Contact:</Text>
             {isEditing ? (
@@ -57,35 +94,57 @@ export default function TeacherProfileScreen() {
                 placeholder="Enter contact number"
               />
             ) : (
-              <Text style={styles.text}>{newContactNumber}</Text>
+              <Text style={styles.text}>{newContactNumber || 'N/A'}</Text>
             )}
           </View>
         </View>
 
+        {/* Professional Info */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Professional Info</Text>
+          {/* Subjects */}
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Subjects:</Text>
-            <Text style={styles.text}>Math, Science (Placeholder)</Text>
+            {isEditing ? (
+              <TextInput
+                style={styles.input}
+                value={subjects}
+                onChangeText={setSubjects}
+                placeholder="Enter subjects"
+              />
+            ) : (
+              <Text style={styles.text}>{subjects || 'N/A'}</Text>
+            )}
           </View>
+          {/* Classes */}
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Classes:</Text>
-            <Text style={styles.text}>Grade 8A, Grade 9B (Placeholder)</Text>
+            {isEditing ? (
+              <TextInput
+                style={styles.input}
+                value={classes}
+                onChangeText={setClasses}
+                placeholder="Enter classes"
+              />
+            ) : (
+              <Text style={styles.text}>{classes || 'N/A'}</Text>
+            )}
           </View>
-          <View style={styles.detailContainer}>
-            <Text style={styles.labelText}>Employee ID:</Text>
-            <Text style={styles.text}>EMP001 (Placeholder)</Text>
-          </View>
-          <View style={styles.detailContainer}>
-            <Text style={styles.labelText}>Department:</Text>
-            <Text style={styles.text}>Science (Placeholder)</Text>
-          </View>
+          {/* Qualifications */}
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Qualifications:</Text>
-            <Text style={styles.text}>B.Ed, M.Sc (Placeholder)</Text>
+            {isEditing ? (
+              <TextInput
+                style={styles.input}
+                value={qualifications}onChangeText={setQualifications}placeholder="Enter qualifications"
+              />
+            ) : (
+              <Text style={styles.text}>{qualifications || 'N/A'}</Text>
+            )}
           </View>
         </View>
 
+        {/* Account Settings */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account Settings</Text>
           <TouchableOpacity style={styles.settingItem}>
@@ -94,34 +153,7 @@ export default function TeacherProfileScreen() {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Activity / Performance</Text>
-          <View style={styles.detailContainer}>
-            <Text style={styles.labelText}>Classes Handled:</Text>
-            <Text style={styles.text}>5 (Placeholder)</Text>
-          </View>
-          <View style={styles.detailContainer}>
-            <Text style={styles.labelText}>Attendance Submitted:</Text>
-            <Text style={styles.text}>All (Placeholder)</Text>
-          </View>
-          <View style={styles.detailContainer}>
-            <Text style={styles.labelText}>Grades Submitted:</Text>
-            <Text style={styles.text}>All (Placeholder)</Text>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Other Information</Text>
-          <View style={styles.detailContainer}>
-            <Text style={styles.labelText}>Date Joined:</Text>
-            <Text style={styles.text}>September 1, 2022 (Placeholder)</Text>
-          </View>
-          <View style={styles.detailContainer}>
-            <Text style={styles.labelText}>Status:</Text>
-            <Text style={styles.text}>Active (Placeholder)</Text>
-          </View>
-        </View>
-
+        {/* Edit / Save Buttons */}
         {isEditing ? (
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
             <Text style={styles.buttonText}>Save Changes</Text>
@@ -131,7 +163,8 @@ export default function TeacherProfileScreen() {
             <Text style={styles.buttonText}>Edit Profile</Text>
           </TouchableOpacity>
         )}
-    </View>
+
+      </View>
     </ScrollView>
   );
 }
@@ -140,46 +173,17 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     backgroundColor: '#f0f2f5',
-    // Removed paddingTop as header handles it
   },
   container: {
-    flex: 1,
     alignItems: 'center',
     paddingHorizontal: 20,
-  },
-  profileHeader: {
-    alignItems: 'center',
-    marginBottom: 30,
-    paddingBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-    width: '100%',
-  },
-  profileImageContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#e0e0e0',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 15,
-    overflow: 'hidden',
-  },
-  profileName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
-  },
-  profileEmail: {
-    fontSize: 16,
-    color: '#666',
   },
   section: {
     backgroundColor: '#fff',
     borderRadius: 10,
-    padding: 20,
-    marginBottom: 20,
+    padding: 30,
+    marginTop: 30,
+    marginBottom: 10,
     width: '100%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -265,5 +269,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  picker: {
+    flex: 1,
+    height: 40,
+    borderRadius: 8,
+    marginLeft: -5,
   },
 });

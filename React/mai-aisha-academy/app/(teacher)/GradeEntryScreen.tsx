@@ -294,5 +294,5 @@ const styles = StyleSheet.create({
   cancelButton: {
     backgroundColor: '#FF6347',
     marginTop: 10,
-  }
+  },
 });

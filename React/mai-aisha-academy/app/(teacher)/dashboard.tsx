@@ -9,7 +9,7 @@ const { width } = Dimensions.get('window');
 
 export default function TeacherDashboardScreen() {
   const [showLogout, setShowLogout] = useState(false);
-  const { userName, loading, user } = useAuth(); // Destructure user from useAuth
+  const { userName, loading, userProfile, user } = useAuth(); // Destructure user from useAuth
   const [unreadCount, setUnreadCount] = useState(0);
 
   const fetchUnreadCount = useCallback(async () => {
@@ -103,7 +103,7 @@ export default function TeacherDashboardScreen() {
 
         <View style={styles.greetingCard}>
           <Text style={styles.welcomeMessage}>
-            {getGreetingTime()}, {loading ? 'Loading...' : userName || 'Teacher'}
+            {getGreetingTime()}, {userProfile?.title || ''} {loading ? 'Loading...' : userName || 'User'}
           </Text>
         </View>
 

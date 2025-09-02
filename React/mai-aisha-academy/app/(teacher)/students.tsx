@@ -26,9 +26,10 @@ export default function TeacherStudentManagementScreen() {
 
   // Placeholder classes (will be replaced with dynamic data later)
   const [availableClasses, setAvailableClasses] = useState<ClassItem[]>([
-    { id: 'class001', name: 'Grade 8A' },
-    { id: 'class002', name: 'Grade 9B' },
-    { id: 'class003', name: 'Grade 10C' },
+    { id: 'class001', name: 'Form 1' },
+    { id: 'class002', name: 'Form 2' },
+    { id: 'class003', name: 'Form 3' },
+    { id: 'class004', name: 'Form 4' },
   ]);
 
   const fetchStudents = async () => {
@@ -139,7 +140,7 @@ export default function TeacherStudentManagementScreen() {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* <Text style={styles.pageTitle}>My Students</Text> */}
+         <Text style={styles.pageTitle}>My Students</Text> 
 
         <TouchableOpacity style={styles.addButton} onPress={() => { resetForm(); setIsModalVisible(true); }}>
           <Ionicons name="add-circle-outline" size={24} color="#fff" />

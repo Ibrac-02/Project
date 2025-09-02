@@ -1,37 +1,31 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Picker } from '@react-native-picker/picker'; // Import Picker
+import { Picker } from '@react-native-picker/picker';
 import React, { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { updateUserProfile, useAuth } from '../../lib/auth';
-import { UserProfile } from '../../lib/types'; // Assuming UserProfile type is defined here
+import { UserProfile } from '../../lib/types';
 
 export default function HeadteacherProfileScreen() {
-  const { userName, user, userProfile, refreshUserProfile } = useAuth(); // Destructure userProfile and refreshUserProfile
+  const { userName, user, userProfile, refreshUserProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(userName || '');
-  const [newTitle, setNewTitle] = useState(userProfile?.title || ''); // New state for title
-  const [newContactNumber, setNewContactNumber] = useState(userProfile?.contactNumber || ''); // Use userProfile for contact number
+  const [newTitle, setNewTitle] = useState(userProfile?.title || '');
+  const [newContactNumber, setNewContactNumber] = useState(userProfile?.contactNumber || '');
 
   const handleSave = async () => {
     if (!user?.uid) return;
 
     const updates: Partial<UserProfile> = {};
-    if (newName !== userName) {
-      updates.name = newName;
-    }
-    if (newTitle !== (userProfile?.title || '')) {
-      updates.title = newTitle;
-    }
-    if (newContactNumber !== (userProfile?.contactNumber || '')) {
-      updates.contactNumber = newContactNumber;
-    }
+    if (newName !== userName) updates.name = newName;
+    if (newTitle !== (userProfile?.title || '')) updates.title = newTitle;
+    if (newContactNumber !== (userProfile?.contactNumber || '')) updates.contactNumber = newContactNumber;
 
     if (Object.keys(updates).length > 0) {
       try {
         await updateUserProfile(user.uid, updates);
         Alert.alert("Success", "Profile updated successfully!");
-        refreshUserProfile(); // Refresh user profile after successful update
-        setIsEditing(false); // Exit editing mode after saving
+        refreshUserProfile();
+        setIsEditing(false);
       } catch (error: any) {
         Alert.alert("Error", "Failed to update profile: " + error.message);
       }
@@ -42,13 +36,13 @@ export default function HeadteacherProfileScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-    <View style={styles.container}>
-        {/* Removed the title as it's now in the stack header */}
+      <View style={styles.container}>
 
-        {/* Removed the profileHeader section */}
-
+        {/* Professional Information */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Professional Information</Text>
+
+          {/* Title */}
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Title:</Text>
             {isEditing ? (
@@ -62,13 +56,14 @@ export default function HeadteacherProfileScreen() {
                   <Picker.Item label="Mr." value="Mr." />
                   <Picker.Item label="Mrs." value="Mrs." />
                   <Picker.Item label="Ms." value="Ms." />
-                  <Picker.Item label="Dr." value="Dr." />
                 </Picker>
               </View>
             ) : (
               <Text style={styles.text}>{userProfile?.title || 'N/A'}</Text>
             )}
           </View>
+
+          {/* Full Name */}
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Full Name:</Text>
             {isEditing ? (
@@ -82,18 +77,14 @@ export default function HeadteacherProfileScreen() {
               <Text style={styles.text}>{userName || 'N/A'}</Text>
             )}
           </View>
+
+          {/* Email */}
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Email:</Text>
             <Text style={styles.text}>{user?.email || 'N/A'}</Text>
           </View>
-          <View style={styles.detailContainer}>
-            <Text style={styles.labelText}>Employee ID:</Text>
-            <Text style={styles.text}>{userProfile?.employeeId || 'N/A'}</Text>
-          </View>
-          <View style={styles.detailContainer}>
-            <Text style={styles.labelText}>Department:</Text>
-            <Text style={styles.text}>{userProfile?.department || 'N/A'}</Text>
-          </View>
+
+          {/* Contact */}
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Contact:</Text>
             {isEditing ? (
@@ -109,6 +100,7 @@ export default function HeadteacherProfileScreen() {
           </View>
         </View>
 
+        {/* Account Settings */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account Settings</Text>
           <TouchableOpacity style={styles.settingItem}>
@@ -121,6 +113,7 @@ export default function HeadteacherProfileScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Activity / Oversight */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Activity / Oversight</Text>
           <View style={styles.detailContainer}>
@@ -137,18 +130,6 @@ export default function HeadteacherProfileScreen() {
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Other Information</Text>
-          <View style={styles.detailContainer}>
-            <Text style={styles.labelText}>Date Joined:</Text>
-            <Text style={styles.text}>{userProfile?.dateJoined || 'N/A'}</Text>
-          </View>
-          <View style={styles.detailContainer}>
-            <Text style={styles.labelText}>Status:</Text>
-            <Text style={styles.text}>{userProfile?.status || 'Active'}</Text>
-          </View>
-        </View>
-
         {/* Edit/Save Button */}
         {isEditing ? (
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
@@ -159,120 +140,100 @@ export default function HeadteacherProfileScreen() {
             <Text style={styles.buttonText}>Edit Profile</Text>
           </TouchableOpacity>
         )}
-    </View>
+
+      </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    flexGrow: 1,
-    backgroundColor: '#f0f2f5',
-    paddingVertical: 20,
+  scrollContainer: { 
+    flexGrow: 1, 
+    backgroundColor: '#f0f2f5', 
+    paddingVertical: 20 },
+  container: { 
+    flex: 1, 
+    alignItems: 'center', 
+    paddingHorizontal: 20 },
+  section: { 
+    backgroundColor: '#fff', 
+    borderRadius: 10, 
+    padding: 20, 
+    marginBottom: 20, 
+    width: '100%', 
+    shadowColor: '#000', 
+    shadowOffset: { width: 0, height: 1 }, 
+    shadowOpacity: 0.05, 
+    shadowRadius: 2, 
+    elevation: 2 },
+  sectionTitle: { 
+    fontSize: 20, 
+    fontWeight: 'bold', 
+    color: '#333', 
+    marginBottom: 15, 
+    borderBottomWidth: 1, 
+    borderBottomColor: '#eee', 
+    paddingBottom: 10 },
+  detailContainer: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    marginBottom: 12, 
+    paddingVertical: 5, 
+    borderBottomWidth: 1, 
+    borderBottomColor: '#f5f5f5' 
   },
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  section: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 20,
-    marginBottom: 20,
-    width: '100%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    paddingBottom: 10,
-  },
-  detailContainer: {
+  labelText: { 
+    fontSize: 16,
+    fontWeight: '600', 
+    color: '#555', 
+    width: 150 },
+  text: { 
+    flex: 1, 
+    fontSize: 16, 
+    color: '#333' },
+  input: { 
+    flex: 1, 
+    borderBottomWidth: 1, 
+    borderBottomColor: '#1E90FF', 
+    paddingVertical: 2, 
+    fontSize: 16, 
+    color: '#333', 
+    marginLeft: -5 },
+  pickerContainer: { 
+    flex: 1, 
+    borderBottomWidth: 1, 
+    borderBottomColor: '#1E90FF' },
+  picker: { 
+    height: 40, 
+    width: '100%' },
+  settingItem: { 
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-    paddingVertical: 5,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f5f5f5',
+     justifyContent: 'space-between', 
+     alignItems: 'center', 
+     paddingVertical: 12, 
+     borderBottomWidth: 1, 
+     borderBottomColor: '#eee' },
+  settingText: { 
+    fontSize: 16, 
+    color: '#333' },
+    editButton: { 
+    backgroundColor: '#1E90FF', 
+    paddingVertical: 12, 
+    paddingHorizontal: 30, 
+    borderRadius: 8, 
+    marginTop: 20, 
+    shadowColor: '#000', 
+    shadowOffset: { width: 0, height: 2 }, 
+    shadowOpacity: 0.1, 
+    shadowRadius: 2, 
+    elevation: 3 
   },
-  labelText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#555',
-    width: 150,
-  },
-  text: {
-    flex: 1,
-    fontSize: 16,
-    color: '#333',
-  },
-  input: {
-    flex: 1,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1E90FF',
-    paddingVertical: 2,
-    fontSize: 16,
-    color: '#333',
-    marginLeft: -5,
-  },
-  pickerContainer: {
-    flex: 1,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1E90FF',
-  },
-  picker: {
-    height: 40,
-    width: '100%',
-  },
-  settingItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  settingText: {
-    fontSize: 16,
-    color: '#333',
-  },
-  editButton: {
-    backgroundColor: '#1E90FF',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 8,
-    marginTop: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 3,
-  },
-  saveButton: {
-    backgroundColor: '#28a745',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 8,
-    marginTop: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 3,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
+  saveButton: { 
+    backgroundColor: '#28a745', paddingVertical: 12, paddingHorizontal: 30, borderRadius: 8, marginTop: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 3 },
+  buttonText: { 
+    color: '#fff', 
+    fontSize: 18, 
+    fontWeight: 'bold', 
+    textAlign: 'center' 
   },
 });

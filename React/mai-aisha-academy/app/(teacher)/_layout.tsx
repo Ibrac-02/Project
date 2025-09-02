@@ -1,76 +1,51 @@
-
 import { Stack } from 'expo-router';
 import React from 'react';
-import { Colors } from '../../constants/Colors';
 
 export default function TeacherLayout() {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="dashboard" options={{ headerShown: false }} />
-      <Stack.Screen name="profile" options={{
-        headerShown: true,
-        title: 'My Profile',
-        headerStyle: { backgroundColor: Colors.primaryBlue }, // Use the consistent blue color
+    <Stack
+      screenOptions={{
+        headerStyle: { 
+          backgroundColor: '#1E90FF', // DodgerBlue color
+          paddingVertical: 16, // makes header look taller
+        },
         headerTintColor: '#fff',
-        headerTitleStyle: { fontWeight: 'bold' },
-      }} />
-      <Stack.Screen name="ManageSubjectsScreen" options={{
-        headerShown: true,
-        title: 'My Subjects',
-        headerStyle: { backgroundColor: Colors.primaryBlue }, // Use the consistent blue color
-        headerTintColor: '#fff',
-        headerTitleStyle: { fontWeight: 'bold' },
-      }} />
-      <Stack.Screen name="GradeEntryScreen" options={{
-        headerShown: true,
-        title: 'Grade Entry',
-        headerStyle: { backgroundColor: Colors.primaryBlue }, // Use the consistent blue color
-        headerTintColor: '#fff',
-        headerTitleStyle: { fontWeight: 'bold' },
-      }} />
-      <Stack.Screen
-        name="students"
-        options={{
-          headerShown: true,
-          title: 'My Students',
-          headerStyle: {
-            backgroundColor: Colors.primaryBlue, // Use the consistent blue color
-          },
-          headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-        }}
+        headerTitleStyle: { 
+          fontWeight: 'bold', 
+          fontSize: 20, // bigger text
+        },
+        headerTitleAlign: 'center',
+        headerBackTitleVisible: false, // removes back button text
+      }}
+    >
+      <Stack.Screen 
+        name="dashboard" 
+        options={{ headerShown: false }} 
       />
-      <Stack.Screen
-        name="ManageAssignmentsScreen"
-        options={{
-          headerShown: true,
-          title: 'Manage Assignments',
-          headerStyle: {
-            backgroundColor: Colors.primaryBlue,
-          },
-          headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-        }}
+      <Stack.Screen 
+        name="profile" 
+        options={{ title: 'My Profile' }} 
       />
-      <Stack.Screen
-        name="TeacherPerformanceScreen"
-        options={{
-          headerShown: true,
-          title: 'My Performance',
-          headerStyle: {
-            backgroundColor: Colors.primaryBlue,
-          },
-          headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-        }}
+      <Stack.Screen 
+        name="ManageSubjectsScreen" 
+        options={{ title: 'Manage Subjects' }} 
+      />
+      <Stack.Screen 
+        name="GradeEntryScreen" 
+        options={{ title: 'Grade Entry' }} 
+      />
+      <Stack.Screen 
+        name="students" 
+        options={{ title: 'My Students' }} 
+      />
+      <Stack.Screen 
+        name="ManageAssignmentsScreen" 
+        options={{ title: 'Manage Assignments' }} 
+      />
+      <Stack.Screen 
+        name="TeacherPerformanceScreen" 
+        options={{ title: 'My Performance' }} 
       />
     </Stack>
   );
 }
- 
