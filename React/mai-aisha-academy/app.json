@@ -16,7 +16,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.ibrac02.maiaishaacademy"
     },
     "web": {
       "bundler": "metro",
@@ -37,6 +38,11 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "33dc816e-6c3d-4fcd-a01c-81a4fed6e7c7"
+      }
     }
   }
 }
