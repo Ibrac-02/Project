@@ -2,9 +2,9 @@
   "expo": {
     "name": "mai-aisha-academy",
     "slug": "mai-aisha-academy",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "./assets/images/maa.png",
+    "icon": "./assets/images/maa.jpg",
     "scheme": "maiaishaacademy",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -43,6 +43,12 @@
       "eas": {
         "projectId": "33dc816e-6c3d-4fcd-a01c-81a4fed6e7c7"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/33dc816e-6c3d-4fcd-a01c-81a4fed6e7c7"
     }
   }
 }
