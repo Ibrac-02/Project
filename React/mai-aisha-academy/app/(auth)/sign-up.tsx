@@ -1,7 +1,5 @@
-
 import { signUp } from '@/lib/auth';
 import { Ionicons } from '@expo/vector-icons';
-import { Picker } from '@react-native-picker/picker';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -10,8 +8,7 @@ export default function SignUpScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [name, setName] = useState(''); // New state for name
-  const [role, setRole] = useState('teacher'); // New state for role, default to 'teacher'
+  const [name, setName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -21,9 +18,9 @@ export default function SignUpScreen() {
       return;
     }
     try {
-      await signUp(email, password, name, role); // Pass role to signUp function
+      await signUp(email, password, name); // role no longer passed
       Alert.alert("Success", "Account created successfully!");
-      router.replace('/(tabs)/index'); // Navigate to the main app after successful signup
+      router.replace('/(teacher)/dashboard'); // default route
     } catch (error: any) {
       Alert.alert("Signup Failed", error.message);
     }
@@ -34,6 +31,7 @@ export default function SignUpScreen() {
       <Image source={require('../../assets/images/maa.jpg')} style={styles.logo} />
       <Text style={styles.schoolName}>Mai Aisha Academy</Text>
       <Text style={styles.welcomeText}>Create your account to get started.</Text>
+
       <TextInput
         style={styles.input}
         placeholder="Full Name"
@@ -41,17 +39,7 @@ export default function SignUpScreen() {
         value={name}
         onChangeText={setName}
       />
-      <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={role}
-          onValueChange={(itemValue) => setRole(itemValue)}
-          style={styles.picker}
-        >
-          <Picker.Item label="Teacher" value="teacher" />
-          <Picker.Item label="Headteacher" value="headteacher" />
-          <Picker.Item label="Admin" value="admin" />
-        </Picker>
-      </View>
+
       <TextInput
         style={styles.input}
         placeholder="Email Address"
@@ -60,6 +48,7 @@ export default function SignUpScreen() {
         value={email}
         onChangeText={setEmail}
       />
+
       <View style={styles.passwordContainer}>
         <TextInput
           style={styles.passwordInput}
@@ -75,6 +64,7 @@ export default function SignUpScreen() {
           <Ionicons name={showPassword ? "eye-off" : "eye"} size={24} color="gray" />
         </TouchableOpacity>
       </View>
+
       <View style={styles.passwordContainer}>
         <TextInput
           style={styles.passwordInput}
@@ -90,11 +80,16 @@ export default function SignUpScreen() {
           <Ionicons name={showConfirmPassword ? "eye-off" : "eye"} size={24} color="gray" />
         </TouchableOpacity>
       </View>
+
       <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
+
       <Text style={styles.signInText}>
-        Already have an account? <Text style={styles.signInLink} onPress={() => router.push('/(auth)/login')}>Sign In</Text>
+        Already have an account?{" "}
+        <Text style={styles.signInLink} onPress={() => router.push('/(auth)/login')}>
+          Sign In
+        </Text>
       </Text>
     </ScrollView>
   );
@@ -111,7 +106,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 5,
-    color: '#1E90FF', // Changed color to match sign-in button
+    color: '#1E90FF',
   },
   welcomeText: {
     fontSize: 16,
@@ -169,21 +164,6 @@ const styles = StyleSheet.create({
     color: '#1E90FF',
     fontWeight: 'bold',
   },
-  pickerContainer: {
-    width: '100%',
-    height: 50,
-    borderColor: '#ddd',
-    borderWidth: 1,
-    borderRadius: 25,
-    marginBottom: 15,
-    backgroundColor: '#f9f9f9',
-    justifyContent: 'center',
-  },
-  picker: {
-    width: '100%',
-    height: 50,
-    color: '#000',
-  },
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
@@ -192,4 +172,3 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
 });
- 
