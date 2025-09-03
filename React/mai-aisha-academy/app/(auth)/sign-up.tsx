@@ -18,9 +18,9 @@ export default function SignUpScreen() {
       return;
     }
     try {
-      await signUp(email, password, name); // role no longer passed
+      await signUp(email, password, name, "teacher"); // Always use "teacher" as role
       Alert.alert("Success", "Account created successfully!");
-      router.replace('/(teacher)/dashboard'); // default route
+      router.replace('/(teacher)/dashboard');
     } catch (error: any) {
       Alert.alert("Signup Failed", error.message);
     }
@@ -31,7 +31,6 @@ export default function SignUpScreen() {
       <Image source={require('../../assets/images/maa.jpg')} style={styles.logo} />
       <Text style={styles.schoolName}>Mai Aisha Academy</Text>
       <Text style={styles.welcomeText}>Create your account to get started.</Text>
-
       <TextInput
         style={styles.input}
         placeholder="Full Name"
@@ -39,7 +38,6 @@ export default function SignUpScreen() {
         value={name}
         onChangeText={setName}
       />
-
       <TextInput
         style={styles.input}
         placeholder="Email Address"
@@ -48,7 +46,6 @@ export default function SignUpScreen() {
         value={email}
         onChangeText={setEmail}
       />
-
       <View style={styles.passwordContainer}>
         <TextInput
           style={styles.passwordInput}
@@ -64,7 +61,6 @@ export default function SignUpScreen() {
           <Ionicons name={showPassword ? "eye-off" : "eye"} size={24} color="gray" />
         </TouchableOpacity>
       </View>
-
       <View style={styles.passwordContainer}>
         <TextInput
           style={styles.passwordInput}
@@ -80,16 +76,11 @@ export default function SignUpScreen() {
           <Ionicons name={showConfirmPassword ? "eye-off" : "eye"} size={24} color="gray" />
         </TouchableOpacity>
       </View>
-
       <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
-
       <Text style={styles.signInText}>
-        Already have an account?{" "}
-        <Text style={styles.signInLink} onPress={() => router.push('/(auth)/login')}>
-          Sign In
-        </Text>
+        Already have an account? <Text style={styles.signInLink} onPress={() => router.push('/(auth)/login')}>Sign In</Text>
       </Text>
     </ScrollView>
   );

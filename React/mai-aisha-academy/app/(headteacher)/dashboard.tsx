@@ -20,7 +20,7 @@ export default function HeadteacherDashboardScreen() {
       } catch (error) {
         console.error("Error fetching unread notifications count:", error);
       }
-    }
+    } 
   }, [user]);
 
   useFocusEffect(

@@ -100,7 +100,7 @@ export default function TeacherDashboardScreen() {
             </TouchableOpacity>
           </View>
         )}
-
+ 
         <View style={styles.greetingCard}>
           <Text style={styles.welcomeMessage}>
             {getGreetingTime()}, {userProfile?.title || ''} {loading ? 'Loading...' : userName || 'User'}

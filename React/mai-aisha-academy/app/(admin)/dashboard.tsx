@@ -6,7 +6,7 @@ import { useAuth } from '../../lib/auth';
 import { getUnreadNotificationsCount } from '../../lib/notifications'; // Import getUnreadNotificationsCount
 
 // This is a no-op comment to trigger a linter refresh.
-
+ 
 const { width } = Dimensions.get('window');
 
 export default function AdminDashboardScreen() {
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   cardGroupTitle: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
     color: 'gray',
     marginBottom: 15,
