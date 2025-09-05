@@ -1,90 +1,86 @@
-import { addDoc, collection, deleteDoc, doc, getDocs, orderBy, query, Timestamp, updateDoc, where } from 'firebase/firestore';
-import { db } from './firebase'; // Assuming firebase.ts exports 'db'
+import { db } from './firebase';
+import {addDoc,collection,deleteDoc,doc,getDoc,getDocs,query,updateDoc,where} from 'firebase/firestore';
+
+export interface Student {
+  id: string;
+  name: string;
+  classId: string;
+  teacherId: string;
+  email?: string;
+  contactNumber?: string;
+  notes?: string;
+}
 
 export interface StudentData {
   name: string;
-  classId: string; // The class the student belongs to
-  teacherId: string; // The primary teacher responsible for this student
-  email?: string; // Optional student email
-  dateOfBirth?: Timestamp; // Optional date of birth
-  gender?: 'male' | 'female' | 'other'; // Optional gender
-  contactNumber?: string; // Optional parent/guardian contact number
-  notes?: string; // Optional notes about the student
+  classId: string;
+  teacherId: string;
+  email?: string;
+  contactNumber?: string;
+  notes?: string;
 }
 
-export interface Student extends StudentData {
-  id: string;
-  createdAt: Timestamp;
-  updatedAt?: Timestamp;
+// ✅ Create a new student
+export async function createStudent(student: StudentData): Promise<void> {
+  await addDoc(collection(db, 'students'), student);
 }
 
-// Create a new student record
-export const createStudent = async (data: StudentData): Promise<Student> => {
-  try {
-    const docRef = await addDoc(collection(db, 'students'), {
-      ...data,
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
-    });
-    return { id: docRef.id, createdAt: Timestamp.now(), updatedAt: Timestamp.now(), ...data };
-  } catch (error: any) {
-    throw new Error('Failed to create student: ' + error.message);
-  }
-};
+// ✅ Update an existing student
+export async function updateStudent(studentId: string, student: StudentData): Promise<void> {
+  const studentRef = doc(db, 'students', studentId);
+  const flattenedStudent = flattenObject(student);
+  await updateDoc(studentRef, flattenedStudent);
+}
 
-// Get students by teacher ID, optionally filtered by classId
-export const getStudentsByTeacher = async (teacherId: string, classId?: string): Promise<Student[]> => {
-  try {
-    let q = query(collection(db, 'students'), where('teacherId', '==', teacherId), orderBy('name'));
-    if (classId) {
-      q = query(q, where('classId', '==', classId));
-    }
-    const querySnapshot = await getDocs(q);
-    const students: Student[] = [];
-    querySnapshot.forEach((doc) => {
-      students.push({ id: doc.id, ...doc.data() as StudentData, createdAt: doc.data().createdAt || Timestamp.now() });
-    });
-    return students;
-  } catch (error: any) {
-    throw new Error('Failed to get students: ' + error.message);
-  }
-};
+// ✅ Delete a student
+export async function deleteStudent(studentId: string): Promise<void> {
+  const studentRef = doc(db, 'students', studentId);
+  await deleteDoc(studentRef);
+}
 
-// Get a single student by ID
-export const getStudentById = async (studentId: string): Promise<Student | null> => {
-  try {
-    const docRef = doc(db, 'students', studentId);
-    const docSnap = await getDocs(query(collection(db, 'students'), where('__name__', '==', studentId))); // Using query for consistency, but direct doc lookup is also an option.
-    if (!docSnap.empty) {
-      const data = docSnap.docs[0].data() as StudentData;
-      return { id: docSnap.docs[0].id, ...data, createdAt: data.createdAt || Timestamp.now() };
-    } else {
-      return null;
-    }
-  } catch (error: any) {
-    throw new Error('Failed to get student by ID: ' + error.message);
+// ✅ Get a single student by ID
+export async function getStudentById(studentId: string): Promise<Student | null> {
+  const studentRef = doc(db, 'students', studentId);
+  const snapshot = await getDoc(studentRef);
+  if (snapshot.exists()) {
+    return { id: snapshot.id, ...(snapshot.data() as StudentData) };
   }
-};
+  return null;
+}
 
-// Update an existing student record
-export const updateStudent = async (id: string, updates: Partial<StudentData>): Promise<void> => {
-  try {
-    const studentRef = doc(db, 'students', id);
-    await updateDoc(studentRef, {
-      ...updates,
-      updatedAt: Timestamp.now(),
-    });
-  } catch (error: any) {
-    throw new Error('Failed to update student: ' + error.message);
-  }
-};
+// ✅ Get all students for a specific teacher (no composite index needed)
+export async function getStudentsByTeacher(teacherId: string): Promise<Student[]> {
+  const q = query(
+    collection(db, 'students'),
+    where('teacherId', '==', teacherId) // no orderBy to avoid composite index
+  );
 
-// Delete a student record
-export const deleteStudent = async (id: string): Promise<void> => {
-  try {
-    const studentRef = doc(db, 'students', id);
-    await deleteDoc(studentRef);
-  } catch (error: any) {
-    throw new Error('Failed to delete student: ' + error.message);
-  }
-};
+  const snapshot = await getDocs(q);
+  const students = snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...(doc.data() as StudentData),
+  }));
+
+  // Sort in memory (instead of Firestore composite index)
+  return students.sort((a, b) => a.classId.localeCompare(b.classId));
+}
+
+// ✅ Get all students in a specific class (for admins or future use)
+export async function getStudentsByClass(classId: string): Promise<Student[]> {
+  const q = query(
+    collection(db, 'students'),
+    where('classId', '==', classId)
+  );
+
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...(doc.data() as StudentData),
+  }));
+}
+function flattenObject(student: StudentData) {
+  return Object.fromEntries(
+    Object.entries(student).filter(([_, v]) => v !== undefined)
+  );
+}
+

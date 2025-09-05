@@ -139,8 +139,8 @@ export default function TeacherStudentManagementScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-         <Text style={styles.pageTitle}>My Students</Text> 
+      {/* <ScrollView contentContainerStyle={styles.scrollContent}> */}
+      <Text style={styles.pageTitle}>My Students</Text>
 
         <TouchableOpacity style={styles.addButton} onPress={() => { resetForm(); setIsModalVisible(true); }}>
           <Ionicons name="add-circle-outline" size={24} color="#fff" />
@@ -174,7 +174,7 @@ export default function TeacherStudentManagementScreen() {
             )}
           />
         )}
-      </ScrollView>
+      {/* </ScrollView> */}
 
       {/* Add/Edit Student Modal */}
       <Modal
@@ -231,7 +231,7 @@ export default function TeacherStudentManagementScreen() {
               placeholder="Any additional notes about the "
               multiline
               value={notes}
-              onChangeText={setNotes}
+              onChangeText={setNotes} 
             />
 
             <View style={styles.modalActions}>

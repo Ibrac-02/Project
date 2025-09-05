@@ -2,7 +2,7 @@ import { signUp } from '@/lib/auth';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, KeyboardAvoidingView,Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function SignUpScreen() {
   const [email, setEmail] = useState('');
@@ -27,6 +27,7 @@ export default function SignUpScreen() {
   };
 
   return (
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
     <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps='handled'>
       <Image source={require('../../assets/images/maa.jpg')} style={styles.logo} />
       <Text style={styles.schoolName}>Mai Aisha Academy</Text>
@@ -83,6 +84,7 @@ export default function SignUpScreen() {
         Already have an account? <Text style={styles.signInLink} onPress={() => router.push('/(auth)/login')}>Sign In</Text>
       </Text>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

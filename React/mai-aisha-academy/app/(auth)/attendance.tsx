@@ -14,7 +14,7 @@ import { getStudentsByTeacher, Student } from '../../lib/students';
 // Placeholder for Class data (will be replaced with actual data fetching)
 interface ClassItem {
   id: string;
-  name: string;
+  name: string; 
 }
 
 export default function AttendanceScreen() {
@@ -61,8 +61,10 @@ export default function AttendanceScreen() {
     if (!user || userRole !== 'teacher') return;
     // In a real scenario, this would fetch classes associated with the teacher from Firestore
     setTeacherClasses([
-      { id: 'class001', name: 'Grade 8A' },
-      { id: 'class002', name: 'Grade 9B' },
+      { id: 'class001', name: 'Form 1' },
+      { id: 'class002', name: 'Form 2' },
+      { id: 'class003', name: 'Form 3' },
+      { id: 'class004', name: 'Form 4' },
     ]);
     if (teacherClasses.length > 0 && !selectedClassId) {
       setSelectedClassId(teacherClasses[0].id);

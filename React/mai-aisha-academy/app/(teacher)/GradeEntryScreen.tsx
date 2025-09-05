@@ -2,19 +2,18 @@ import { Picker } from '@react-native-picker/picker';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { getStudents, useAuth } from '../../lib/auth';
+import { useAuth } from '../../lib/auth';
 import { createGrade, getGradesByTeacher, Grade, updateGrade } from '../../lib/grades';
-import { getTeacherSubjects } from '../../lib/subjects'; // Assuming getTeacherSubjects is in lib/subjects
-import { Subject, UserProfile } from '../../lib/types';
+import { getTeacherSubjects } from '../../lib/subjects'; 
+import { Subject } from '../../lib/types';
 
 export default function GradeEntryScreen() {
   const { user, userProfile } = useAuth();
   const { gradeId } = useLocalSearchParams(); // For editing existing grades
 
   const [loading, setLoading] = useState(true);
-  const [students, setStudents] = useState<UserProfile[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [selectedStudentId, setSelectedStudentId] = useState<string | undefined>(undefined);
+  const [studentName, setStudentName] = useState(''); // manual entry
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | undefined>(undefined);
   const [assignmentName, setAssignmentName] = useState('');
   const [marksObtained, setMarksObtained] = useState('');
@@ -26,22 +25,18 @@ export default function GradeEntryScreen() {
   const fetchInitialData = useCallback(async () => {
     if (!user?.uid || !userProfile) return;
 
-    setLoading(true);
+    setLoading(true); 
     try {
-      const fetchedStudents = await getStudents();
-      setStudents(fetchedStudents);
-
       const fetchedSubjects = await getTeacherSubjects(user.uid);
       setSubjects(fetchedSubjects);
 
       if (gradeId) {
         setIsEditing(true);
-        // Fetch the specific grade for editing
         const teacherGrades = await getGradesByTeacher(user.uid);
         const gradeToEdit = teacherGrades.find(g => g.id === gradeId);
         if (gradeToEdit) {
           setCurrentGrade(gradeToEdit);
-          setSelectedStudentId(gradeToEdit.studentId);
+          setStudentName(gradeToEdit.studentId); // using text now
           setSelectedSubjectId(gradeToEdit.subjectId);
           setAssignmentName(gradeToEdit.assignmentName);
           setMarksObtained(String(gradeToEdit.marksObtained));
@@ -65,7 +60,7 @@ export default function GradeEntryScreen() {
   }, [fetchInitialData]));
 
   const handleSaveGrade = async () => {
-    if (!selectedStudentId || !selectedSubjectId || !assignmentName || !marksObtained || !totalMarks || !user?.uid) {
+    if (!studentName || !selectedSubjectId || !assignmentName || !marksObtained || !totalMarks || !user?.uid) {
       Alert.alert("Error", "Please fill all required fields.");
       return;
     }
@@ -81,13 +76,13 @@ export default function GradeEntryScreen() {
     setLoading(true);
     try {
       const gradeData = {
-        studentId: selectedStudentId,
+        studentId: studentName, // text input instead of dropdown
         subjectId: selectedSubjectId,
         teacherId: user.uid,
         assignmentName,
         marksObtained: parsedMarksObtained,
         totalMarks: parsedTotalMarks,
-        status: 'pending', // Always pending for headteacher approval
+        status: 'pending', // always pending for approval
         comments,
       };
 
@@ -98,7 +93,6 @@ export default function GradeEntryScreen() {
         await createGrade(gradeData);
         Alert.alert("Success", "Grade added successfully and sent for approval!");
       }
-      // Optionally navigate back or reset form
       resetForm();
     } catch (error) {
       console.error("Error saving grade:", error);
@@ -109,7 +103,7 @@ export default function GradeEntryScreen() {
   };
 
   const resetForm = () => {
-    setSelectedStudentId(undefined);
+    setStudentName('');
     setSelectedSubjectId(undefined);
     setAssignmentName('');
     setMarksObtained('');
@@ -132,20 +126,18 @@ export default function GradeEntryScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>{isEditing ? 'Edit Grade' : 'Enter New Grade'}</Text>
 
+      {/* Student Text Input */}
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Student:</Text>
-        <Picker
-          selectedValue={selectedStudentId}
-          onValueChange={(itemValue) => setSelectedStudentId(itemValue)}
-          style={styles.picker}
-        >
-          <Picker.Item label="Select a student" value={undefined} />
-          {students.map((student) => (
-            <Picker.Item key={student.uid} label={student.name || student.email || 'Unknown Student'} value={student.uid} />
-          ))}
-        </Picker>
+        <Text style={styles.label}>Student Name / ID:</Text>
+        <TextInput
+          style={styles.input}
+          value={studentName}
+          onChangeText={setStudentName}
+          placeholder="Enter student full name"
+        />
       </View>
 
+      {/* Subject Picker */}
       <View style={styles.inputGroup}>
         <Text style={styles.label}>Subject:</Text>
         <Picker
@@ -160,6 +152,7 @@ export default function GradeEntryScreen() {
         </Picker>
       </View>
 
+      {/* Assignment Name */}
       <View style={styles.inputGroup}>
         <Text style={styles.label}>Assignment Name:</Text>
         <TextInput
@@ -170,6 +163,7 @@ export default function GradeEntryScreen() {
         />
       </View>
 
+      {/* Marks Obtained */}
       <View style={styles.inputGroup}>
         <Text style={styles.label}>Marks Obtained:</Text>
         <TextInput
@@ -181,6 +175,7 @@ export default function GradeEntryScreen() {
         />
       </View>
 
+      {/* Total Marks */}
       <View style={styles.inputGroup}>
         <Text style={styles.label}>Total Marks:</Text>
         <TextInput
@@ -192,6 +187,7 @@ export default function GradeEntryScreen() {
         />
       </View>
 
+      {/* Comments */}
       <View style={styles.inputGroup}>
         <Text style={styles.label}>Comments (Optional):</Text>
         <TextInput
@@ -204,10 +200,12 @@ export default function GradeEntryScreen() {
         />
       </View>
 
+      {/* Save Button */}
       <TouchableOpacity style={styles.saveButton} onPress={handleSaveGrade}>
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveButtonText}>{isEditing ? 'Update Grade' : 'Submit Grade'}</Text>}
       </TouchableOpacity>
 
+      {/* Cancel Edit */}
       {isEditing && (
         <TouchableOpacity style={[styles.saveButton, styles.cancelButton]} onPress={resetForm}>
           <Text style={styles.saveButtonText}>Cancel Edit</Text>
@@ -230,9 +228,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f2f5',
   },
   title: {
-    fontSize: 30, // Increased font size
+    fontSize: 30,
     fontWeight: 'bold',
-    color: '#333', // Reverted to original color
+    color: '#333',
     marginBottom: 30,
     textAlign: 'center',
   },

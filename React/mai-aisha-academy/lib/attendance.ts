@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDocs, orderBy, query, Timestamp, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDocs, query, Timestamp, updateDoc, where } from 'firebase/firestore';
 import { db } from './firebase'; // Assuming firebase.ts exports 'db'
 
 // Data structure for an attendance record when creating or updating
@@ -8,73 +8,71 @@ export interface AttendanceData {
   studentId?: string; // UID of the student
   date: Timestamp; // Date of the attendance record
   status: 'present' | 'absent' | 'late' | 'excused';
-  recordType: 'student' | 'teacher'; // New field: to differentiate between student and teacher attendance
-  markedBy: string; // Name or ID of who marked it (could be teacher or admin)
+  recordType: 'student' | 'teacher'; // differentiate between student and teacher attendance
+  markedBy: string; // Name or ID of who marked it
   approvedBy?: string; // UID of headteacher who approved it
   approvedAt?: Timestamp; // Timestamp of approval
   isApproved: boolean;
   notes?: string; // Optional notes
+  createdAt?: Timestamp; // auto-added when record created
+  updatedAt?: Timestamp; // auto-updated when record updated
 }
 
 // Full Attendance interface including Firestore generated fields
 export interface Attendance extends AttendanceData {
   id: string;
-  createdAt: Timestamp; // Timestamp when the record was first created
-  updatedAt?: Timestamp; // Timestamp when the record was last updated
 }
 
-// Create an attendance record
+// ✅ Create an attendance record
 export const createAttendance = async (data: AttendanceData): Promise<Attendance> => {
   try {
-    // Ensure recordType is provided
     if (!data.recordType) {
       throw new Error('recordType is required for creating an attendance record.');
     }
+    const now = Timestamp.now();
     const docRef = await addDoc(collection(db, 'attendance'), {
       ...data,
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
+      createdAt: now,
+      updatedAt: now,
       isApproved: false, // Default to not approved
     });
-    return { id: docRef.id, createdAt: Timestamp.now(), updatedAt: Timestamp.now(), ...data };
+    return { id: docRef.id, ...data, createdAt: now, updatedAt: now, isApproved: false };
   } catch (error: any) {
     throw new Error('Failed to create attendance record: ' + error.message);
   }
 };
 
-// Get attendance records based on user role and filters
+// ✅ Get attendance records (restructured to avoid composite index)
 export const getAttendance = async (
   userRole: string,
   currentUserId: string,
-  filters?: { classId?: string; studentId?: string; startDate?: Date; endDate?: Date; isApproved?: boolean; teacherId?: string; recordType?: 'student' | 'teacher' }
+  filters?: {
+    classId?: string;
+    studentId?: string;
+    startDate?: Date;
+    endDate?: Date;
+    isApproved?: boolean;
+    teacherId?: string;
+    recordType?: 'student' | 'teacher';
+  }
 ): Promise<Attendance[]> => {
   try {
-    let q = query(collection(db, 'attendance'), orderBy('date', 'desc'), orderBy('createdAt', 'desc'));
+    // Start base query (⚠️ no orderBy here to avoid composite index)
+    let q = query(collection(db, 'attendance'));
 
-    // Always filter by recordType if provided in filters
+    // Always filter by recordType if provided
     if (filters?.recordType) {
       q = query(q, where('recordType', '==', filters.recordType));
     }
 
-    // Apply role-based filters
+    // Role-based filters
     if (userRole === 'teacher') {
-      // Teachers primarily see their own student attendance
       q = query(q, where('teacherId', '==', currentUserId));
       q = query(q, where('recordType', '==', 'student'));
       if (filters?.classId) {
         q = query(q, where('classId', '==', filters.classId));
       }
-    } else if (userRole === 'headteacher') {
-      // Headteachers can view both student and teacher attendance
-      // No specific teacherId or recordType filter here, as they can view all
-      if (filters?.classId) {
-        q = query(q, where('classId', '==', filters.classId));
-      }
-      if (filters?.teacherId) {
-        q = query(q, where('teacherId', '==', filters.teacherId));
-      }
-    } else if (userRole === 'admin') {
-      // Admins can view all attendance records without specific role-based filtering
+    } else if (userRole === 'headteacher' || userRole === 'admin') {
       if (filters?.classId) {
         q = query(q, where('classId', '==', filters.classId));
       }
@@ -83,7 +81,7 @@ export const getAttendance = async (
       }
     }
 
-    // Apply additional filters
+    // Extra filters
     if (filters?.studentId) {
       q = query(q, where('studentId', '==', filters.studentId));
     }
@@ -99,17 +97,24 @@ export const getAttendance = async (
 
     const querySnapshot = await getDocs(q);
     const attendanceRecords: Attendance[] = [];
-    querySnapshot.forEach((doc) => {
-      const data = doc.data() as AttendanceData;
-      attendanceRecords.push({ id: doc.id, createdAt: data.createdAt || Timestamp.now(), ...data });
+    querySnapshot.forEach((docSnap) => {
+      const data = docSnap.data() as AttendanceData;
+      attendanceRecords.push({
+        id: docSnap.id,
+        ...data,
+        createdAt: data.createdAt || Timestamp.now(),
+        updatedAt: data.updatedAt,
+      });
     });
-    return attendanceRecords;
+
+    // ✅ Sort in JS (date descending) instead of Firestore orderBy
+    return attendanceRecords.sort((a, b) => b.date.toMillis() - a.date.toMillis());
   } catch (error: any) {
     throw new Error('Failed to get attendance records: ' + error.message);
   }
 };
 
-// Update an attendance record
+// ✅ Update an attendance record
 export const updateAttendance = async (id: string, updates: Partial<AttendanceData>): Promise<void> => {
   try {
     const attendanceRef = doc(db, 'attendance', id);
@@ -122,7 +127,7 @@ export const updateAttendance = async (id: string, updates: Partial<AttendanceDa
   }
 };
 
-// Approve an attendance record (specific to Headteacher/Admin)
+// ✅ Approve an attendance record
 export const approveAttendance = async (attendanceId: string, approvedByUserId: string): Promise<void> => {
   try {
     const attendanceRef = doc(db, 'attendance', attendanceId);
@@ -137,7 +142,7 @@ export const approveAttendance = async (attendanceId: string, approvedByUserId: 
   }
 };
 
-// Delete an attendance record (specific to Admin)
+// ✅ Delete an attendance record
 export const deleteAttendance = async (id: string): Promise<void> => {
   try {
     const attendanceRef = doc(db, 'attendance', id);

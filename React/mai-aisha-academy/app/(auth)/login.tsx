@@ -3,7 +3,7 @@ import { signIn } from '@/lib/auth';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, KeyboardAvoidingView,Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
@@ -30,11 +30,12 @@ export default function SignInScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Image source={require('../../assets/images/maa.jpg')} style={styles.logo} />
-      <Text style={styles.schoolName}>Mai Aisha Academy</Text>
-      <Text style={styles.welcomeText}>Welcome back! Please sign in to continue.</Text>
-      <TextInput
+    <KeyboardAvoidingView style={{ flex: 4 }}  behavior={Platform.OS === "ios" ? "padding" : "height"}>
+      <View style={styles.container}>
+        <Image source={require('../../assets/images/maa.jpg')} style={styles.logo} />
+        <Text style={styles.schoolName}>Mai Aisha Academy</Text>
+        <Text style={styles.welcomeText}>Welcome back! Please sign in to continue.</Text>
+        <TextInput
         style={styles.input}
         placeholder="Email Address"
         keyboardType="email-address"
@@ -80,6 +81,7 @@ export default function SignInScreen() {
         Don't have an account? <Text style={styles.signUpLink} onPress={() => router.push('/(auth)/sign-up')}>Sign Up</Text>
       </Text>
     </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -181,5 +183,12 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     color: '#666',
     fontSize: 14,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#fff',
   },
 });

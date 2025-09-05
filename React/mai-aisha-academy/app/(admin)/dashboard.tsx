@@ -70,7 +70,7 @@ export default function AdminDashboardScreen() {
             <Image source={require('../../assets/images/maa.jpg')} style={styles.headerLogo} />
             <View>
               <Text style={styles.schoolName}>MAI AISHA ACADEMY</Text>
-              <Text style={styles.headerDashboardTitle}>Admin Dashboard</Text>
+              <Text style={styles.headerDashboardTitle}>Supervisor Dashboard</Text>
             </View>
           </View>
           <View style={styles.headerRight}>
