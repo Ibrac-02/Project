@@ -35,13 +35,15 @@ export default function SignUpScreen() {
       <TextInput
         style={styles.input}
         placeholder="Full Name"
+        placeholderTextColor="#666"
         autoCapitalize="words"
         value={name}
         onChangeText={setName}
       />
       <TextInput
         style={styles.input}
-        placeholder="Email Address"
+        placeholder="username@example.com"
+        placeholderTextColor="#666"
         keyboardType="email-address"
         autoCapitalize="none"
         value={email}
@@ -51,6 +53,7 @@ export default function SignUpScreen() {
         <TextInput
           style={styles.passwordInput}
           placeholder="Password"
+          placeholderTextColor="#666"
           secureTextEntry={!showPassword}
           value={password}
           onChangeText={setPassword}
@@ -66,6 +69,7 @@ export default function SignUpScreen() {
         <TextInput
           style={styles.passwordInput}
           placeholder="Confirm Password"
+          placeholderTextColor="#666"
           secureTextEntry={!showConfirmPassword}
           value={confirmPassword}
           onChangeText={setConfirmPassword}

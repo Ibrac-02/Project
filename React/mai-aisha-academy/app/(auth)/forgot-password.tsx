@@ -18,7 +18,7 @@ const ForgotPasswordScreen = () => {
       await sendPasswordReset(email); // Call the actual reset function
       Alert.alert(
         'Password Reset',
-        'If an account with that email exists, a password reset link has been sent to your inbox.'
+        'The password reset link has been sent to your email inbox.'
       );
       router.replace('/(auth)/login');
     } catch (error: any) {
@@ -37,7 +37,8 @@ const ForgotPasswordScreen = () => {
       <Text style={styles.subtitle}>Enter your email address to receive a password reset link.</Text>
       <TextInput
         style={styles.input}
-        placeholder="Email Address"
+        placeholder="username@example.com"
+        placeholderTextColor="#666"
         keyboardType="email-address"
         autoCapitalize="none"
         value={email}

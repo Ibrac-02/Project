@@ -37,7 +37,8 @@ export default function SignInScreen() {
         <Text style={styles.welcomeText}>Welcome back! Please sign in to continue.</Text>
         <TextInput
         style={styles.input}
-        placeholder="Email Address"
+        placeholder="username@example.com"
+        placeholderTextColor="#666"
         keyboardType="email-address"
         autoCapitalize="none"
         value={email}
@@ -47,6 +48,7 @@ export default function SignInScreen() {
         <TextInput
           style={styles.passwordInput}
           placeholder="Password"
+          placeholderTextColor="#666"
           secureTextEntry={!showPassword}
           value={password}
           onChangeText={setPassword}
@@ -81,7 +83,7 @@ export default function SignInScreen() {
         Don't have an account? <Text style={styles.signUpLink} onPress={() => router.push('/(auth)/sign-up')}>Sign Up</Text>
       </Text>
     </View>
-    </KeyboardAvoidingView>
+    </KeyboardAvoidingView> 
   );
 }
 
