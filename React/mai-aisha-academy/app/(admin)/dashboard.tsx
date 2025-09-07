@@ -111,13 +111,13 @@ export default function AdminDashboardScreen() {
 
           <Text style={styles.cardGroupTitle}>Data Management</Text>
           <View style={styles.cardGroupContainer}>
-            <DashboardCard iconName="people-outline" title="Manage Users" onPress={() => router.push('/(admin)/ManageUsersScreen')} />
-            <DashboardCard iconName="school-outline" title="Manage School Data" onPress={() => router.push('/(admin)/ManageSchoolDataScreen')} />
+            <DashboardCard iconName="people-outline" title="User Management" onPress={() => router.push('/(admin)/ManageUsersScreen')} />
+            <DashboardCard iconName="school-outline" title="School Setup" onPress={() => router.push('/(admin)/ManageSchoolDataScreen')} />
           </View>
 
           <Text style={styles.cardGroupTitle}>Reporting & Analytics</Text>
           <View style={styles.cardGroupContainer}>
-            <DashboardCard iconName="bar-chart-outline" title="Generate Reports" onPress={() => router.push('/(admin)/GradeReportsScreen')} />
+            <DashboardCard iconName="bar-chart-outline" title="Reports & Analytics" onPress={() => router.push('/(admin)/GradeReportsScreen')} />
             <DashboardCard iconName="checkmark-done-outline" title="Attendance Overview" onPress={() => router.push('/(auth)/attendance')} />
           </View>
 

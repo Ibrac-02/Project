@@ -107,16 +107,16 @@ export default function HeadteacherDashboardScreen() {
 
           <Text style={styles.cardGroupTitle}>Approvals & Oversight</Text>
           <View style={styles.cardGroupContainer}>
-            <DashboardCard iconName="checkbox-outline" title="Approve Marks/Gradebooks" onPress={() => router.push('/(headteacher)/GradeApprovalScreen')} />
-            <DashboardCard iconName="stats-chart-outline" title="View Attendance Reports" onPress={() => router.push('/(auth)/attendance')} />
+            <DashboardCard iconName="checkbox-outline" title="Approve Grades" onPress={() => router.push('/(headteacher)/GradeApprovalScreen')} />
+            <DashboardCard iconName="stats-chart-outline" title="Attendance & Perfomance Reports" onPress={() => router.push('/(auth)/attendance')} />
             <DashboardCard iconName="people-circle-outline" title="Teacher Attendance" onPress={() => router.push({ pathname: '/(auth)/attendance', params: { recordType: 'teacher' } })} />
             <DashboardCard iconName="analytics-outline" title="Class Performance Analytics" onPress={() => router.push('/(headteacher)/ClassPerformanceAnalyticsScreen')} />
           </View>
 
           <Text style={styles.cardGroupTitle}>Data Management</Text>
           <View style={styles.cardGroupContainer}>
-            <DashboardCard iconName="book-outline" title="Manage Subjects" onPress={() => router.push('/(headteacher)/ManageSubjectsScreen')} />
-            <DashboardCard iconName="person-add-outline" title="Teacher Management" onPress={() => router.push('/(headteacher)/ManageTeachersScreen')} />
+            <DashboardCard iconName="book-outline" title="Subjects Allocation" onPress={() => router.push('/(headteacher)/ManageSubjectsScreen')} />
+            <DashboardCard iconName="person-add-outline" title=" Manage Teachers" onPress={() => router.push('/(headteacher)/ManageTeachersScreen')} />
           </View>
 
           <Text style={styles.cardGroupTitle}>Scheduling & Information</Text>

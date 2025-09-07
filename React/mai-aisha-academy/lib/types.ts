@@ -18,6 +18,7 @@ export interface UserProfile {
   classesHandled?: string | null; // New field
   attendanceSubmitted?: string | null; // New field
   gradesSubmitted?: string | null; // New field
+  twoFactorEnabled?: boolean; // ✅ new field for 2FA
 }
 
 export interface Subject {

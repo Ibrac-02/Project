@@ -112,20 +112,20 @@ export default function TeacherDashboardScreen() {
           <Text style={styles.cardGroupTitle}>Classroom Management</Text>
           <View style={styles.cardGroupContainer}>
             <DashboardCard iconName="checkmark-done-outline" title="Mark Attendance" onPress={() => router.push('/(auth)/attendance')} />
-            <DashboardCard iconName="book-outline" title="Manage Subjects" onPress={() => router.push('/(teacher)/ManageSubjectsScreen')} />
-            <DashboardCard iconName="people-outline" title="Manage Students" onPress={() => router.push('/(teacher)/students')} />
-            <DashboardCard iconName="create-outline" title="Assignments Management" onPress={() => router.push('/(teacher)/ManageAssignmentsScreen')} />
+            <DashboardCard iconName="book-outline" title="My Subjects" onPress={() => router.push('/(teacher)/ManageSubjectsScreen')} />
+            <DashboardCard iconName="people-outline" title="My Students" onPress={() => router.push('/(teacher)/students')} />
+            <DashboardCard iconName="create-outline" title="Assignments" onPress={() => router.push('/(teacher)/ManageAssignmentsScreen')} />
           </View>
 
           <Text style={styles.cardGroupTitle}>Academics & Grading</Text>
           <View style={styles.cardGroupContainer}>
-            <DashboardCard iconName="stats-chart-outline" title="Gradebook / Marks Register" onPress={() => router.push('/(teacher)/GradeEntryScreen')} />
+            <DashboardCard iconName="stats-chart-outline" title="Enter Grades" onPress={() => router.push('/(teacher)/GradeEntryScreen')} />
             <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => router.push('/(auth)/academicCalendar')} />
           </View>
 
           <Text style={styles.cardGroupTitle}>Performance</Text>
           <View style={styles.cardGroupContainer}>
-            <DashboardCard iconName="trending-up-outline" title="Performance Tracking" onPress={() => router.push('/(teacher)/TeacherPerformanceScreen')} />
+            <DashboardCard iconName="trending-up-outline" title="Class Performance" onPress={() => router.push('/(teacher)/TeacherPerformanceScreen')} />
           </View>
 
         </ScrollView>

@@ -1,70 +1,73 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import React, { useState } from 'react';
+import {Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Switch,} from 'react-native';
 import { updateUserProfile, useAuth } from '../../lib/auth';
+import { UserProfile } from '../../lib/types';
+import { router } from 'expo-router';
 
-export default function TeacherProfileScreen() {
-  const { userName, user, userProfile, refreshUserProfile } = useAuth();
+export default function ProfileScreen() {
+  const { userName, user, userProfile, refreshUserProfile, enable2FA, disable2FA } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-
-  // Profile states
-  const [title, setTitle] = useState(userProfile?.title || 'Mr.');
   const [newName, setNewName] = useState(userName || '');
-  const [newContactNumber, setNewContactNumber] = useState(userProfile?.contactNumber || '');
-  const [subjects, setSubjects] = useState(userProfile?.subjects || '');
-  const [classes, setClasses] = useState(userProfile?.classes || '');
-  const [qualifications, setQualifications] = useState(userProfile?.qualifications || '');
+  const [newTitle, setNewTitle] = useState(userProfile?.title || '');
+  const [newContactNumber, setNewContactNumber] = useState(userProfile?.contactNumber || 'N/A');
 
   const handleSave = async () => {
-    if (user?.uid) {
-      try {
-        const updates: any = {
-          title,
-          name: newName,
-          contactNumber: newContactNumber,
-          subjects,
-          classes,
-          qualifications,
-        };
+    if (!user?.uid) return;
 
+    const updates: Partial<UserProfile> = {};
+    if (newName !== userName) {
+      updates.name = newName;
+    }
+    if (newTitle !== (userProfile?.title || '')) {
+      updates.title = newTitle;
+    }
+    if (newContactNumber !== (userProfile?.contactNumber || 'N/A')) {
+      updates.contactNumber = newContactNumber;
+    }
+
+    if (Object.keys(updates).length > 0) {
+      try {
         await updateUserProfile(user.uid, updates);
-        await refreshUserProfile();
-        Alert.alert("Success", "Profile updated successfully!");
+        Alert.alert('Success', 'Profile updated successfully!');
+        refreshUserProfile();
         setIsEditing(false);
       } catch (error: any) {
-        Alert.alert("Error", "Failed to update profile: " + error.message);
+        Alert.alert('Error', 'Failed to update profile: ' + error.message);
       }
     } else {
-      Alert.alert("Error", "User not authenticated.");
+      setIsEditing(false);
     }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
-
         {/* Basic Info */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Basic Information</Text>
-          {/* Title */}
+
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Title:</Text>
             {isEditing ? (
-              <Picker
-                selectedValue={title}
-                onValueChange={(itemValue) => setTitle(itemValue)}
-                style={styles.picker}
-              >
-                <Picker.Item label="Mr." value="Mr." />
-                <Picker.Item label="Mrs." value="Mrs." />
-                <Picker.Item label="Ms." value="Ms." />
-              </Picker>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={newTitle}
+                  onValueChange={(itemValue) => setNewTitle(itemValue)}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Select Title" value="" />
+                  <Picker.Item label="Mr." value="Mr." />
+                  <Picker.Item label="Mrs." value="Mrs." />
+                  <Picker.Item label="Ms." value="Ms." />
+                </Picker>
+              </View>
             ) : (
-              <Text style={styles.text}>{title}</Text>
+              <Text style={styles.text}>{userProfile?.title || 'N/A'}</Text>
             )}
           </View>
-          {/* Full Name */}
+
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Full Name:</Text>
             {isEditing ? (
@@ -75,15 +78,20 @@ export default function TeacherProfileScreen() {
                 placeholder="Enter full name"
               />
             ) : (
-              <Text style={styles.text}>{newName || 'N/A'}</Text>
+              <Text style={styles.text}>{userName || 'N/A'}</Text>
             )}
           </View>
-          {/* Email */}
+
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Email:</Text>
             <Text style={styles.text}>{user?.email || 'N/A'}</Text>
           </View>
-          {/* Contact */}
+
+          <View style={styles.detailContainer}>
+            <Text style={styles.labelText}>Username:</Text>
+            <Text style={styles.text}>{userProfile?.name || 'N/A'}</Text>
+          </View>
+
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Contact:</Text>
             {isEditing ? (
@@ -94,52 +102,7 @@ export default function TeacherProfileScreen() {
                 placeholder="Enter contact number"
               />
             ) : (
-              <Text style={styles.text}>{newContactNumber || 'N/A'}</Text>
-            )}
-          </View>
-        </View>
-
-        {/* Professional Info */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Professional Info</Text>
-          {/* Subjects */}
-          <View style={styles.detailContainer}>
-            <Text style={styles.labelText}>Subjects:</Text>
-            {isEditing ? (
-              <TextInput
-                style={styles.input}
-                value={subjects}
-                onChangeText={setSubjects}
-                placeholder="Enter subjects"
-              />
-            ) : (
-              <Text style={styles.text}>{subjects || 'N/A'}</Text>
-            )}
-          </View>
-          {/* Classes */}
-          <View style={styles.detailContainer}>
-            <Text style={styles.labelText}>Classes:</Text>
-            {isEditing ? (
-              <TextInput
-                style={styles.input}
-                value={classes}
-                onChangeText={setClasses}
-                placeholder="Enter classes"
-              />
-            ) : (
-              <Text style={styles.text}>{classes || 'N/A'}</Text>
-            )}
-          </View>
-          {/* Qualifications */}
-          <View style={styles.detailContainer}>
-            <Text style={styles.labelText}>Qualifications:</Text>
-            {isEditing ? (
-              <TextInput
-                style={styles.input}
-                value={qualifications}onChangeText={setQualifications}placeholder="Enter qualifications"
-              />
-            ) : (
-              <Text style={styles.text}>{qualifications || 'N/A'}</Text>
+              <Text style={styles.text}>{userProfile?.contactNumber || 'N/A'}</Text>
             )}
           </View>
         </View>
@@ -147,13 +110,50 @@ export default function TeacherProfileScreen() {
         {/* Account Settings */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account Settings</Text>
-          <TouchableOpacity style={styles.settingItem}>
+
+          <TouchableOpacity
+            style={styles.settingItem}
+            onPress={() => router.push('/change-password')}
+          >
             <Text style={styles.settingText}>Change Password</Text>
             <Ionicons name="chevron-forward-outline" size={20} color="#555" />
           </TouchableOpacity>
+
+          <View style={styles.settingItem}>
+            <Text style={styles.settingText}>Two-Factor Authentication</Text>
+            <Switch
+              value={userProfile?.twoFactorEnabled || false}
+              onValueChange={async (value) => {
+                try {
+                  if (value) {
+                    await enable2FA();
+                  } else {
+                    await disable2FA();
+                  }
+                  refreshUserProfile();
+                } catch (err: any) {
+                  Alert.alert('Error', err.message);
+                }
+              }}
+            />
+          </View>
         </View>
 
-        {/* Edit / Save Buttons */}
+        {/* Other Info */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Other Information</Text>
+
+          <View style={styles.detailContainer}>
+            <Text style={styles.labelText}>Date Joined:</Text>
+            <Text style={styles.text}>{userProfile?.dateJoined || 'N/A'}</Text>
+          </View>
+
+          <View style={styles.detailContainer}>
+            <Text style={styles.labelText}>Status:</Text>
+            <Text style={styles.text}>{userProfile?.status || 'Active'}</Text>
+          </View>
+        </View>
+
         {isEditing ? (
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
             <Text style={styles.buttonText}>Save Changes</Text>
@@ -163,7 +163,6 @@ export default function TeacherProfileScreen() {
             <Text style={styles.buttonText}>Edit Profile</Text>
           </TouchableOpacity>
         )}
-
       </View>
     </ScrollView>
   );
@@ -173,17 +172,18 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     backgroundColor: '#f0f2f5',
+    paddingVertical: 20,
   },
   container: {
+    flex: 1,
     alignItems: 'center',
     paddingHorizontal: 20,
   },
   section: {
     backgroundColor: '#fff',
     borderRadius: 10,
-    padding: 30,
-    marginTop: 30,
-    marginBottom: 10,
+    padding: 20,
+    marginBottom: 20,
     width: '100%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -226,7 +226,15 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     fontSize: 16,
     color: '#333',
-    marginLeft: -5,
+  },
+  pickerContainer: {
+    flex: 1,
+    borderBottomWidth: 1,
+    borderBottomColor: '#1E90FF',
+  },
+  picker: {
+    height: 40,
+    width: '100%',
   },
   settingItem: {
     flexDirection: 'row',
@@ -269,11 +277,5 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
-  },
-  picker: {
-    flex: 1,
-    height: 40,
-    borderRadius: 8,
-    marginLeft: -5,
   },
 });
