@@ -1,7 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import React, { useState } from 'react';
-import {Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Switch,} from 'react-native';
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  Switch,
+} from 'react-native';
 import { updateUserProfile, useAuth } from '../../lib/auth';
 import { UserProfile } from '../../lib/types';
 import { router } from 'expo-router';
@@ -113,7 +122,7 @@ export default function ProfileScreen() {
 
           <TouchableOpacity
             style={styles.settingItem}
-            onPress={() => router.push('/change-password')}
+            onPress={() => router.push('/(settings)/change-password')}
           >
             <Text style={styles.settingText}>Change Password</Text>
             <Ionicons name="chevron-forward-outline" size={20} color="#555" />
@@ -137,6 +146,14 @@ export default function ProfileScreen() {
               }}
             />
           </View>
+
+          <TouchableOpacity
+            style={styles.settingItem}
+            onPress={() => router.push('/(settings)/delete-account')}
+          >
+            <Text style={styles.settingText}>Delete Account</Text>
+            <Ionicons name="chevron-forward-outline" size={20} color="#555" />
+          </TouchableOpacity>
         </View>
 
         {/* Other Info */}

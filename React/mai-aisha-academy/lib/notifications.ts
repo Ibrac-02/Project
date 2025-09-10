@@ -3,38 +3,49 @@ import { db } from './firebase';
 import { Notification } from './types';
 
 // Create a new notification
-export const createNotification = async (message: string, type: Notification['type'], targetUserIds: string[], link?: string): Promise<Notification> => {
+export const createNotification = async (
+  message: string,
+  type: Notification['type'],
+  targetUserIds: string[],
+  link?: string
+): Promise<Notification> => {
   try {
     const notificationsCollection = collection(db, "notifications");
     const newNotificationRef = await addDoc(notificationsCollection, {
       message,
       type,
       targetUserIds,
-      readByUsers: [], // Initially, no one has read it
+      readByUsers: [],
       createdAt: new Date().toISOString(),
       ...(link && { link }),
     });
-    return { id: newNotificationRef.id, message, type, targetUserIds, readByUsers: [], createdAt: new Date().toISOString(), link };
+    return {
+      id: newNotificationRef.id,
+      message,
+      type,
+      targetUserIds,
+      readByUsers: [],
+      createdAt: new Date().toISOString(),
+      link,
+    };
   } catch (error: any) {
     console.error("Error creating notification:", error);
     throw new Error(error.message);
   }
 };
 
-// Get unread notifications count for a specific user
+// Get unread notifications count
 export const getUnreadNotificationsCount = async (userId: string): Promise<number> => {
+  if (!userId) return 0;
   try {
-    const notificationsCollection = collection(db, "notifications");
-    // Query notifications targeted at this user
     const q = query(
-      notificationsCollection,
-      where("targetUserIds", "array-contains", userId),
-      // Remove where("readByUsers", "not-array-contains", userId) due to Firestore limitation
+      collection(db, "notifications"),
+      where("targetUserIds", "array-contains", userId)
     );
     const querySnapshot = await getDocs(q);
     let unreadCount = 0;
-    querySnapshot.forEach(doc => {
-      const notification = doc.data() as Notification;
+    querySnapshot.forEach((docSnap) => {
+      const notification = docSnap.data() as Notification;
       if (!notification.readByUsers.includes(userId)) {
         unreadCount++;
       }
@@ -42,16 +53,17 @@ export const getUnreadNotificationsCount = async (userId: string): Promise<numbe
     return unreadCount;
   } catch (error: any) {
     console.error("Error fetching unread notifications count:", error);
-    throw new Error(error.message);
+    return 0;
   }
 };
 
-// Mark a specific notification as read by a user
+// Mark notification as read
 export const markNotificationAsRead = async (notificationId: string, userId: string) => {
+  if (!userId) return;
   try {
     const notificationDocRef = doc(db, "notifications", notificationId);
     await updateDoc(notificationDocRef, {
-      readByUsers: arrayUnion(userId), // Add user ID to readByUsers array
+      readByUsers: arrayUnion(userId),
     });
   } catch (error: any) {
     console.error("Error marking notification as read:", error);
@@ -59,27 +71,21 @@ export const markNotificationAsRead = async (notificationId: string, userId: str
   }
 };
 
-// Get all notifications for a specific user (read and unread)
+// Get all notifications
 export const getAllNotifications = async (userId: string): Promise<Notification[]> => {
+  if (!userId) return [];
   try {
-    const notificationsCollection = collection(db, "notifications");
     const q = query(
-      notificationsCollection,
+      collection(db, "notifications"),
       where("targetUserIds", "array-contains", userId)
     );
     const querySnapshot = await getDocs(q);
-    const notifications: Notification[] = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      message: doc.data().message,
-      type: doc.data().type,
-      targetUserIds: doc.data().targetUserIds,
-      readByUsers: doc.data().readByUsers,
-      createdAt: doc.data().createdAt,
-      link: doc.data().link,
+    return querySnapshot.docs.map((docSnap) => ({
+      id: docSnap.id,
+      ...(docSnap.data() as Omit<Notification, "id">),
     }));
-    return notifications;
   } catch (error: any) {
     console.error("Error fetching all notifications:", error);
-    throw new Error(error.message);
+    return [];
   }
 };

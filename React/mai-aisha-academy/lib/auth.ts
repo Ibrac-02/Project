@@ -1,24 +1,5 @@
-import {
-  createUserWithEmailAndPassword,
-  onAuthStateChanged,
-  sendPasswordResetEmail,
-  signInWithEmailAndPassword,
-  updatePassword,
-  reauthenticateWithCredential,
-  EmailAuthProvider,
-  User,
-} from 'firebase/auth';
-import {
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  setDoc,
-  updateDoc,
-  where,
-} from 'firebase/firestore';
+import { createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, updatePassword, reauthenticateWithCredential, EmailAuthProvider, User,} from 'firebase/auth';
+import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where,} from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { auth, db } from './firebase';
 import { UserProfile } from './types';
@@ -66,23 +47,14 @@ export const useAuth = () => {
         classesHandled: userData?.classesHandled || null,
         attendanceSubmitted: userData?.attendanceSubmitted || null,
         gradesSubmitted: userData?.gradesSubmitted || null,
-        twoFactorEnabled: userData?.twoFactorEnabled || false, // ✅ add 2FA field
+        twoFactorEnabled: userData?.twoFactorEnabled || false,
       };
 
       const userName = userProfile.name;
       const role = userProfile.role;
 
-      console.log(
-        'Auth State Changed - Fetched User Data: Name=',
-        userName,
-        ', Role=',
-        role,
-        ', Title=',
-        userProfile.title,
-      );
       setAuthState({ user, loading: false, userName, role, userProfile });
     } else {
-      console.log('Auth State Changed - No user logged in.');
       setAuthState({
         user: null,
         loading: false,
@@ -95,7 +67,6 @@ export const useAuth = () => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      console.log('Auth State Changed - User:', user ? user.uid : 'null');
       setAuthState((prev) => ({ ...prev, loading: true }));
       await fetchAndUpdateUserProfile(user);
     });
@@ -109,7 +80,6 @@ export const useAuth = () => {
     }
   };
 
-  // 🔹 New methods
   const changePassword = async (currentPassword: string, newPassword: string) => {
     if (!authState.user || !authState.user.email) throw new Error('No logged in user');
     const credential = EmailAuthProvider.credential(authState.user.email, currentPassword);
@@ -143,35 +113,13 @@ export const getAllUsers = async (): Promise<UserProfile[]> => {
   try {
     const usersCollection = collection(db, 'users');
     const usersSnapshot = await getDocs(usersCollection);
-    const usersList: UserProfile[] = usersSnapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        uid: doc.id,
-        email: data.email,
-        name: data.name || null,
-        role: data.role || null,
-        title: data.title || null,
-        contactNumber: data?.contactNumber || null,
-        dateJoined: data?.dateJoined || null,
-        status: data?.status || null,
-        employeeId: data?.employeeId || null,
-        department: data?.department || null,
-        teachersSupervised: data?.teachersSupervised || null,
-        attendanceApprovals: data?.attendanceApprovals || null,
-        gradeApprovals: data?.gradeApprovals || null,
-        subjects: data?.subjects || null,
-        classes: data?.classes || null,
-        qualifications: data?.qualifications || null,
-        classesHandled: data?.classesHandled || null,
-        attendanceSubmitted: data?.attendanceSubmitted || null,
-        gradesSubmitted: data?.gradesSubmitted || null,
-        twoFactorEnabled: data?.twoFactorEnabled || false,
-      };
-    });
-    return usersList;
+    return usersSnapshot.docs.map((doc) => ({
+      uid: doc.id,
+      ...(doc.data() as Omit<UserProfile, 'uid'>),
+    }));
   } catch (error: any) {
     console.error('Error fetching all users:', error);
-    throw new Error(error.message);
+    return [];
   }
 };
 
@@ -188,29 +136,22 @@ export const getStudents = async (): Promise<UserProfile[]> => {
   try {
     const q = query(collection(db, 'users'), where('role', '==', 'student'));
     const querySnapshot = await getDocs(q);
-    
-    return querySnapshot.docs.map(doc => ({
-        uid: doc.id,
-        ...(doc.data() as Omit<UserProfile, 'uid'>),
+    return querySnapshot.docs.map((doc) => ({
+      uid: doc.id,
+      ...(doc.data() as Omit<UserProfile, 'uid'>),
     }));
-
   } catch (error: any) {
     console.error('Error fetching students:', error);
-    throw new Error(error.message);
+    return [];
   }
 };
 
-// 🔹 Auth methods
 export const signIn = async (email: string, password: string) => {
-  try {
-    const response = await signInWithEmailAndPassword(auth, email, password);
-    const user = response.user;
-    const userDoc = await getDoc(doc(db, 'users', user.uid));
-    const role = userDoc.exists() ? userDoc.data().role : null;
-    return { user, role };
-  } catch (error: any) {
-    throw new Error(error.message);
-  }
+  const response = await signInWithEmailAndPassword(auth, email, password);
+  const user = response.user;
+  const userDoc = await getDoc(doc(db, 'users', user.uid));
+  const role = userDoc.exists() ? userDoc.data().role : null;
+  return { user, role };
 };
 
 export const signUp = async (
@@ -220,56 +161,42 @@ export const signUp = async (
   role: string,
   title?: string,
 ) => {
-  try {
-    const response = await createUserWithEmailAndPassword(auth, email, password);
-    await setDoc(doc(db, 'users', response.user.uid), {
-      email: response.user.email,
-      role: role,
-      name: name,
-      ...(title && { title }),
-      twoFactorEnabled: false, // default disabled
-    });
-    return response.user;
-  } catch (error: any) {
-    throw new Error(error.message);
-  }
+  const response = await createUserWithEmailAndPassword(auth, email, password);
+  await setDoc(doc(db, 'users', response.user.uid), {
+    email: response.user.email,
+    role: role,
+    name: name,
+    ...(title && { title }),
+    twoFactorEnabled: false,
+  });
+  return response.user;
 };
 
 export const sendPasswordReset = async (email: string) => {
-  try {
-    await sendPasswordResetEmail(auth, email);
-  } catch (error: any) {
-    throw new Error(error.message);
-  }
+  await sendPasswordResetEmail(auth, email);
 };
 
 export const updateUserProfile = async (uid: string, updates: Partial<UserProfile>) => {
-  try {
-    const userDocRef = doc(db, 'users', uid);
-    await updateDoc(userDocRef, updates);
-  } catch (error: any) {
-    throw new Error(error.message);
-  }
+  if (!uid) throw new Error("UID is required");
+  const userDocRef = doc(db, 'users', uid);
+  await updateDoc(userDocRef, updates);
 };
 
 export const updateUserName = async (uid: string, newName: string) => {
-  try {
-    const userDocRef = doc(db, 'users', uid);
-    await updateDoc(userDocRef, { name: newName });
-  } catch (error: any) {
-    throw new Error(error.message);
-  }
+  if (!uid) throw new Error("UID is required");
+  const userDocRef = doc(db, 'users', uid);
+  await updateDoc(userDocRef, { name: newName });
 };
 
 export const getUserNameById = async (uid: string): Promise<string | null> => {
+  if (!uid) return null;
   try {
     const userDoc = await getDoc(doc(db, 'users', uid));
     if (userDoc.exists()) {
       const userData = userDoc.data();
       return userData.name || userData.email || null;
-    } else {
-      return null;
     }
+    return null;
   } catch (error: any) {
     console.error('Error fetching user name by ID:', error);
     return null;

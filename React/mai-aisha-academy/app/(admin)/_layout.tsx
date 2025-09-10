@@ -9,8 +9,8 @@ export default function AdminLayout() {
         name="profile"
         options={{
           headerShown: true,
-          title: 'Admin Profile',
-          headerStyle: {
+          title: 'Supervisor Profile',
+          headerStyle: { 
             backgroundColor: '#1E90FF',
             height: 120, // Set header height
           },
@@ -22,7 +22,7 @@ export default function AdminLayout() {
         }}
       />
       <Stack.Screen
-        name="ManageUsersScreen"
+        name="manage-user"
         options={{
           headerShown: true,
           title: 'Manage Users',
@@ -38,7 +38,7 @@ export default function AdminLayout() {
         }}
       />
       <Stack.Screen
-        name="EditUserScreen"
+        name="edit-user"
         options={{
           headerShown: true,
           title: 'Edit User',
@@ -54,11 +54,11 @@ export default function AdminLayout() {
         }}
       />
       <Stack.Screen
-        name="GradeReportsScreen"
+        name="grade-report"
         options={{
           headerShown: true,
           title: 'Grade Reports',
-          headerStyle: {
+          headerStyle: { 
             backgroundColor: '#1E90FF',
             height: 120, // Set header height
           },
@@ -70,7 +70,7 @@ export default function AdminLayout() {
         }}
       />
       <Stack.Screen
-        name="ManageSchoolDataScreen"
+        name="school-data"
         options={{
           headerShown: true,
           title: 'Manage School Data',

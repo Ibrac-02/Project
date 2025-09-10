@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { useAuth } from '../../lib/auth';
@@ -23,37 +22,34 @@ export default function ChangePasswordScreen() {
   };
 
   return (
-    <>
-
-      <View style={styles.container}>
-        <View style={styles.card}>
-          <Text style={styles.label}>Current Password</Text>
-          <TextInput
-            secureTextEntry
-            value={currentPassword}
-            onChangeText={setCurrentPassword}
-            style={styles.input}
-          />
-          <Text style={styles.label}>New Password</Text>
-          <TextInput
-            secureTextEntry
-            value={newPassword}
-            onChangeText={setNewPassword}
-            style={styles.input}
-          />
-          <Text style={styles.label}>Confirm Password</Text>
-          <TextInput
-            secureTextEntry
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            style={styles.input}
-          />
-          <TouchableOpacity style={styles.button} onPress={handleChangePassword}>
-            <Text style={styles.buttonText}>Change Password</Text>
-          </TouchableOpacity>
-        </View>
+    <View style={styles.container}>
+      <View style={styles.card}>
+        <Text style={styles.label}>Current Password</Text>
+        <TextInput
+          secureTextEntry
+          value={currentPassword}
+          onChangeText={setCurrentPassword}
+          style={styles.input}
+        />
+        <Text style={styles.label}>New Password</Text>
+        <TextInput
+          secureTextEntry
+          value={newPassword}
+          onChangeText={setNewPassword}
+          style={styles.input}
+        />
+        <Text style={styles.label}>Confirm Password</Text>
+        <TextInput
+          secureTextEntry
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          style={styles.input}
+        />
+        <TouchableOpacity style={styles.button} onPress={handleChangePassword}>
+          <Text style={styles.buttonText}>Change Password</Text>
+        </TouchableOpacity>
       </View>
-    </>
+    </View>
   );
 }
 
@@ -61,8 +57,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f0f2f5',
-    justifyContent: 'center',
-    padding: 10,
+    padding: 20,
+    paddingTop: 20, // gap from header
   },
   card: {
     backgroundColor: '#fff',

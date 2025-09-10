@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f4f7f9', // A very light, clean gray
     paddingTop: 50,
-    paddingHorizontal: 20,
+    paddingHorizontal: 50,
   },
   centered: {
     flex: 1,
@@ -476,7 +476,7 @@ const styles = StyleSheet.create({
   },
   modalButton: {
     paddingVertical: 14,
-    paddingHorizontal: 30,
+    paddingHorizontal: 20,
     borderRadius: 10,
     alignItems: 'center',
     flex: 1,

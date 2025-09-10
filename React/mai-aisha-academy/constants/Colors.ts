@@ -16,6 +16,10 @@ export const Colors = {
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
     primaryBlue: primaryBlue, // Add primaryBlue to light theme
+    cardBackground: '#fff',
+    border: '#f0f0f0',
+    danger: '#dc3545',
+    success: '#28a745',
   },
   dark: {
     text: '#ECEDEE',
@@ -25,5 +29,9 @@ export const Colors = {
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
     primaryBlue: primaryBlue, // Add primaryBlue to dark theme
+    cardBackground: '#1e1e1e',
+    border: '#2c2c2c',
+    danger: '#ff6b6b',
+    success: '#28a745',
   },
 };
