@@ -88,3 +88,34 @@ export interface Assignment {
   totalMarks: number;
   createdAt: string;
 }
+
+export interface LessonPlan {
+  id: string;
+  title: string;
+  subjectId: string;
+  classId: string;
+  teacherId: string;
+  date: string; // YYYY-MM-DD format
+  duration: number; // Duration in minutes
+  objectives: string[]; // Learning objectives
+  materials: string[]; // Required materials
+  activities: LessonActivity[]; // Lesson activities
+  assessment: string; // Assessment method
+  homework?: string; // Optional homework
+  notes?: string; // Additional notes
+  status: 'draft' | 'completed' | 'reviewed';
+  reviewedBy?: string; // Headteacher UID who reviewed
+  reviewedAt?: string; // Review timestamp
+  feedback?: string; // Headteacher feedback
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LessonActivity {
+  id: string;
+  title: string;
+  description: string;
+  duration: number; // Duration in minutes
+  type: 'introduction' | 'presentation' | 'practice' | 'assessment' | 'conclusion';
+  order: number; // Order in the lesson
+}
