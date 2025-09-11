@@ -59,7 +59,7 @@ export default function ManageUsersScreen() {
         <Text style={styles.userRole}>Role: {item.role || 'N/A'}</Text>
       </View>
       <View style={styles.userActions}>
-        <TouchableOpacity style={styles.actionButton} onPress={() => router.push({ pathname: '/(admin)/EditUserScreen', params: { uid: item.uid } })}>
+        <TouchableOpacity style={styles.actionButton} onPress={() => router.push({ pathname: '/(admin)/edit-user', params: { uid: item.uid } })}>
           <Ionicons name="pencil-outline" size={24} color="#4CAF50" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton} onPress={() => handleDeleteUser(item.uid, item.name)}>

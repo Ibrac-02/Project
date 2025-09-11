@@ -1,13 +1,8 @@
 import { addDoc, collection, deleteDoc, doc, getDocs, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
+import { SchoolClass } from './types';
 
-// Interfaces (should ideally be in lib/types.ts, but defining here for now)
-interface SchoolClass {
-  id: string;
-  name: string;
-  description?: string;
-  teacherId?: string;
-}
+export { SchoolClass };
 
 interface AcademicYear {
   id: string;

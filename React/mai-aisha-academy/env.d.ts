@@ -5,6 +5,7 @@ declare module '@env' {
   export const EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET: string;
   export const EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: string;
   export const EXPO_PUBLIC_FIREBASE_APP_ID: string;
+  export const EXPO_PUBLIC_RESET_CONTINUE_URL: string;
 }
 
 

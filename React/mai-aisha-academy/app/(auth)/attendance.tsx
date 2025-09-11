@@ -77,7 +77,7 @@ export default function AttendanceScreen() {
       return;
     }
     try {
-      const fetchedStudents = await getStudentsByTeacher(user.uid, classId);
+      const fetchedStudents = await getStudentsByTeacher(user.uid);
       setStudentsInSelectedClass(fetchedStudents);
       if (fetchedStudents.length > 0 && !selectedStudentId) {
         setSelectedStudentId(fetchedStudents[0].id);
@@ -223,7 +223,7 @@ export default function AttendanceScreen() {
   };
 
   const handleApprove = async (id: string) => {
-    if (!user || (!userRole === 'headteacher' && !userRole === 'admin')) {
+    if (!user || (userRole !== 'headteacher' && userRole !== 'admin')) {
       Alert.alert("Permission Denied", "You do not have permission to approve attendance.");
       return;
     }
@@ -327,7 +327,7 @@ export default function AttendanceScreen() {
               onEdit={handleEdit}
               onApprove={handleApprove}
               onDelete={handleDelete}
-              userRole={userRole}
+              userRole={userRole || ''}
               currentUserId={user?.uid || ''}
               currentRecordType={currentRecordType}
             />

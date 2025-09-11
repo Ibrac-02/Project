@@ -2,6 +2,8 @@ import { addDoc, collection, deleteDoc, doc, getDocs, query, updateDoc, where } 
 import { db } from './firebase';
 import { Grade } from './types';
 
+export { Grade };
+
 export const createGrade = async (gradeData: Omit<Grade, 'id' | 'createdAt' | 'updatedAt' | 'gradePercentage'>): Promise<Grade> => {
   try {
     const gradePercentage = (gradeData.marksObtained / gradeData.totalMarks) * 100;

@@ -1,5 +1,7 @@
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../../lib/auth';
 
 export default function ChangePasswordScreen() {
@@ -23,6 +25,14 @@ export default function ChangePasswordScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            <Ionicons name="arrow-back" size={24} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Change Password</Text>
+        </View>
+      </View>
       <View style={styles.card}>
         <Text style={styles.label}>Current Password</Text>
         <TextInput
@@ -58,7 +68,29 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f0f2f5',
     padding: 20,
-    paddingTop: 20, // gap from header
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 22,
+    backgroundColor: '#1E90FF',
+    marginHorizontal: -20,
+    marginTop: -20,
+    marginBottom: 12,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backButton: {
+    marginRight: 8,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
   },
   card: {
     backgroundColor: '#fff',

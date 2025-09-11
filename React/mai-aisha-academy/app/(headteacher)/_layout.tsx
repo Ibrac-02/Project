@@ -5,6 +5,7 @@ export default function HeadteacherLayout() {
   return (
     <Stack>
       <Stack.Screen name="dashboard" options={{ headerShown: false, title: 'Headteacher Dashboard' }} />
+      <Stack.Screen name="LessonPlansScreen" options={{ headerShown: false }} />
       <Stack.Screen
         name="profile"
         options={{
@@ -12,7 +13,6 @@ export default function HeadteacherLayout() {
           title: 'Headteacher Profile',
           headerStyle: {
             backgroundColor: '#1E90FF',
-            height: 120, // Set header height
           },
           headerTintColor: '#fff', // White color for header title and back button
           headerTitleStyle: {
@@ -28,7 +28,6 @@ export default function HeadteacherLayout() {
           title: 'Manage Subjects',
           headerStyle: {
             backgroundColor: '#1E90FF',
-            height: 120, // Set header height
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
@@ -44,7 +43,6 @@ export default function HeadteacherLayout() {
           title: 'Approve Grades',
           headerStyle: {
             backgroundColor: '#1E90FF',
-            height: 120, // Set header height
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
@@ -60,7 +58,6 @@ export default function HeadteacherLayout() {
           title: 'Class Performance',
           headerStyle: {
             backgroundColor: '#1E90FF',
-            height: 120, // Set header height
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
@@ -76,7 +73,6 @@ export default function HeadteacherLayout() {
           title: 'Manage Teachers',
           headerStyle: {
             backgroundColor: '#1E90FF',
-            height: 120, // Set header height
           },
           headerTintColor: '#fff',
           headerTitleStyle: {

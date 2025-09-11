@@ -1,4 +1,4 @@
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from './firebase';
 import { Grade } from './types';
 // Assuming an attendance interface or data structure exists in lib/types.ts or similar
@@ -47,7 +47,11 @@ export const getClassAveragePerformance = async (studentIdsInClass: string[]): P
       studentAverages[grade.studentId].push(grade.gradePercentage);
     });
 
-    const overallStudentAverages = Object.values(studentAverages).map(grades => calculateAverageGrade(grades));
+    const overallStudentAverages = Object.values(studentAverages).map(grades => {
+      if (grades.length === 0) return 0;
+      const totalPercentage = grades.reduce((sum, grade) => sum + grade, 0);
+      return parseFloat((totalPercentage / grades.length).toFixed(2));
+    });
 
     return {
       averageGrade: calculateAverageGrade(overallStudentAverages.map(avg => ({ gradePercentage: avg } as Grade))), // Convert back to Grade-like for helper

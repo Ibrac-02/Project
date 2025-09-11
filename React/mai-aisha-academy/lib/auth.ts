@@ -1,8 +1,10 @@
-import { createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, updatePassword, reauthenticateWithCredential, EmailAuthProvider, User,} from 'firebase/auth';
-import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where,} from 'firebase/firestore';
+import { createUserWithEmailAndPassword, EmailAuthProvider, onAuthStateChanged, reauthenticateWithCredential, sendPasswordResetEmail, signInWithEmailAndPassword, updatePassword, User, } from 'firebase/auth';
+import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where, } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { auth, db } from './firebase';
 import { UserProfile } from './types';
+
+export { UserProfile };
 
 interface AuthState {
   user: User | null;
@@ -101,6 +103,7 @@ export const useAuth = () => {
 
   return {
     ...authState,
+    userRole: authState.role,
     refreshUserProfile,
     changePassword,
     enable2FA,
@@ -173,7 +176,8 @@ export const signUp = async (
 };
 
 export const sendPasswordReset = async (email: string) => {
-  await sendPasswordResetEmail(auth, email);
+  const continueUrl = process.env.EXPO_PUBLIC_RESET_CONTINUE_URL || 'https://example.com/login';
+  await sendPasswordResetEmail(auth, email, { url: continueUrl });
 };
 
 export const updateUserProfile = async (uid: string, updates: Partial<UserProfile>) => {

@@ -12,7 +12,6 @@ export default function AdminLayout() {
           title: 'Supervisor Profile',
           headerStyle: { 
             backgroundColor: '#1E90FF',
-            height: 120, // Set header height
           },
           headerTintColor: '#fff', // White color for header title and back button
           headerTitleStyle: {
@@ -28,7 +27,6 @@ export default function AdminLayout() {
           title: 'Manage Users',
           headerStyle: {
             backgroundColor: '#1E90FF',
-            height: 120, // Set header height
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
@@ -44,7 +42,6 @@ export default function AdminLayout() {
           title: 'Edit User',
           headerStyle: {
             backgroundColor: '#1E90FF',
-            height: 120, // Set header height
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
@@ -60,7 +57,6 @@ export default function AdminLayout() {
           title: 'Grade Reports',
           headerStyle: { 
             backgroundColor: '#1E90FF',
-            height: 120, // Set header height
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
@@ -76,7 +72,6 @@ export default function AdminLayout() {
           title: 'Manage School Data',
           headerStyle: {
             backgroundColor: '#1E90FF',
-            height: 120, // Set header height
           },
           headerTintColor: '#fff',
           headerTitleStyle: {

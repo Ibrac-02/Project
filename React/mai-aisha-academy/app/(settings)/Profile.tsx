@@ -1,19 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
-import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-  Switch,
-} from 'react-native';
+import { Alert, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { updateUserProfile, useAuth } from '../../lib/auth';
 import { UserProfile } from '../../lib/types';
-import { router } from 'expo-router';
 
 export default function ProfileScreen() {
   const { userName, user, userProfile, refreshUserProfile, enable2FA, disable2FA } = useAuth();
@@ -26,15 +17,9 @@ export default function ProfileScreen() {
     if (!user?.uid) return;
 
     const updates: Partial<UserProfile> = {};
-    if (newName !== userName) {
-      updates.name = newName;
-    }
-    if (newTitle !== (userProfile?.title || '')) {
-      updates.title = newTitle;
-    }
-    if (newContactNumber !== (userProfile?.contactNumber || 'N/A')) {
-      updates.contactNumber = newContactNumber;
-    }
+    if (newName !== userName) updates.name = newName;
+    if (newTitle !== (userProfile?.title || '')) updates.title = newTitle;
+    if (newContactNumber !== (userProfile?.contactNumber || 'N/A')) updates.contactNumber = newContactNumber;
 
     if (Object.keys(updates).length > 0) {
       try {
@@ -53,7 +38,8 @@ export default function ProfileScreen() {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
-        {/* Basic Info */}
+        <Text style={styles.pageTitle}>Profile</Text>
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Basic Information</Text>
 
@@ -61,11 +47,7 @@ export default function ProfileScreen() {
             <Text style={styles.labelText}>Title:</Text>
             {isEditing ? (
               <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={newTitle}
-                  onValueChange={(itemValue) => setNewTitle(itemValue)}
-                  style={styles.picker}
-                >
+                <Picker selectedValue={newTitle} onValueChange={(itemValue) => setNewTitle(itemValue)} style={styles.picker}>
                   <Picker.Item label="Select Title" value="" />
                   <Picker.Item label="Mr." value="Mr." />
                   <Picker.Item label="Mrs." value="Mrs." />
@@ -80,12 +62,7 @@ export default function ProfileScreen() {
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Full Name:</Text>
             {isEditing ? (
-              <TextInput
-                style={styles.input}
-                value={newName}
-                onChangeText={setNewName}
-                placeholder="Enter full name"
-              />
+              <TextInput style={styles.input} value={newName} onChangeText={setNewName} placeholder="Enter full name" />
             ) : (
               <Text style={styles.text}>{userName || 'N/A'}</Text>
             )}
@@ -104,26 +81,17 @@ export default function ProfileScreen() {
           <View style={styles.detailContainer}>
             <Text style={styles.labelText}>Contact:</Text>
             {isEditing ? (
-              <TextInput
-                style={styles.input}
-                value={newContactNumber}
-                onChangeText={setNewContactNumber}
-                placeholder="Enter contact number"
-              />
+              <TextInput style={styles.input} value={newContactNumber} onChangeText={setNewContactNumber} placeholder="Enter contact number" />
             ) : (
               <Text style={styles.text}>{userProfile?.contactNumber || 'N/A'}</Text>
             )}
           </View>
         </View>
 
-        {/* Account Settings */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account Settings</Text>
 
-          <TouchableOpacity
-            style={styles.settingItem}
-            onPress={() => router.push('/(settings)/change-password')}
-          >
+          <TouchableOpacity style={styles.settingItem} onPress={() => router.push('/(settings)/change-password')}>
             <Text style={styles.settingText}>Change Password</Text>
             <Ionicons name="chevron-forward-outline" size={20} color="#555" />
           </TouchableOpacity>
@@ -147,16 +115,12 @@ export default function ProfileScreen() {
             />
           </View>
 
-          <TouchableOpacity
-            style={styles.settingItem}
-            onPress={() => router.push('/(settings)/delete-account')}
-          >
+          <TouchableOpacity style={styles.settingItem} onPress={() => router.push('/(settings)/delete-account')}>
             <Text style={styles.settingText}>Delete Account</Text>
             <Ionicons name="chevron-forward-outline" size={20} color="#555" />
           </TouchableOpacity>
         </View>
 
-        {/* Other Info */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Other Information</Text>
 
@@ -195,6 +159,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingHorizontal: 20,
+  },
+  pageTitle: {
+    width: '100%',
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 12,
   },
   section: {
     backgroundColor: '#fff',
@@ -296,3 +267,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
+
+

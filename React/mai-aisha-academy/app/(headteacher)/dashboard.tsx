@@ -50,12 +50,6 @@ export default function HeadteacherDashboardScreen() {
     return 'Good Evening';
   };
 
-  const DashboardCard = ({ iconName, title, onPress }: { iconName: any; title: string; onPress: () => void }) => (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
-      <Ionicons name={iconName} size={40} color="#1E90FF" />
-      <Text style={styles.cardTitle}>{title}</Text>
-    </TouchableOpacity>
-  );
 
   return (
     <TouchableWithoutFeedback onPress={() => setShowLogout(false)}>
@@ -78,17 +72,20 @@ export default function HeadteacherDashboardScreen() {
                 </View>
               )}
             </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/(settings)')} style={styles.settingsIconContainer}>
+              <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
+            </TouchableOpacity>
             <TouchableOpacity onPress={(event) => { event.stopPropagation(); setShowLogout(!showLogout); }} style={styles.profileIconContainer}>
               <View style={styles.profileIcon}>
                 <Text style={styles.profileText}>{loading ? '' : getInitials(userName)}</Text>
               </View>
             </TouchableOpacity>
           </View>
-        </View>
+        </View>  
 
         {showLogout && (
           <View style={styles.logoutDropdown}>
-            <TouchableOpacity style={styles.dropdownItem} onPress={() => router.push('/(headteacher)/profile')}>
+            <TouchableOpacity style={styles.dropdownItem} onPress={() => router.push('/(settings)/Profile')}>
               <Text style={styles.dropdownItemText}>My Profile</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={handleLogout} style={styles.dropdownItem}>
@@ -103,28 +100,67 @@ export default function HeadteacherDashboardScreen() {
           </Text>
         </View>
 
-        <ScrollView contentContainerStyle={styles.contentContainer}>
+         <ScrollView contentContainerStyle={styles.contentContainer}>
+           {/* Summary Cards */}
+           <View style={styles.summaryContainer}>
+             <View style={styles.summaryCard}>
+               <Text style={styles.summaryNumber}>0</Text>
+               <Text style={styles.summaryLabel}>Classes</Text>
+             </View>
+             <View style={styles.summaryCard}>
+               <Text style={styles.summaryNumber}>0</Text>
+               <Text style={styles.summaryLabel}>Students</Text>
+             </View>
+             <View style={styles.summaryCard}>
+               <Text style={styles.summaryNumber}>0</Text>
+               <Text style={styles.summaryLabel}>Pending Tasks</Text>
+             </View>
+           </View>
 
-          <Text style={styles.cardGroupTitle}>Approvals & Oversight</Text>
-          <View style={styles.cardGroupContainer}>
-            <DashboardCard iconName="checkbox-outline" title="Approve Grades" onPress={() => router.push('/(headteacher)/GradeApprovalScreen')} />
-            <DashboardCard iconName="stats-chart-outline" title="Attendance & Perfomance Reports" onPress={() => router.push('/(auth)/attendance')} />
-            <DashboardCard iconName="people-circle-outline" title="Teacher Attendance" onPress={() => router.push({ pathname: '/(auth)/attendance', params: { recordType: 'teacher' } })} />
-            <DashboardCard iconName="analytics-outline" title="Class Performance Analytics" onPress={() => router.push('/(headteacher)/ClassPerformanceAnalyticsScreen')} />
-          </View>
-
-          <Text style={styles.cardGroupTitle}>Data Management</Text>
-          <View style={styles.cardGroupContainer}>
-            <DashboardCard iconName="book-outline" title="Subjects Allocation" onPress={() => router.push('/(headteacher)/ManageSubjectsScreen')} />
-            <DashboardCard iconName="person-add-outline" title=" Manage Teachers" onPress={() => router.push('/(headteacher)/ManageTeachersScreen')} />
-          </View>
-
-          <Text style={styles.cardGroupTitle}>Scheduling & Information</Text>
-          <View style={styles.cardGroupContainer}>
-            <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => router.push('/(auth)/academicCalendar')} />
-          </View>
-
-        </ScrollView>
+           {/* Quick Actions */}
+           <Text style={styles.quickActionsTitle}>Quick Actions</Text>
+           <View style={styles.quickActionsGrid}>
+             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/LessonPlansScreen')}>
+               <Ionicons name="book-outline" size={24} color="#1E90FF" />
+               <Text style={styles.quickActionText}>Lesson Plans</Text>
+             </TouchableOpacity>
+             
+             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/ManageTeachersScreen')}>
+               <Ionicons name="people-outline" size={24} color="#1E90FF" />
+               <Text style={styles.quickActionText}>Manage Teachers</Text>
+             </TouchableOpacity>
+             
+             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/ManageSubjectsScreen')}>
+               <Ionicons name="library-outline" size={24} color="#1E90FF" />
+               <Text style={styles.quickActionText}>Manage Subjects</Text>
+             </TouchableOpacity>
+             
+             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/GradeApprovalScreen')}>
+               <Ionicons name="checkmark-circle-outline" size={24} color="#1E90FF" />
+               <Text style={styles.quickActionText}>Grade Approval</Text>
+             </TouchableOpacity>
+             
+             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/ClassPerformanceAnalyticsScreen')}>
+               <Ionicons name="bar-chart-outline" size={24} color="#1E90FF" />
+               <Text style={styles.quickActionText}>Class Performance</Text>
+             </TouchableOpacity>
+             
+             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(auth)/attendance')}>
+               <Ionicons name="checkmark-done-outline" size={24} color="#1E90FF" />
+               <Text style={styles.quickActionText}>Attendance</Text>
+             </TouchableOpacity>
+             
+             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(auth)/announcements')}>
+               <Ionicons name="megaphone-outline" size={24} color="#1E90FF" />
+               <Text style={styles.quickActionText}>Announcements</Text>
+             </TouchableOpacity>
+             
+             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(settings)/index' as any)}>
+               <Ionicons name="settings-outline" size={24} color="#1E90FF" />
+               <Text style={styles.quickActionText}>Settings</Text>
+             </TouchableOpacity>
+           </View>
+         </ScrollView>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -135,11 +171,71 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f0f2f5',
   },
-  contentContainer: {
-    padding: 20,
-    backgroundColor: '#f0f2f5',
-    paddingBottom: 20,
-  },
+   contentContainer: {
+     padding: 20,
+     backgroundColor: '#f0f2f5',
+     paddingBottom: 100,
+   },
+   summaryContainer: {
+     flexDirection: 'row',
+     marginBottom: 20,
+     gap: 12,
+   },
+   summaryCard: {
+     flex: 1,
+     backgroundColor: '#fff',
+     padding: 20,
+     borderRadius: 12,
+     alignItems: 'center',
+     shadowColor: '#000',
+     shadowOffset: { width: 0, height: 2 },
+     shadowOpacity: 0.1,
+     shadowRadius: 4,
+     elevation: 3,
+   },
+   summaryNumber: {
+     fontSize: 32,
+     fontWeight: 'bold',
+     color: '#1E90FF',
+     marginBottom: 4,
+   },
+   summaryLabel: {
+     fontSize: 14,
+     color: '#666',
+     fontWeight: '500',
+   },
+   quickActionsTitle: {
+     fontSize: 20,
+     fontWeight: 'bold',
+     color: '#333',
+     marginBottom: 16,
+   },
+   quickActionsGrid: {
+     flexDirection: 'row',
+     flexWrap: 'wrap',
+     justifyContent: 'space-between',
+   },
+   quickActionButton: {
+     width: (width - 80) / 4,
+     height: 100,
+     borderRadius: 12,
+     marginBottom: 16,
+     justifyContent: 'center',
+     alignItems: 'center',
+     backgroundColor: '#fff',
+     shadowColor: '#000',
+     shadowOffset: { width: 0, height: 2 },
+     shadowOpacity: 0.1,
+     shadowRadius: 4,
+     elevation: 3,
+   },
+   quickActionText: {
+     color: '#333',
+     fontSize: 12,
+     fontWeight: '600',
+     marginTop: 8,
+     textAlign: 'center',
+   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -242,44 +338,6 @@ const styles = StyleSheet.create({
     color: '#333',
     textAlign: 'center',
   },
-  cardsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  card: {
-    width: (width / 2) - 30,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 25,
-    marginBottom: 20,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 5,
-  },
-  cardTitle: {
-    marginTop: 10,
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-  },
-  cardGroupTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: 'gray',
-    marginBottom: 15,
-    marginLeft: 10,
-  },
-  cardGroupContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -305,4 +363,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: 'bold',
   },
-});
+  settingsIconContainer: {
+    marginRight: 10,
+  },
+}); 

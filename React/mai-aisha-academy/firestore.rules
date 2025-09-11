@@ -144,5 +144,41 @@ service cloud.firestore {
         getUserRole() == 'admin'
       );
     }
+
+    // Lesson Plans collection rules
+    match /lessonPlans/{lessonPlanId} {
+      // Helper function to get user's role
+      function getUserRole() {
+        return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+      }
+
+      // Read access: Teachers for their own plans, Headteachers and Admins for all
+      allow read: if request.auth != null && (
+        getUserRole() == 'admin' ||
+        getUserRole() == 'headteacher' ||
+        (getUserRole() == 'teacher' && resource.data.teacherId == request.auth.uid)
+      );
+
+      // Create access: Teachers for their own plans, Headteachers and Admins for all
+      allow create: if request.auth != null && (
+        getUserRole() == 'admin' ||
+        getUserRole() == 'headteacher' ||
+        (getUserRole() == 'teacher' && request.resource.data.teacherId == request.auth.uid)
+      );
+
+      // Update access: Teachers for their own plans, Headteachers and Admins for all
+      allow update: if request.auth != null && (
+        getUserRole() == 'admin' ||
+        getUserRole() == 'headteacher' ||
+        (getUserRole() == 'teacher' && resource.data.teacherId == request.auth.uid)
+      );
+
+      // Delete access: Teachers for their own plans, Headteachers and Admins for all
+      allow delete: if request.auth != null && (
+        getUserRole() == 'admin' ||
+        getUserRole() == 'headteacher' ||
+        (getUserRole() == 'teacher' && resource.data.teacherId == request.auth.uid)
+      );
+    }
   }
 }

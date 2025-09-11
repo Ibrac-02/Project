@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
-import React, { useCallback, useState } from 'react';
-import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View,} from 'react-native';
-import { useAuth, getStudents } from '../../lib/auth';
 import { collection, getDocs, query, where } from 'firebase/firestore';
+import React, { useCallback, useState } from 'react';
+import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View, } from 'react-native';
+import { getStudents, useAuth } from '../../lib/auth';
 import { db } from '../../lib/firebase';
 import { getUnreadNotificationsCount } from '../../lib/notifications';
 
@@ -128,6 +128,12 @@ export default function TeacherDashboardScreen() {
               )}
             </TouchableOpacity>
             <TouchableOpacity
+              onPress={() => router.push('/(settings)/index' as any)}
+              style={styles.settingsIconContainer}
+            >
+              <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity
               onPress={(event) => {
                 event.stopPropagation();
                 setShowLogout(!showLogout);
@@ -147,7 +153,7 @@ export default function TeacherDashboardScreen() {
           <View style={styles.logoutDropdown}>
             <TouchableOpacity
               style={styles.dropdownItem}
-              onPress={() => router.push('/(teacher)/profile')}
+              onPress={() => router.push('/(settings)/Profile')}
             >
               <Text style={styles.dropdownItemText}>My Profile</Text>
             </TouchableOpacity>
@@ -183,7 +189,7 @@ export default function TeacherDashboardScreen() {
             <DashboardCard iconName="stats-chart-outline" title="Enter Grades" onPress={() => router.push('/(teacher)/grade-screen')} />
             <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => router.push('/(auth)/academicCalendar')} />
             <DashboardCard iconName="trending-up-outline" title="Performance" onPress={() => router.push('/(teacher)/performance-screen')} />
-            <DashboardCard iconName="bar-chart-outline" title="Lesson Plan" onPress={() => router.push('/(teacher)/lesson-plan')} />
+            <DashboardCard iconName="book-open-outline" title="Lesson Plan" onPress={() => router.push('/(teacher)/lesson-plan')} />
           </View>
         </ScrollView>
       </View>
@@ -342,4 +348,5 @@ const styles = StyleSheet.create({
     color: '#fff', 
     fontSize: 10, 
     fontWeight: 'bold' },
+  settingsIconContainer: { marginRight: 10 },
 });

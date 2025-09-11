@@ -4,7 +4,7 @@ import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../../lib/auth';
 import { createGrade, getGradesByTeacher, Grade, updateGrade } from '../../lib/grades';
-import { getTeacherSubjects } from '../../lib/subjects'; 
+import { getTeacherSubjects } from '../../lib/subjects';
 import { Subject } from '../../lib/types';
 
 export default function GradeEntryScreen() {
@@ -82,7 +82,7 @@ export default function GradeEntryScreen() {
         assignmentName,
         marksObtained: parsedMarksObtained,
         totalMarks: parsedTotalMarks,
-        status: 'pending', // always pending for approval
+        status: 'pending' as const, // always pending for approval
         comments,
       };
 

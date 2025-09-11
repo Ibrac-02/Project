@@ -2,6 +2,8 @@ import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, updateDoc, 
 import { db } from './firebase';
 import { Subject } from './types';
 
+export { Subject };
+
 // Create a new subject
 export const createSubject = async (name: string, description: string, teachersAssigned: string[] = []): Promise<Subject> => {
   try {

@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
+import { collection, getDocs } from 'firebase/firestore';
 import React, { useCallback, useState } from 'react';
 import {
   Dimensions,
@@ -11,7 +12,8 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { useAuth } from '../../lib/auth';
+import { getAllUsers, getStudents, useAuth } from '../../lib/auth';
+import { db } from '../../lib/firebase';
 import { getUnreadNotificationsCount } from '../../lib/notifications';
 
 const { width } = Dimensions.get('window');
@@ -20,6 +22,11 @@ export default function AdminDashboardScreen() {
   const [showLogout, setShowLogout] = useState(false);
   const { userName, loading, userProfile, user } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
+
+  // Summary values
+  const [teachersCount, setTeachersCount] = useState(0);
+  const [studentsCount, setStudentsCount] = useState(0);
+  const [reportsCount, setReportsCount] = useState(0);
 
   const fetchUnreadCount = useCallback(async () => {
     if (user?.uid) {
@@ -32,16 +39,51 @@ export default function AdminDashboardScreen() {
     }
   }, [user]);
 
+  /** 🔹 Fetch dynamic dashboard data */
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      if (!user?.uid) {
+        console.warn("Skipping dashboard fetch: no user yet");
+        return;
+      }
+
+      // Get all users and filter by role
+      const allUsers = await getAllUsers();
+      const teachers = allUsers.filter(user => user.role === 'teacher');
+      setTeachersCount(teachers.length);
+
+      // Get students count
+      const students = await getStudents();
+      setStudentsCount(students.length);
+
+      // Get reports count (assignments + grades + attendance records)
+      const [assignmentsSnapshot, gradesSnapshot, attendanceSnapshot] = await Promise.all([
+        getDocs(collection(db, 'assignments')),
+        getDocs(collection(db, 'grades')),
+        getDocs(collection(db, 'attendance'))
+      ]);
+      
+      const totalReports = assignmentsSnapshot.size + gradesSnapshot.size + attendanceSnapshot.size;
+      setReportsCount(totalReports);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      setTeachersCount(0);
+      setStudentsCount(0);
+      setReportsCount(0);
+    }
+  }, [user]);
+
   useFocusEffect(
     useCallback(() => {
       fetchUnreadCount();
-    }, [fetchUnreadCount])
+      fetchDashboardData();
+    }, [fetchUnreadCount, fetchDashboardData])
   );
 
   const getGreetingTime = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good Morning';
-    if (hour < 18) return 'Good Afternoon';
+    if (hour < 17) return 'Good Afternoon';
     return 'Good Evening';
   };
 
@@ -111,6 +153,12 @@ export default function AdminDashboardScreen() {
               )}
             </TouchableOpacity>
             <TouchableOpacity
+              onPress={() => router.push('/(settings)')}
+              style={styles.settingsIconContainer}
+            >
+              <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity
               onPress={(event) => {
                 event.stopPropagation();
                 setShowLogout(!showLogout);
@@ -130,7 +178,7 @@ export default function AdminDashboardScreen() {
           <View style={styles.logoutDropdown}>
             <TouchableOpacity
               style={styles.dropdownItem}
-              onPress={() => router.push('/(admin)/profile')}
+              onPress={() => router.push('/(settings)/Profile')}
             >
               <Text style={styles.dropdownItemText}>My Profile</Text>
             </TouchableOpacity>
@@ -150,46 +198,23 @@ export default function AdminDashboardScreen() {
         </View>
 
         <ScrollView contentContainerStyle={styles.contentContainer}>
-          {/* Summary Boxes (static values for now) */}
+          {/* Summary Boxes */}
           <View style={styles.summaryRow}>
-            <SummaryBox label="Teachers" value={15} />
-            <SummaryBox label="Students" value={250} />
-            <SummaryBox label="Reports" value={8} />
+            <SummaryBox label="Teachers" value={teachersCount} />
+            <SummaryBox label="Students" value={studentsCount} />
+            <SummaryBox label="Reports" value={reportsCount} />
           </View>
 
           {/* Quick Actions */}
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.cardGroupContainer}>
-            <DashboardCard
-              iconName="people-outline"
-              title="User Management"
-              onPress={() => router.push('/(admin)/manage-user')}
-            />
-            <DashboardCard
-              iconName="school-outline"
-              title="School Setup"
-              onPress={() => router.push('/(admin)/school-data')}
-            />
-            <DashboardCard
-              iconName="bar-chart-outline"
-              title="Reports & Analytics"
-              onPress={() => router.push('/(admin)/grade-report')}
-            />
-            <DashboardCard
-              iconName="checkmark-done-outline"
-              title="Attendance Overview"
-              onPress={() => router.push('/(auth)/attendance')}
-            />
-            <DashboardCard
-              iconName="calendar-outline"
-              title="Academic Calendar"
-              onPress={() => router.push('/(auth)/academicCalendar')}
-            />
-            <DashboardCard
-              iconName="analytics-outline"
-              title="Performance Reports"
-              onPress={() => router.push('/(admin)/edit-user')}
-            />
+            <DashboardCard iconName="people-outline" title="User Management" onPress={() => router.push('/(admin)/manage-user')} />
+            <DashboardCard iconName="school-outline" title="School Setup" onPress={() => router.push('/(admin)/school-data')} />
+            <DashboardCard iconName="bar-chart-outline" title="Reports & Analytics" onPress={() => router.push('/(admin)/grade-report')} />
+            <DashboardCard iconName="checkmark-done-outline" title="Attendance Overview" onPress={() => router.push('/(auth)/attendance')} />
+            <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => router.push('/(auth)/academicCalendar')} />
+            <DashboardCard iconName="analytics-outline" title="Performance Reports" onPress={() => router.push('/(admin)/edit-user')} />
+            <DashboardCard iconName="notifications-outline" title="Notifications" onPress={() => router.push('/(auth)/announcements')} />
           </View>
         </ScrollView>
       </View>
@@ -219,14 +244,14 @@ const styles = StyleSheet.create({
   headerLogo: {
     width: 40,
     height: 40,
-    resizeMode: 'cover',
+    resizeMode: 'contain',
     marginRight: 10,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: 'whitesmoke',
   },
   schoolName: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
-  headerDashboardTitle: { color: '#fff', fontSize: 14 },
+  headerDashboardTitle: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
   profileIconContainer: { position: 'relative' },
   profileIcon: {
     width: 40,
@@ -253,14 +278,13 @@ const styles = StyleSheet.create({
   dropdownItemText: { fontSize: 16, color: '#333' },
   greetingCard: {
     backgroundColor: '#fff',
-    borderRadius: 15,
+    borderRadius: 12,
     padding: 20,
     marginHorizontal: 20,
     marginTop: 20,
     marginBottom: 30,
-    elevation: 3,
-    justifyContent: 'center',
     alignItems: 'center',
+    elevation: 5,
   },
   welcomeMessage: {
     fontSize: 18,
@@ -277,8 +301,8 @@ const styles = StyleSheet.create({
   summaryBox: {
     flex: 1,
     backgroundColor: '#fff',
-    marginHorizontal: 4,
-    padding: 15,
+    marginHorizontal: 8,
+    padding: 20,
     borderRadius: 10,
     alignItems: 'center',
     elevation: 3,
@@ -300,7 +324,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 20,
     marginBottom: 18,
-    marginHorizontal: 6,
+    marginHorizontal: 4,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -342,4 +366,5 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   notificationBadgeText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
+  settingsIconContainer: { marginRight: 10 },
 });

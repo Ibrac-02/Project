@@ -5,7 +5,7 @@ import { router } from 'expo-router';
 import { Timestamp } from 'firebase/firestore';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { Calendar, DateObject, LocaleConfig } from 'react-native-calendars';
+import { Calendar, LocaleConfig } from 'react-native-calendars';
 
 import { AcademicEvent, AcademicEventData, createAcademicEvent, deleteAcademicEvent, getAcademicEvents, updateAcademicEvent } from '../../lib/academicCalendar';
 import { useAuth } from '../../lib/auth';
@@ -97,7 +97,7 @@ export default function AcademicCalendarScreen() {
     }
   }, [authLoading, fetchEvents]);
 
-  const handleDayPress = (day: DateObject) => {
+  const handleDayPress = (day: any) => {
     setSelectedDate(day.dateString);
   };
 

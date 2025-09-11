@@ -1,10 +1,10 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Dimensions, Alert, ScrollView } from 'react-native';
 import { useFocusEffect } from 'expo-router';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Alert, Dimensions, FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { getAllUsers } from '../../lib/auth';
+import { getClassAveragePerformance } from '../../lib/performance';
 import { getAllSubjects } from '../../lib/subjects';
-import { getClassAveragePerformance, getStudentOverallPerformance } from '../../lib/performance';
-import { UserProfile, Subject } from '../../lib/types';
+import { Subject, UserProfile } from '../../lib/types';
 
 const { width } = Dimensions.get('window');
 

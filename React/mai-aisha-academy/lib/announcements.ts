@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDocs, orderBy, query, Timestamp, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDocs, query, Timestamp, updateDoc, where } from 'firebase/firestore';
 import { getAllUsers } from './auth'; // Import getAllUsers and UserProfile
 import { db } from './firebase'; // Assuming firebase.ts exports 'db'
 import { createNotification } from './notifications'; // Import createNotification
@@ -76,7 +76,7 @@ export const getAnnouncements = async (
   classIds?: string[]
 ): Promise<Announcement[]> => {
   try {
-    let q = query(collection(db, 'announcements'), orderBy('createdAt', 'desc'));
+    let q = query(collection(db, 'announcements'));
 
     if (userRole === 'admin') {
       // Admin can see all announcements (no specific scope filtering needed at application level, rules handle it)
@@ -93,9 +93,15 @@ export const getAnnouncements = async (
     const announcements: Announcement[] = [];
     querySnapshot.forEach((doc) => {
       const data = doc.data() as AnnouncementData;
-      announcements.push({ id: doc.id, createdAt: data.createdAt || Timestamp.now(), ...data });
+      announcements.push({ id: doc.id, createdAt: Timestamp.now(), ...data });
     });
-    return announcements.filter(announcement => !announcement.expiresAt || announcement.expiresAt.toDate() > new Date());
+    
+    // Sort by createdAt in descending order (newest first) in JavaScript
+    const filteredAnnouncements = announcements
+      .filter(announcement => !announcement.expiresAt || announcement.expiresAt.toDate() > new Date())
+      .sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
+    
+    return filteredAnnouncements;
   } catch (error: any) {
     throw new Error('Failed to get announcements: ' + error.message);
   }

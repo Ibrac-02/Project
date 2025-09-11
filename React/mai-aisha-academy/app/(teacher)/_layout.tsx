@@ -7,7 +7,6 @@ export default function TeacherLayout() {
       screenOptions={{ 
         headerStyle: { 
           backgroundColor: '#1E90FF', // DodgerBlue color
-          paddingVertical: 16, // makes header look taller
         },
         headerTintColor: '#fff',
         headerTitleStyle: { 
@@ -15,7 +14,6 @@ export default function TeacherLayout() {
           fontSize: 20, // bigger text
         },
         headerTitleAlign: 'center',
-        headerBackTitleVisible: false, // removes back button text
       }}
     >
       <Stack.Screen name="dashboard" options={{ headerShown: false }} />
@@ -25,7 +23,8 @@ export default function TeacherLayout() {
       <Stack.Screen name="students" options={{ title: 'My Students' }} />
       <Stack.Screen name="assignment-screen" options={{ title: 'Manage Assignments' }} />
       <Stack.Screen name="performance-screen" options={{ title: 'My Performance' }} />
-      
+      <Stack.Screen name="lesson-plan" options={{ headerShown: false }} />
+       
     </Stack>
   );
 }
