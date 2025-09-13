@@ -2,7 +2,7 @@
   "expo": {
     "name": "mai-aisha-academy",
     "slug": "mai-aisha-academy",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/images/maa.jpg",
     "scheme": "maiaishaacademy",

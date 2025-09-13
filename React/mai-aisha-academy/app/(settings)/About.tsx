@@ -8,12 +8,11 @@ export default function AboutScreen() {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
-        <Text style={styles.title}>About</Text>
-
         <View style={styles.card}>
           <Text style={styles.row}><Text style={styles.label}>App:</Text> Mai Aisha Academy</Text>
           <Text style={styles.row}><Text style={styles.label}>Version:</Text> {version}</Text>
           <Text style={styles.row}><Text style={styles.label}>Contact:</Text> support@maiaisha.academy</Text>
+          <Text style={styles.row}><Text style={styles.label}>Developed by:</Text> Ibrac02</Text>
         </View>
 
         <TouchableOpacity onPress={() => Linking.openURL('mailto:support@maiaisha.academy')} style={styles.button}>
@@ -33,12 +32,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 20,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 12,
   },
   card: {
     backgroundColor: '#fff',

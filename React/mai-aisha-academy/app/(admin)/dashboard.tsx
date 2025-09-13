@@ -2,16 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import { collection, getDocs } from 'firebase/firestore';
 import React, { useCallback, useState } from 'react';
-import {
-  Dimensions,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
+import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity,TouchableWithoutFeedback, View,} from 'react-native';
 import { getAllUsers, getStudents, useAuth } from '../../lib/auth';
 import { db } from '../../lib/firebase';
 import { getUnreadNotificationsCount } from '../../lib/notifications';
@@ -137,7 +128,7 @@ export default function AdminDashboardScreen() {
             />
             <View>
               <Text style={styles.schoolName}>MAI AISHA ACADEMY</Text>
-              <Text style={styles.headerDashboardTitle}>Admin Dashboard</Text>
+              <Text style={styles.headerDashboardTitle}>Supervisor Dashboard</Text>
             </View>
           </View>
           <View style={styles.headerRight}>
@@ -152,12 +143,7 @@ export default function AdminDashboardScreen() {
                 </View>
               )}
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => router.push('/(settings)')}
-              style={styles.settingsIconContainer}
-            >
-              <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
-            </TouchableOpacity>
+           
             <TouchableOpacity
               onPress={(event) => {
                 event.stopPropagation();
@@ -171,17 +157,18 @@ export default function AdminDashboardScreen() {
                 </Text>
               </View>
             </TouchableOpacity>
+
+             <TouchableOpacity
+              onPress={() => router.push('/(settings)')}
+              style={styles.settingsIconContainer}
+            >
+              <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
+            </TouchableOpacity>
           </View>
         </View>
 
         {showLogout && (
           <View style={styles.logoutDropdown}>
-            <TouchableOpacity
-              style={styles.dropdownItem}
-              onPress={() => router.push('/(settings)/Profile')}
-            >
-              <Text style={styles.dropdownItemText}>My Profile</Text>
-            </TouchableOpacity>
             <TouchableOpacity onPress={handleLogout} style={styles.dropdownItem}>
               <Text style={styles.dropdownItemText}>Sign out</Text>
             </TouchableOpacity>
@@ -212,7 +199,7 @@ export default function AdminDashboardScreen() {
             <DashboardCard iconName="school-outline" title="School Setup" onPress={() => router.push('/(admin)/school-data')} />
             <DashboardCard iconName="bar-chart-outline" title="Reports & Analytics" onPress={() => router.push('/(admin)/grade-report')} />
             <DashboardCard iconName="checkmark-done-outline" title="Attendance Overview" onPress={() => router.push('/(auth)/attendance')} />
-            <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => router.push('/(auth)/academicCalendar')} />
+            <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => router.push('/(auth)/academic-calendar')} />
             <DashboardCard iconName="analytics-outline" title="Performance Reports" onPress={() => router.push('/(admin)/edit-user')} />
             <DashboardCard iconName="notifications-outline" title="Notifications" onPress={() => router.push('/(auth)/announcements')} />
           </View>
@@ -254,8 +241,8 @@ const styles = StyleSheet.create({
   headerDashboardTitle: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
   profileIconContainer: { position: 'relative' },
   profileIcon: {
-    width: 40,
-    height: 40,
+    width: 30,
+    height: 30,
     borderRadius: 20,
     backgroundColor: '#fff',
     justifyContent: 'center',
@@ -263,7 +250,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'whitesmoke',
   },
-  profileText: { color: '#1E90FF', fontSize: 16, fontWeight: 'bold' },
+  profileText: { color: '#1E90FF', fontSize: 14, fontWeight: 'bold' },
   logoutDropdown: {
     position: 'absolute',
     top: 45,
@@ -272,7 +259,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     elevation: 5,
     zIndex: 999,
-    width: 150,
+    width: 100,
   },
   dropdownItem: { paddingVertical: 12, paddingHorizontal: 15 },
   dropdownItemText: { fontSize: 16, color: '#333' },
@@ -366,5 +353,5 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   notificationBadgeText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
-  settingsIconContainer: { marginRight: 10 },
+  settingsIconContainer: { marginRight: 5 },
 });

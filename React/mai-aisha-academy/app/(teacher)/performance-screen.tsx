@@ -49,7 +49,7 @@ export default function TeacherPerformanceScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>My Performance Overview</Text>
+      <Text style={styles.title}>Performance Overview</Text>
       {performanceData.length === 0 ? (
         <Text style={styles.noDataText}>No performance data available for your classes.</Text>
       ) : (
@@ -77,8 +77,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f2f5',
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 25,
+    fontWeight: 400,
     color: '#333',
     marginBottom: 30,
     textAlign: 'center',
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#fff',
-    borderRadius: 15,
+    borderRadius: 10,
     padding: 20,
     marginBottom: 15,
     shadowColor: '#000',

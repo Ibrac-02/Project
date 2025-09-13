@@ -13,7 +13,7 @@ export default function AnnouncementsScreen() {
   const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [scope, setScope] = useState('school-wide');
+  const [scope] = useState('school-wide');
 
   const fetchAnnouncements = async () => {
     console.log("fetchAnnouncements called.");
@@ -57,7 +57,6 @@ export default function AnnouncementsScreen() {
       setIsModalVisible(false);
       setTitle('');
       setContent('');
-      setScope('school-wide');
       setEditingAnnouncement(null);
       fetchAnnouncements(); // Refresh list
     } catch (error: any) {
@@ -69,7 +68,6 @@ export default function AnnouncementsScreen() {
     setEditingAnnouncement(announcement);
     setTitle(announcement.title);
     setContent(announcement.content);
-    setScope(announcement.scope);
     setIsModalVisible(true);
   };
 
@@ -114,7 +112,7 @@ export default function AnnouncementsScreen() {
             setEditingAnnouncement(null);
             setTitle('');
             setContent('');
-            setScope(userRole === 'teacher' ? 'class-' + user?.uid : 'school-wide'); // Default scope for teacher
+            // Scope is now fixed to 'school-wide' for all users
             setIsModalVisible(true);
           }}>
             <Ionicons name="add-circle-outline" size={24} color="#fff" />
@@ -160,31 +158,6 @@ export default function AnnouncementsScreen() {
               onChangeText={setContent}
             />
 
-            <View style={styles.scopeContainer}>
-              <Text style={styles.scopeLabel}>Scope:</Text>
-              <TouchableOpacity
-                style={[styles.scopeOption, scope === 'school-wide' && styles.scopeOptionActive]}
-                onPress={() => setScope('school-wide')}
-              >
-                <Text style={styles.scopeOptionText}>School-Wide</Text>
-              </TouchableOpacity>
-              {(userRole === 'admin' || userRole === 'headteacher') && (
-                <TouchableOpacity
-                  style={[styles.scopeOption, scope === 'staff-only' && styles.scopeOptionActive]}
-                  onPress={() => setScope('staff-only')}
-                >
-                  <Text style={styles.scopeOptionText}>Staff-Only</Text>
-                </TouchableOpacity>
-              )}
-              {userRole === 'teacher' && user?.uid && (
-                <TouchableOpacity
-                  style={[styles.scopeOption, scope === 'class-' + user.uid && styles.scopeOptionActive]}
-                  onPress={() => setScope('class-' + user.uid)}
-                >
-                  <Text style={styles.scopeOptionText}>My Classes</Text>
-                </TouchableOpacity>
-              )}
-            </View>
 
             <View style={styles.modalActions}>
               <TouchableOpacity style={styles.cancelButton} onPress={() => setIsModalVisible(false)}>

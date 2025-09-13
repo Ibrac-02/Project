@@ -184,7 +184,7 @@ export default function ManageAssignmentsScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Manage Assignments</Text>
+    
       <TouchableOpacity style={styles.addButton} onPress={handleAddAssignment}>
         <Ionicons name="add-circle" size={24} color="#fff" />
         <Text style={styles.addButtonText}>Add New Assignment</Text>
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f4f7f9', // A very light, clean gray
     paddingTop: 50,
-    paddingHorizontal: 50,
+    paddingHorizontal: 54,
   },
   centered: {
     flex: 1,
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#1E90FF', // A vibrant blue
     paddingVertical: 16,
-    paddingHorizontal: 22,
+    paddingHorizontal: 30,
     borderRadius: 12, // More rounded corners
     alignItems: 'center',
     justifyContent: 'center',
@@ -355,12 +355,13 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   card: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 12, // Consistent rounded corners
     padding: 20,
+    width: '100%',
     marginBottom: 15,
     shadowColor: '#bdc3c7', // Lighter gray shadow
     shadowOffset: { width: 0, height: 2 },
@@ -384,11 +385,19 @@ const styles = StyleSheet.create({
   },
   cardActions: {
     flexDirection: 'row',
+    justifyContent: 'center', // Center buttons below the card
+    marginTop: 12, // spacing below info
   },
   actionButton: {
-    marginLeft: 18,
+    marginHorizontal: 10, // spacing between buttons
     padding: 8,
   },
+  actionText: {
+  color: '#fff',
+  fontSize: 16,
+  fontWeight: '600',
+  marginLeft: 6,
+},
   // Error/Retry
   errorText: {
     color: '#e74c3c', // Red for errors

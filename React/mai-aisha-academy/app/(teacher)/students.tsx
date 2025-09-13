@@ -1,11 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../../lib/auth';
 import { Student, StudentData, createStudent, deleteStudent, getStudentsByTeacher, updateStudent } from '../../lib/students';
 
-interface ClassItem { // Placeholder for class data
+interface ClassItem {
   id: string;
   name: string;
 }
@@ -19,12 +19,11 @@ export default function TeacherStudentManagementScreen() {
 
   // Form states
   const [studentName, setStudentName] = useState('');
-  const [studentEmail, setStudentEmail] = useState('');
   const [selectedClassId, setSelectedClassId] = useState('');
-  const [contactNumber, setContactNumber] = useState('');
-  const [notes, setNotes] = useState('');
+  const [gender, setGender] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
 
-  // Placeholder classes (will be replaced with dynamic data later)
+  // Dynamic later
   const [availableClasses, setAvailableClasses] = useState<ClassItem[]>([
     { id: 'class001', name: 'Form 1' },
     { id: 'class002', name: 'Form 2' },
@@ -52,15 +51,14 @@ export default function TeacherStudentManagementScreen() {
   const resetForm = () => {
     setEditingStudent(null);
     setStudentName('');
-    setStudentEmail('');
-    setSelectedClassId(availableClasses[0]?.id || ''); // Default to first class
-    setContactNumber('');
-    setNotes('');
+    setSelectedClassId(availableClasses[0]?.id || '');
+    setGender('');
+    setDateOfBirth('');
   };
 
   const handleAddEditStudent = async () => {
-    if (!user || !studentName || !selectedClassId) {
-      Alert.alert("Error", "Student name and class are required.");
+    if (!user || !studentName || !selectedClassId || !gender || !dateOfBirth) {
+      Alert.alert("Error", "All fields are required.");
       return;
     }
 
@@ -68,10 +66,8 @@ export default function TeacherStudentManagementScreen() {
       name: studentName,
       classId: selectedClassId,
       teacherId: user.uid,
-      email: studentEmail || '',
-      contactNumber: contactNumber || '',
-      notes: notes || '',
-      // dateOfBirth and gender can be added to the form later if needed
+      gender: gender,
+      dateOfBirth: dateOfBirth,
     };
 
     try {
@@ -93,10 +89,9 @@ export default function TeacherStudentManagementScreen() {
   const handleEdit = (student: Student) => {
     setEditingStudent(student);
     setStudentName(student.name);
-    setStudentEmail(student.email || '');
     setSelectedClassId(student.classId);
-    setContactNumber(student.contactNumber || '');
-    setNotes(student.notes || '');
+    setGender(student.gender || '');
+    setDateOfBirth(student.dateOfBirth || '');
     setIsModalVisible(true);
   };
 
@@ -106,7 +101,9 @@ export default function TeacherStudentManagementScreen() {
       "Are you sure you want to delete this student?",
       [
         { text: "Cancel", style: "cancel" },
-        { text: "Delete", onPress: async () => {
+        {
+          text: "Delete",
+          onPress: async () => {
             try {
               await deleteStudent(studentId);
               Alert.alert("Success", "Student deleted successfully!");
@@ -114,8 +111,8 @@ export default function TeacherStudentManagementScreen() {
             } catch (error: any) {
               Alert.alert("Error", "Failed to delete student: " + error.message);
             }
-          }
-        }
+          },
+        },
       ]
     );
   };
@@ -132,49 +129,55 @@ export default function TeacherStudentManagementScreen() {
   if (userRole !== 'teacher') {
     return (
       <View style={styles.centered}>
-        <Text style={styles.permissionDeniedText}>You do not have permission to manage students.</Text>
+        <Text style={styles.permissionDeniedText}>
+          You do not have permission to manage students.
+        </Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      {/* <ScrollView contentContainerStyle={styles.scrollContent}> */}
-      <Text style={styles.pageTitle}>My Students</Text>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => {
+          resetForm();
+          setIsModalVisible(true);
+        }}
+      >
+        <Ionicons name="add-circle-outline" size={24} color="#fff" />
+        <Text style={styles.addButtonText}>Add New Student</Text>
+      </TouchableOpacity>
 
-        <TouchableOpacity style={styles.addButton} onPress={() => { resetForm(); setIsModalVisible(true); }}>
-          <Ionicons name="add-circle-outline" size={24} color="#fff" />
-          <Text style={styles.addButtonText}>Add New Student</Text>
-        </TouchableOpacity>
+      {students.length === 0 ? (
+        <Text style={styles.noRecordsText}>No students added yet.</Text>
+      ) : (
+        <FlatList
+          data={students}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.studentCard}>
+              <Text style={styles.studentName}>{item.name}</Text>
+              <Text style={styles.studentDetail}>
+                Class: {availableClasses.find((cls) => cls.id === item.classId)?.name || item.classId}
+              </Text>
+              <Text style={styles.studentDetail}>Gender: {item.gender}</Text>
+              <Text style={styles.studentDetail}>Date of Birth: {item.dateOfBirth}</Text>
 
-        {students.length === 0 ? (
-          <Text style={styles.noRecordsText}>No students added yet.</Text>
-        ) : (
-          <FlatList
-            data={students}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <View style={styles.studentCard}>
-                <Text style={styles.studentName}>{item.name}</Text>
-                <Text style={styles.studentDetail}>Class: {availableClasses.find(cls => cls.id === item.classId)?.name || item.classId}</Text>
-                {item.email && <Text style={styles.studentDetail}>Email: {item.email}</Text>}
-                {item.contactNumber && <Text style={styles.studentDetail}>Contact: {item.contactNumber}</Text>}
-                {item.notes && <Text style={styles.studentDetail}>Notes: {item.notes}</Text>}
-                <View style={styles.cardActions}>
-                  <TouchableOpacity onPress={() => handleEdit(item)} style={styles.actionButtonEdit}>
-                    <Ionicons name="create-outline" size={20} color="#fff" />
-                    <Text style={styles.actionButtonText}>Edit</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => handleDelete(item.id)} style={styles.actionButtonDelete}>
-                    <Ionicons name="trash-outline" size={20} color="#fff" />
-                    <Text style={styles.actionButtonText}>Delete</Text>
-                  </TouchableOpacity>
-                </View>
+              <View style={styles.cardActions}>
+                <TouchableOpacity onPress={() => handleEdit(item)} style={styles.actionButtonEdit}>
+                  <Ionicons name="create-outline" size={20} color="#fff" />
+                  <Text style={styles.actionButtonText}>Edit</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleDelete(item.id)} style={styles.actionButtonDelete}>
+                  <Ionicons name="trash-outline" size={20} color="#fff" />
+                  <Text style={styles.actionButtonText}>Delete</Text>
+                </TouchableOpacity>
               </View>
-            )}
-          />
-        )}
-      {/* </ScrollView> */}
+            </View>
+          )}
+        />
+      )}
 
       {/* Add/Edit Student Modal */}
       <Modal
@@ -185,7 +188,9 @@ export default function TeacherStudentManagementScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{editingStudent ? 'Edit Student' : 'Add New Student'}</Text>
+            <Text style={styles.modalTitle}>
+              {editingStudent ? 'Edit Student' : 'Add New Student'}
+            </Text>
 
             <Text style={styles.inputLabel}>Full Name:</Text>
             <TextInput
@@ -206,32 +211,23 @@ export default function TeacherStudentManagementScreen() {
               ))}
             </Picker>
 
-            <Text style={styles.inputLabel}>Email (Optional):</Text>
+            <Text style={styles.inputLabel}>Gender:</Text>
+            <Picker
+              selectedValue={gender}
+              onValueChange={(value) => setGender(value)}
+              style={styles.picker}
+            >
+              <Picker.Item label="Select Gender" value="" />
+              <Picker.Item label="Male" value="Male" />
+              <Picker.Item label="Female" value="Female" />
+            </Picker>
+
+            <Text style={styles.inputLabel}>Date of Birth:</Text>
             <TextInput
               style={styles.input}
-              placeholder="Student Email"
-              value={studentEmail}
-              onChangeText={setStudentEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-
-            <Text style={styles.inputLabel}>Contact Number (Optional):</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Parent/Guardian Contact Number"
-              value={contactNumber}
-              onChangeText={setContactNumber}
-              keyboardType="phone-pad"
-            />
-
-            <Text style={styles.inputLabel}>Notes (Optional):</Text>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              placeholder="Any additional notes about the "
-              multiline
-              value={notes}
-              onChangeText={setNotes} 
+              placeholder="YYYY-MM-DD"
+              value={dateOfBirth}
+              onChangeText={setDateOfBirth}
             />
 
             <View style={styles.modalActions}>
@@ -239,7 +235,9 @@ export default function TeacherStudentManagementScreen() {
                 <Text style={styles.buttonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.saveButton} onPress={handleAddEditStudent}>
-                <Text style={styles.buttonText}>{editingStudent ? 'Update Student' : 'Add Student'}</Text>
+                <Text style={styles.buttonText}>
+                  {editingStudent ? 'Update Student' : 'Add Student'}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -254,10 +252,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f0f2f5',
   },
-  scrollContent: {
-    padding: 20,
-    paddingBottom: 80,
-  },
   centered: {
     flex: 1,
     justifyContent: 'center',
@@ -269,26 +263,16 @@ const styles = StyleSheet.create({
     color: '#888',
     textAlign: 'center',
   },
-  pageTitle: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
   addButton: {
     backgroundColor: '#1E90FF',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 6,
     borderRadius: 8,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    marginTop: 12,
     elevation: 3,
   },
   addButtonText: {
@@ -308,10 +292,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 15,
     marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 1,
     elevation: 2,
   },
   studentName: {
@@ -334,8 +314,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFC107',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
+    padding: 8,
     borderRadius: 5,
     marginLeft: 10,
   },
@@ -343,8 +322,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#DC3545',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
+    padding: 8,
     borderRadius: 5,
     marginLeft: 10,
   },
@@ -365,10 +343,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 25,
     width: '90%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
     elevation: 5,
   },
   modalTitle: {
@@ -398,13 +372,6 @@ const styles = StyleSheet.create({
     height: 50,
     width: '100%',
     marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-  },
-  textArea: {
-    height: 80,
-    textAlignVertical: 'top',
   },
   modalActions: {
     flexDirection: 'row',

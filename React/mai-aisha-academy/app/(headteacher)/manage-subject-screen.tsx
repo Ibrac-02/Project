@@ -1,20 +1,30 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { Alert, FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'; // Added ScrollView
-import { getAllUsers, UserProfile } from '../../lib/auth'; // Import getAllUsers and UserProfile
+import {
+  Alert,
+  FlatList,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import { getAllUsers, UserProfile } from '../../lib/auth';
 import { createSubject, deleteSubject, getAllSubjects, Subject, updateSubject } from '../../lib/subjects';
 
 export default function HeadteacherManageSubjectsScreen() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [teachers, setTeachers] = useState<UserProfile[]>([]); // New state for teachers
+  const [teachers, setTeachers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalVisible, setModalVisible] = useState(false);
   const [currentSubject, setCurrentSubject] = useState<Subject | null>(null);
   const [subjectName, setSubjectName] = useState('');
   const [subjectDescription, setSubjectDescription] = useState('');
-  const [selectedTeachers, setSelectedTeachers] = useState<string[]>([]); // New state for selected teacher UIDs
+  const [selectedTeachers, setSelectedTeachers] = useState<string[]>([]);
 
   const fetchAllData = useCallback(async () => {
     setLoading(true);
@@ -22,10 +32,10 @@ export default function HeadteacherManageSubjectsScreen() {
     try {
       const [fetchedSubjects, allUsers] = await Promise.all([
         getAllSubjects(),
-        getAllUsers() // Fetch all users
+        getAllUsers()
       ]);
+
       setSubjects(fetchedSubjects);
-      // Filter users to get only teachers
       const teacherUsers = allUsers.filter(user => user.role === 'teacher');
       setTeachers(teacherUsers);
     } catch (err: any) {
@@ -37,7 +47,7 @@ export default function HeadteacherManageSubjectsScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      fetchAllData(); // Fetch all data on focus
+      fetchAllData();
     }, [fetchAllData])
   );
 
@@ -45,7 +55,7 @@ export default function HeadteacherManageSubjectsScreen() {
     setCurrentSubject(null);
     setSubjectName('');
     setSubjectDescription('');
-    setSelectedTeachers([]); // Clear selected teachers for new subject
+    setSelectedTeachers([]);
     setModalVisible(true);
   };
 
@@ -53,7 +63,7 @@ export default function HeadteacherManageSubjectsScreen() {
     setCurrentSubject(subject);
     setSubjectName(subject.name);
     setSubjectDescription(subject.description || '');
-    setSelectedTeachers(subject.teachersAssigned || []); // Set selected teachers for existing subject
+    setSelectedTeachers(subject.teachersAssigned || []);
     setModalVisible(true);
   };
 
@@ -68,18 +78,18 @@ export default function HeadteacherManageSubjectsScreen() {
       const subjectData = {
         name: subjectName,
         description: subjectDescription,
-        teachersAssigned: selectedTeachers, // Include selected teachers
+        teachersAssigned: selectedTeachers,
       };
 
       if (currentSubject) {
         await updateSubject(currentSubject.id, subjectData);
         Alert.alert("Success", "Subject updated successfully.");
       } else {
-        await createSubject(subjectName, subjectDescription, selectedTeachers); // Pass selectedTeachers
+        await createSubject(subjectName, subjectDescription, selectedTeachers);
         Alert.alert("Success", "Subject created successfully.");
       }
       setModalVisible(false);
-      fetchAllData(); // Refresh all data
+      fetchAllData();
     } catch (err: any) {
       Alert.alert("Error", `Failed to save subject: ${err.message}`);
     } finally {
@@ -100,7 +110,7 @@ export default function HeadteacherManageSubjectsScreen() {
             try {
               await deleteSubject(id);
               Alert.alert("Success", `${name} deleted successfully.`);
-              fetchAllData(); // Refresh all data
+              fetchAllData();
             } catch (err: any) {
               Alert.alert("Error", `Failed to delete ${name}: ${err.message}`);
             }
@@ -116,30 +126,46 @@ export default function HeadteacherManageSubjectsScreen() {
     );
   };
 
-  const renderSubjectItem = ({ item }: { item: Subject }) => (
-    <View style={styles.subjectCard}>
-      <View style={styles.subjectInfo}>
-        <Text style={styles.subjectName}>{item.name}</Text>
-        {item.description && <Text style={styles.subjectDescription}>{item.description}</Text>}
-        {item.teachersAssigned && item.teachersAssigned.length > 0 && (
-          <Text style={styles.assignedTeachers}>
-            Assigned Teachers: {item.teachersAssigned.map(uid => {
-              const teacher = teachers.find(t => t.uid === uid);
-              return teacher ? teacher.name || teacher.email : 'Unknown';
-            }).join(', ')}
-          </Text>
+  const renderTeacherCard = ({ item }: { item: UserProfile }) => {
+    const teacherSubjects = subjects.filter(subject =>
+      subject.teachersAssigned?.includes(item.uid)
+    );
+
+    return (
+      <View style={styles.teacherCard}>
+        <Text style={styles.teacherNameCard}>{item.name || item.email}</Text>
+
+        {teacherSubjects.length === 0 ? (
+          <Text style={styles.noSubjects}>No subjects assigned</Text>
+        ) : (
+          teacherSubjects.map(subject => (
+            <View key={subject.id} style={styles.subjectRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.subjectNameCard}>{subject.name}</Text>
+                {subject.description ? (
+                  <Text style={styles.subjectDescriptionCard}>{subject.description}</Text>
+                ) : null}
+              </View>
+              <View style={styles.subjectActions}>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => handleEditSubject(subject)}
+                >
+                  <Ionicons name="pencil-outline" size={20} color="#4CAF50" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => handleDeleteSubject(subject.id, subject.name)}
+                >
+                  <Ionicons name="trash-outline" size={20} color="#F44336" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))
         )}
       </View>
-      <View style={styles.subjectActions}>
-        <TouchableOpacity style={styles.actionButton} onPress={() => handleEditSubject(item)}>
-          <Ionicons name="pencil-outline" size={24} color="#4CAF50" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton} onPress={() => handleDeleteSubject(item.id, item.name)}>
-          <Ionicons name="trash-outline" size={24} color="#F44336" />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+    );
+  };
 
   if (loading) {
     return (
@@ -162,28 +188,29 @@ export default function HeadteacherManageSubjectsScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Manage Subjects</Text>
+      <Text style={styles.title}>Subjects Allocation to Teachers</Text>
       <TouchableOpacity style={styles.addButton} onPress={handleAddSubject}>
         <Ionicons name="add-circle-outline" size={24} color="#fff" />
         <Text style={styles.addButtonText}>Add New Subject</Text>
       </TouchableOpacity>
 
-      {subjects.length === 0 ? (
+      {teachers.length === 0 ? (
         <View style={styles.centered}>
-          <Text>No subjects found.</Text>
+          <Text>No teachers found.</Text>
           <TouchableOpacity onPress={fetchAllData} style={styles.retryButton}>
             <Text style={styles.retryButtonText}>Refresh</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <FlatList
-          data={subjects}
-          keyExtractor={(item) => item.id}
-          renderItem={renderSubjectItem}
+          data={teachers}
+          keyExtractor={(item) => item.uid}
+          renderItem={renderTeacherCard}
           contentContainerStyle={styles.listContentContainer}
         />
       )}
 
+      {/* Modal for Add/Edit Subject */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -193,7 +220,9 @@ export default function HeadteacherManageSubjectsScreen() {
         <View style={styles.modalOverlay}>
           <ScrollView contentContainerStyle={styles.modalScrollContent}>
             <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>{currentSubject ? 'Edit Subject' : 'Add New Subject'}</Text>
+              <Text style={styles.modalTitle}>
+                {currentSubject ? 'Edit Subject' : 'Add New Subject'}
+              </Text>
               <TextInput
                 style={styles.input}
                 placeholder="Subject Name"
@@ -221,21 +250,33 @@ export default function HeadteacherManageSubjectsScreen() {
                       onPress={() => toggleTeacherSelection(teacher.uid)}
                     >
                       <Ionicons
-                        name={selectedTeachers.includes(teacher.uid) ? 'checkbox-outline' : 'square-outline'}
+                        name={
+                          selectedTeachers.includes(teacher.uid)
+                            ? 'checkbox-outline'
+                            : 'square-outline'
+                        }
                         size={24}
                         color={selectedTeachers.includes(teacher.uid) ? '#1E90FF' : '#333'}
                       />
-                      <Text style={styles.teacherName}>{teacher.name || teacher.email}</Text>
+                      <Text style={styles.teacherName}>
+                        {teacher.name || teacher.email}
+                      </Text>
                     </TouchableOpacity>
                   ))}
                 </View>
               )}
 
               <View style={styles.modalButtons}>
-                <TouchableOpacity style={[styles.modalButton, styles.cancelButton]} onPress={() => setModalVisible(false)}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.cancelButton]}
+                  onPress={() => setModalVisible(false)}
+                >
                   <Text style={styles.buttonText}>Cancel</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.modalButton, styles.saveButton]} onPress={handleSaveSubject}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.saveButton]}
+                  onPress={handleSaveSubject}
+                >
                   <Text style={styles.buttonText}>Save</Text>
                 </TouchableOpacity>
               </View>
@@ -247,6 +288,7 @@ export default function HeadteacherManageSubjectsScreen() {
   );
 }
 
+// ----------------------- STYLES -----------------------
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -260,10 +302,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontWeight: '700',
     color: '#333',
-    marginBottom: 20,
+    marginBottom: 15,
     textAlign: 'center',
   },
   addButton: {
@@ -276,7 +318,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 3,
@@ -290,44 +335,53 @@ const styles = StyleSheet.create({
   listContentContainer: {
     paddingBottom: 20,
   },
-  subjectCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  teacherCard: {
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 15,
-    marginBottom: 10,
+    marginBottom: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
     shadowOpacity: 0.2,
     shadowRadius: 1.41,
     elevation: 2,
   },
-  subjectInfo: {
-    flex: 1,
-  },
-  subjectName: {
+  teacherNameCard: {
     fontSize: 18,
+    fontWeight: '700',
+    color: '#1E90FF',
+    marginBottom: 10,
+  },
+  noSubjects: {
+    fontStyle: 'italic',
+    color: '#666',
+  },
+  subjectRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomColor: '#ddd',
+    borderBottomWidth: 1,
+  },
+  subjectNameCard: {
+    fontSize: 16,
     fontWeight: '600',
     color: '#333',
   },
-  subjectDescription: {
+  subjectDescriptionCard: {
     fontSize: 14,
     color: '#666',
-    marginTop: 5,
-  },
-  assignedTeachers: {
-    fontSize: 14,
-    color: '#1E90FF',
-    marginTop: 5,
-    fontStyle: 'italic',
+    marginTop: 2,
   },
   subjectActions: {
     flexDirection: 'row',
   },
   actionButton: {
-    marginLeft: 15,
+    marginLeft: 10,
     padding: 5,
   },
   errorText: {
@@ -349,7 +403,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalScrollContent: {
     flexGrow: 1,
@@ -362,9 +416,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 20,
     width: '90%',
-    // maxHeight: '80%', // Removed to allow ScrollView to manage height
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,

@@ -3,41 +3,41 @@ import { Stack } from 'expo-router';
 
 export default function HeadteacherLayout() {
   return (
-    <Stack>
-      <Stack.Screen name="dashboard" options={{ headerShown: false, title: 'Headteacher Dashboard' }} />
-      <Stack.Screen name="LessonPlansScreen" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="profile"
-        options={{
+    <Stack screenOptions={{
           headerShown: true,
-          title: 'Headteacher Profile',
+          title: 'Headteacher Profile', 
           headerStyle: {
             backgroundColor: '#1E90FF',
           },
           headerTintColor: '#fff', // White color for header title and back button
           headerTitleStyle: {
-            fontWeight: 'bold',
+            fontWeight: 500,
           },
           headerTitleAlign: 'center', // Center the header title
-        }}
+        }}>
+      <Stack.Screen name="dashboard" options={{ headerShown: false, title: 'Headteacher Dashboard' }} />
+      <Stack.Screen name="lesson-plan-screen" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="profile"
+        
       />
       <Stack.Screen
-        name="ManageSubjectsScreen"
+        name="manage-subject-screen"
         options={{
           headerShown: true,
-          title: 'Manage Subjects',
+          title: 'Subject Allocation',
           headerStyle: {
             backgroundColor: '#1E90FF',
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
-            fontWeight: 'bold',
+            fontWeight: 500,
           },
           headerTitleAlign: 'center', // Center the header title
         }}
       />
       <Stack.Screen
-        name="GradeApprovalScreen"
+        name="grade-approval-screen"
         options={{
           headerShown: true,
           title: 'Approve Grades',
@@ -52,7 +52,7 @@ export default function HeadteacherLayout() {
         }}
       />
       <Stack.Screen
-        name="ClassPerformanceAnalyticsScreen"
+        name="performance-analytic-screen"
         options={{
           headerShown: true,
           title: 'Class Performance',
@@ -67,7 +67,7 @@ export default function HeadteacherLayout() {
         }}
       />
       <Stack.Screen
-        name="ManageTeachersScreen"
+        name="manage-teacher-screen"
         options={{
           headerShown: true,
           title: 'Manage Teachers',

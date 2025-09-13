@@ -72,22 +72,21 @@ export default function HeadteacherDashboardScreen() {
                 </View>
               )}
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/(settings)')} style={styles.settingsIconContainer}>
-              <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
-            </TouchableOpacity>
+            
             <TouchableOpacity onPress={(event) => { event.stopPropagation(); setShowLogout(!showLogout); }} style={styles.profileIconContainer}>
               <View style={styles.profileIcon}>
                 <Text style={styles.profileText}>{loading ? '' : getInitials(userName)}</Text>
               </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => router.push('/(settings)')} style={styles.settingsIconContainer}>
+              <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
             </TouchableOpacity>
           </View>
         </View>  
 
         {showLogout && (
           <View style={styles.logoutDropdown}>
-            <TouchableOpacity style={styles.dropdownItem} onPress={() => router.push('/(settings)/Profile')}>
-              <Text style={styles.dropdownItemText}>My Profile</Text>
-            </TouchableOpacity>
             <TouchableOpacity onPress={handleLogout} style={styles.dropdownItem}>
               <Text style={styles.dropdownItemText}>Sign out</Text>
             </TouchableOpacity>
@@ -120,27 +119,27 @@ export default function HeadteacherDashboardScreen() {
            {/* Quick Actions */}
            <Text style={styles.quickActionsTitle}>Quick Actions</Text>
            <View style={styles.quickActionsGrid}>
-             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/LessonPlansScreen')}>
+             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/lesson-plan-screen')}>
                <Ionicons name="book-outline" size={24} color="#1E90FF" />
                <Text style={styles.quickActionText}>Lesson Plans</Text>
              </TouchableOpacity>
              
-             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/ManageTeachersScreen')}>
+             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/manage-teacher-screen')}>
                <Ionicons name="people-outline" size={24} color="#1E90FF" />
                <Text style={styles.quickActionText}>Manage Teachers</Text>
              </TouchableOpacity>
              
-             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/ManageSubjectsScreen')}>
+             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/manage-subject-screen')}>
                <Ionicons name="library-outline" size={24} color="#1E90FF" />
                <Text style={styles.quickActionText}>Manage Subjects</Text>
              </TouchableOpacity>
              
-             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/GradeApprovalScreen')}>
+             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/grade-approval-screen')}>
                <Ionicons name="checkmark-circle-outline" size={24} color="#1E90FF" />
                <Text style={styles.quickActionText}>Grade Approval</Text>
              </TouchableOpacity>
              
-             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/ClassPerformanceAnalyticsScreen')}>
+             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/performance-analytic-screen')}>
                <Ionicons name="bar-chart-outline" size={24} color="#1E90FF" />
                <Text style={styles.quickActionText}>Class Performance</Text>
              </TouchableOpacity>
@@ -155,10 +154,10 @@ export default function HeadteacherDashboardScreen() {
                <Text style={styles.quickActionText}>Announcements</Text>
              </TouchableOpacity>
              
-             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(settings)/index' as any)}>
+             {/* <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(settings)/index' as any)}>
                <Ionicons name="settings-outline" size={24} color="#1E90FF" />
                <Text style={styles.quickActionText}>Settings</Text>
-             </TouchableOpacity>
+             </TouchableOpacity> */}
            </View>
          </ScrollView>
       </View>
@@ -184,8 +183,9 @@ const styles = StyleSheet.create({
    summaryCard: {
      flex: 1,
      backgroundColor: '#fff',
-     padding: 20,
-     borderRadius: 12,
+     paddingVertical: 12,
+     paddingHorizontal: 10,
+     borderRadius: 10,
      alignItems: 'center',
      shadowColor: '#000',
      shadowOffset: { width: 0, height: 2 },
@@ -213,7 +213,8 @@ const styles = StyleSheet.create({
    quickActionsGrid: {
      flexDirection: 'row',
      flexWrap: 'wrap',
-     justifyContent: 'space-between',
+     justifyContent: 'flex-start',
+     gap: 12,
    },
    quickActionButton: {
      width: (width - 80) / 4,
@@ -282,8 +283,8 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   profileIcon: {
-    width: 40,
-    height: 40,
+    width: 30,
+    height: 30,
     borderRadius: 20,
     backgroundColor: '#fff',
     justifyContent: 'center',
@@ -293,7 +294,7 @@ const styles = StyleSheet.create({
   },
   profileText: {
     color: '#1E90FF',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   logoutDropdown: {
@@ -364,6 +365,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   settingsIconContainer: {
-    marginRight: 10,
+    marginRight: 5,
   },
 }); 

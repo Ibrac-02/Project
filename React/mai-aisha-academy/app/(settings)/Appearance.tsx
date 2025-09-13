@@ -19,7 +19,6 @@ export default function AppearanceSettingsScreen() {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
-        <Text style={styles.title}>Appearance</Text>
         <Text style={styles.subtitle}>Theme preference (applies next launch)</Text>
 
         <View style={styles.card}>

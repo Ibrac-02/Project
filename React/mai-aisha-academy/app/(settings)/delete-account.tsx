@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { deleteUser, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 import React, { useState } from 'react';
@@ -56,14 +55,7 @@ export default function DeleteAccountScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Ionicons name="arrow-back" size={24} color="#fff" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Delete Account</Text>
-        </View>
-      </View>
+     
       <View style={styles.card}>
         <Text style={styles.warningText}>
           Deleting your account is permanent and cannot be undone. All your data will be removed.
@@ -133,7 +125,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#b22222',
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: 'left',
   },
   label: {
     fontSize: 14,

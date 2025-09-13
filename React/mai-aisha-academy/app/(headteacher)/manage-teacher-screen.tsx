@@ -15,7 +15,6 @@ export default function ManageTeachersScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [contactNumber, setContactNumber] = useState('');
-  const [department, setDepartment] = useState('');
   const [title, setTitle] = useState('');
   const [employeeId, setEmployeeId] = useState('');
   const [qualifications, setQualifications] = useState('');
@@ -45,7 +44,6 @@ export default function ManageTeachersScreen() {
     setName(teacher.name || '');
     setEmail(teacher.email || '');
     setContactNumber(teacher.contactNumber || '');
-    setDepartment(teacher.department || '');
     setTitle(teacher.title || '');
     setEmployeeId(teacher.employeeId || '');
     setQualifications(teacher.qualifications || '');
@@ -68,7 +66,6 @@ export default function ManageTeachersScreen() {
         name,
         email,
         contactNumber,
-        department,
         title,
         employeeId,
         qualifications,
@@ -76,7 +73,7 @@ export default function ManageTeachersScreen() {
       await updateUserProfile(currentTeacher.uid, updates);
       Alert.alert("Success", `Teacher profile for ${name} updated successfully.`);
       setModalVisible(false);
-      fetchTeachers(); // Refresh the list
+      fetchTeachers();
     } catch (err: any) {
       Alert.alert("Error", `Failed to update teacher profile: ${err.message}`);
     } finally {
@@ -84,16 +81,12 @@ export default function ManageTeachersScreen() {
     }
   };
 
-  // No direct delete functionality for teachers from this screen, as it might be handled by Admin's Manage Users.
-  // Headteacher can modify teacher details but not remove their account entirely.
-
   const renderTeacherItem = ({ item }: { item: UserProfile }) => (
     <View style={styles.card}>
       <View style={styles.teacherInfo}>
         <Text style={styles.teacherName}>{item.name || 'N/A'}</Text>
         <Text style={styles.teacherDetail}>Email: {item.email || 'N/A'}</Text>
         {item.title && <Text style={styles.teacherDetail}>Title: {item.title}</Text>}
-        {item.department && <Text style={styles.teacherDetail}>Department: {item.department}</Text>}
         {item.contactNumber && <Text style={styles.teacherDetail}>Contact: {item.contactNumber}</Text>}
       </View>
       <View style={styles.cardActions}>
@@ -154,6 +147,7 @@ export default function ManageTeachersScreen() {
           <ScrollView contentContainerStyle={styles.modalScrollContent}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Edit Teacher Profile</Text>
+
               <TextInput
                 style={styles.input}
                 placeholder="Full Name"
@@ -174,22 +168,16 @@ export default function ManageTeachersScreen() {
                 onChangeText={setContactNumber}
                 keyboardType="phone-pad"
               />
-              <TextInput
-                style={styles.input}
-                placeholder="Department"
-                value={department}
-                onChangeText={setDepartment}
-              />
               <Picker
                 selectedValue={title}
                 onValueChange={(itemValue) => setTitle(itemValue)}
-                style={styles.input} // Use input style for picker for consistency
+                style={[styles.input, { height: 50 }]}
               >
                 <Picker.Item label="Select Title" value="" />
                 <Picker.Item label="Mr." value="Mr." />
                 <Picker.Item label="Mrs." value="Mrs." />
                 <Picker.Item label="Ms." value="Ms." />
-                <Picker.Item label="Dr." value="Dr." />
+      
               </Picker>
               <TextInput
                 style={styles.input}
@@ -214,6 +202,7 @@ export default function ManageTeachersScreen() {
                   <Text style={styles.buttonText}>Save</Text>
                 </TouchableOpacity>
               </View>
+
             </View>
           </ScrollView>
         </View>
@@ -307,10 +296,10 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: '#fff',
-    borderRadius: 10,
+    borderRadius: 15,
     padding: 20,
-    width: '90%',
-    maxHeight: '80%',
+    width: '110%',
+    maxHeight: '85%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
@@ -328,10 +317,11 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderWidth: 1,
     borderRadius: 8,
-    padding: 12,
+    padding: 14,
     marginBottom: 15,
     fontSize: 16,
     backgroundColor: '#fff',
+    width: '100%',
   },
   textArea: {
     minHeight: 100,
@@ -346,7 +336,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 8,
-    minWidth: 100,
+    minWidth: 120,
     alignItems: 'center',
   },
   cancelButton: {

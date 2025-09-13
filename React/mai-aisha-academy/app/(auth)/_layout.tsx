@@ -27,7 +27,7 @@ export default function AuthLayout() {
           headerTitleStyle: { fontWeight: 'bold' },
         }}
       />
-      <Stack.Screen name="academicCalendar" options={{ headerShown: false }} />
+      <Stack.Screen name="academic-calendar" options={{ headerShown: false }} />
     </Stack>
   );
 }

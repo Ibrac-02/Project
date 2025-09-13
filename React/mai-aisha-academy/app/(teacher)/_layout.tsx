@@ -10,7 +10,7 @@ export default function TeacherLayout() {
         },
         headerTintColor: '#fff',
         headerTitleStyle: { 
-          fontWeight: 'bold', 
+          fontWeight: 500, 
           fontSize: 20, // bigger text
         },
         headerTitleAlign: 'center',

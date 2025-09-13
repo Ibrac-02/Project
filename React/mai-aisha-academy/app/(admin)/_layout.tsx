@@ -17,7 +17,7 @@ export default function AdminLayout() {
           headerTitleStyle: {
             fontWeight: 'bold',
           },
-          headerTitleAlign: 'center', // Center the header title
+          headerTitleAlign: 'left', // left the header title
         }}
       />
       <Stack.Screen
@@ -30,9 +30,9 @@ export default function AdminLayout() {
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
-            fontWeight: 'bold',
+            fontWeight: '500',
           },
-          headerTitleAlign: 'center', // Center the header title
+          headerTitleAlign: 'left', // left the header title
         }}
       />
       <Stack.Screen
@@ -45,9 +45,9 @@ export default function AdminLayout() {
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
-            fontWeight: 'bold',
+            fontWeight: '500',
           },
-          headerTitleAlign: 'center', // Center the header title
+          headerTitleAlign: 'left', // left the header title
         }}
       />
       <Stack.Screen
@@ -60,9 +60,9 @@ export default function AdminLayout() {
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
-            fontWeight: 'bold',
+            fontWeight: '500',
           },
-          headerTitleAlign: 'center', // Center the header title
+          headerTitleAlign: 'left', // left the header title
         }}
       />
       <Stack.Screen
@@ -75,9 +75,9 @@ export default function AdminLayout() {
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
-            fontWeight: 'bold',
+            fontWeight: '500',
           },
-          headerTitleAlign: 'center', // Center the header title
+          headerTitleAlign: 'left', // left the header title
         }}
       />
     </Stack>

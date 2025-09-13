@@ -38,7 +38,6 @@ export default function ProfileScreen() {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
-        <Text style={styles.pageTitle}>Profile</Text>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Basic Information</Text>

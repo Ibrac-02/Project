@@ -8,7 +8,6 @@ export default function NotificationsSettingsScreen() {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
-        <Text style={styles.title}>Notifications</Text>
 
         <View style={styles.card}>
           <View style={styles.row}>
@@ -35,12 +34,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
   },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 12,
-  },
+ 
   card: {
     backgroundColor: '#fff',
     borderRadius: 10,

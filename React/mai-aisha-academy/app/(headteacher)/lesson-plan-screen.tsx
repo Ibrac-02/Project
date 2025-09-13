@@ -322,7 +322,7 @@ export default function HeadteacherLessonPlansScreen() {
         </View>
       </View>
 
-      {renderFilters()}
+      {renderFilters()} 
 
       <FlatList
         data={filteredLessonPlans}
@@ -456,19 +456,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 22,
+    paddingVertical: 30,
     backgroundColor: '#1E90FF',
     marginBottom: 12,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingTop: 16,
   },
   backButton: {
     marginRight: 8,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
     marginLeft: 8,

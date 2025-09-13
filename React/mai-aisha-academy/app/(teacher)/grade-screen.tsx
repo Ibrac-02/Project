@@ -128,7 +128,7 @@ export default function GradeEntryScreen() {
 
       {/* Student Text Input */}
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Student Name / ID:</Text>
+        <Text style={styles.label}>Student Name:</Text>
         <TextInput
           style={styles.input}
           value={studentName}
@@ -159,7 +159,7 @@ export default function GradeEntryScreen() {
           style={styles.input}
           value={assignmentName}
           onChangeText={setAssignmentName}
-          placeholder="e.g., Mid-term Exam, Homework 1"
+          placeholder=" Mid-term Exam, Homework 1"
         />
       </View>
 
@@ -171,7 +171,7 @@ export default function GradeEntryScreen() {
           value={marksObtained}
           onChangeText={setMarksObtained}
           keyboardType="numeric"
-          placeholder="e.g., 75"
+          placeholder=" 75"
         />
       </View>
 
@@ -183,20 +183,7 @@ export default function GradeEntryScreen() {
           value={totalMarks}
           onChangeText={setTotalMarks}
           keyboardType="numeric"
-          placeholder="e.g., 100"
-        />
-      </View>
-
-      {/* Comments */}
-      <View style={styles.inputGroup}>
-        <Text style={styles.label}>Comments (Optional):</Text>
-        <TextInput
-          style={[styles.input, styles.textArea]}
-          value={comments}
-          onChangeText={setComments}
-          multiline
-          numberOfLines={4}
-          placeholder="Add any relevant comments"
+          placeholder="100"
         />
       </View>
 

@@ -6,18 +6,16 @@ export interface Student {
   name: string;
   classId: string;
   teacherId: string;
-  email?: string;
-  contactNumber?: string;
-  notes?: string;
+  dateOfBirth?: string;
+  gender: string; 
 }
 
 export interface StudentData {
   name: string;
   classId: string;
   teacherId: string;
-  email?: string;
-  contactNumber?: string;
-  notes?: string;
+  gender: string;
+  dateOfBirth: string;
 }
 
 // ✅ Create a new student

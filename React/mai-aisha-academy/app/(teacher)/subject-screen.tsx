@@ -1,13 +1,13 @@
-import { Ionicons } from '@expo/vector-icons';
+
 import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
 import { useAuth } from '../../lib/auth';
 import { getTeacherSubjects } from '../../lib/subjects';
 import { Subject } from '../../lib/types';
 
 export default function TeacherManageSubjectsScreen() {
-  const { user, loading: authLoading, userProfile } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,21 +34,6 @@ export default function TeacherManageSubjectsScreen() {
     useCallback(() => {
       fetchSubjects();
     }, [fetchSubjects])
-  );
-
-  const renderSubjectItem = ({ item }: { item: Subject }) => (
-    <View style={styles.subjectCard}>
-      <View style={styles.subjectInfo}>
-        <Text style={styles.subjectName}>{item.name}</Text>
-        {item.description && <Text style={styles.subjectDescription}>{item.description}</Text>}
-      </View>
-      <View style={styles.subjectActions}>
-        {/* Teachers might have limited edit options, e.g., managing content for their assigned subjects */}
-        <TouchableOpacity style={styles.actionButton} onPress={() => Alert.alert('Edit Subject', `Implement edit for ${item.name}`)}>
-          <Ionicons name="pencil-outline" size={24} color="#4CAF50" />
-        </TouchableOpacity>
-      </View>
-    </View>
   );
 
   if (authLoading || loading) {
@@ -80,12 +65,19 @@ export default function TeacherManageSubjectsScreen() {
           </TouchableOpacity>
         </View>
       ) : (
-        <FlatList
-          data={subjects}
-          keyExtractor={(item) => item.id}
-          renderItem={renderSubjectItem}
-          contentContainerStyle={styles.listContentContainer}
-        />
+        <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+          <View style={styles.subjectCard}>
+            <Text style={styles.cardTitle}>My Subjects</Text>
+            {subjects.map((item) => (
+              <View key={item.id} style={styles.subjectRow}>
+                <Text style={styles.subjectName}>{item.name}</Text>
+                {item.description && (
+                  <Text style={styles.subjectDescription}>{item.description}</Text>
+                )}
+              </View>
+            ))}
+          </View>
+        </ScrollView>
       )}
     </View>
   );
@@ -102,51 +94,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  listContentContainer: {
-    paddingBottom: 20,
-  },
-  subjectCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 15,
-    marginTop: 20,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-    elevation: 2,
-  },
-  subjectInfo: {
-    flex: 1,
-  },
-  subjectName: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-  },
-  subjectDescription: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 5,
-  },
-  subjectActions: {
-    flexDirection: 'row',
-  },
-  actionButton: {
-    marginLeft: 15,
-    padding: 5,
-  },
   errorText: {
     color: 'red',
     marginBottom: 10,
@@ -161,5 +108,39 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  subjectCard: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 15,
+    marginTop: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
+  },
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 12,
+    color: '#2c3e50',
+    textAlign: 'center',
+  },
+  subjectRow: {
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    paddingBottom: 8,
+  },
+  subjectName: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+  },
+  subjectDescription: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 5,
   },
 });

@@ -1,24 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-    Alert,
-    Dimensions,
-    FlatList,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+import { Alert, Dimensions, FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from 'react-native';
 import { useAuth } from '../../lib/auth';
-import {
-    createLessonActivity,
-    createLessonPlan, deleteLessonPlan, getLessonPlansByTeacher,
-    getLessonPlanStats, updateLessonPlan
-} from '../../lib/lessonPlans';
+import { createLessonActivity, createLessonPlan, deleteLessonPlan, getLessonPlansByTeacher, getLessonPlanStats, updateLessonPlan} from '../../lib/lessonPlans';
 import { getAllClasses } from '../../lib/schoolData';
 import { getAllSubjects } from '../../lib/subjects';
 import { LessonActivity, LessonPlan, Subject } from '../../lib/types';
@@ -123,7 +108,7 @@ export default function LessonPlanScreen() {
       Alert.alert('Error', 'Failed to save lesson plan');
     }
   };
-
+ 
   const handleEditLesson = (lesson: LessonPlan) => {
     setEditingLesson(lesson);
     setFormData({
@@ -312,7 +297,7 @@ export default function LessonPlanScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton} hitSlop={{ top: 3, bottom: 3, left: 8, right: 8 }}>
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Lesson Plans</Text>
@@ -611,28 +596,30 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 22,
+    paddingVertical: 30,
     backgroundColor: '#1E90FF',
     marginBottom: 12,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingTop: 6,
+    marginBottom: 6,
   },
   backButton: {
     marginRight: 8,
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: 500,
     color: '#fff',
     marginLeft: 8,
   },
   createButton: {
     backgroundColor: '#28a745',
     borderRadius: 20,
-    width: 40,
-    height: 40,
+    width: 30,
+    height: 30,
     justifyContent: 'center',
     alignItems: 'center',
   },

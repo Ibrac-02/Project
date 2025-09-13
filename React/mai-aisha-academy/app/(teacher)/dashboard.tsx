@@ -127,12 +127,7 @@ export default function TeacherDashboardScreen() {
                 </View>
               )}
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => router.push('/(settings)/index' as any)}
-              style={styles.settingsIconContainer}
-            >
-              <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
-            </TouchableOpacity>
+           
             <TouchableOpacity
               onPress={(event) => {
                 event.stopPropagation();
@@ -146,17 +141,17 @@ export default function TeacherDashboardScreen() {
                 </Text>
               </View>
             </TouchableOpacity>
+             <TouchableOpacity
+              onPress={() => router.push('/(settings)')}
+              style={styles.settingsIconContainer}
+            >
+              <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
+            </TouchableOpacity>
           </View>
         </View>
 
         {showLogout && (
           <View style={styles.logoutDropdown}>
-            <TouchableOpacity
-              style={styles.dropdownItem}
-              onPress={() => router.push('/(settings)/Profile')}
-            >
-              <Text style={styles.dropdownItemText}>My Profile</Text>
-            </TouchableOpacity>
             <TouchableOpacity onPress={handleLogout} style={styles.dropdownItem}>
               <Text style={styles.dropdownItemText}>Sign out</Text>
             </TouchableOpacity>
@@ -187,7 +182,7 @@ export default function TeacherDashboardScreen() {
             <DashboardCard iconName="people-outline" title="My Students" onPress={() => router.push('/(teacher)/students')} />
             <DashboardCard iconName="create-outline" title="Assignments" onPress={() => router.push('/(teacher)/assignment-screen')} />
             <DashboardCard iconName="stats-chart-outline" title="Enter Grades" onPress={() => router.push('/(teacher)/grade-screen')} />
-            <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => router.push('/(auth)/academicCalendar')} />
+            <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => router.push('/(auth)/academic-calendar')} />
             <DashboardCard iconName="trending-up-outline" title="Performance" onPress={() => router.push('/(teacher)/performance-screen')} />
             <DashboardCard iconName="book-open-outline" title="Lesson Plan" onPress={() => router.push('/(teacher)/lesson-plan')} />
           </View>
@@ -225,12 +220,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'whitesmoke',
   },
-  schoolName: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
-  headerDashboardTitle: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  profileIconContainer: { position: 'relative' },
+  schoolName: { 
+    color: '#fff', 
+    fontSize: 18, 
+    fontWeight: 'bold' 
+  },
+  headerDashboardTitle: { 
+    color: '#fff', 
+    fontSize: 16, 
+    fontWeight: 'bold' 
+  },
+  profileIconContainer: { 
+    position: 'relative'
+   },
   profileIcon: {
-    width: 40,
-    height: 40,
+    width: 30,
+    height: 30,
     borderRadius: 20,
     backgroundColor: '#fff',
     justifyContent: 'center',
@@ -238,7 +243,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'whitesmoke',
   },
-  profileText: { color: '#1E90FF', fontSize: 16, fontWeight: 'bold' },
+  profileText: { 
+    color: '#1E90FF', 
+    fontSize: 14, 
+    fontWeight: 'bold'
+   },
   logoutDropdown: {
     position: 'absolute',
     top: 45,
@@ -348,5 +357,7 @@ const styles = StyleSheet.create({
     color: '#fff', 
     fontSize: 10, 
     fontWeight: 'bold' },
-  settingsIconContainer: { marginRight: 10 },
+  settingsIconContainer: {
+    marginRight: 5,
+    },
 });

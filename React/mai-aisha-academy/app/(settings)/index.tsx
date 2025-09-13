@@ -9,11 +9,10 @@ export default function SettingsIndexScreen() {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
-        <Text style={styles.title}>Settings</Text>
-
+      
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account</Text>
-          <TouchableOpacity style={styles.item} onPress={() => navigate('/(settings)/Profile')}>
+          <TouchableOpacity style={styles.item} onPress={() => navigate('/(settings)/profile')}>
             <View style={styles.itemLeft}>
               <Ionicons name="person-circle-outline" size={22} color="#1E90FF" />
               <Text style={styles.itemText}>Profile</Text>
@@ -40,15 +39,15 @@ export default function SettingsIndexScreen() {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Preferences</Text>
-          <TouchableOpacity style={styles.item} onPress={() => navigate('/(settings)/Notifications')}>
+          <TouchableOpacity style={styles.item} onPress={() => navigate('/(settings)/notifications')}>
             <View style={styles.itemLeft}>
               <Ionicons name="notifications-outline" size={22} color="#1E90FF" />
               <Text style={styles.itemText}>Notifications</Text>
             </View>
-            <Ionicons name="chevron-forward-outline" size={18} color="#555" />
+             <Ionicons name="chevron-forward-outline" size={18} color="#555" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.item} onPress={() => navigate('/(settings)/Appearance')}>
+          <TouchableOpacity style={styles.item} onPress={() => navigate('/(settings)/appearance')}>
             <View style={styles.itemLeft}>
               <Ionicons name="color-palette-outline" size={22} color="#1E90FF" />
               <Text style={styles.itemText}>Appearance</Text>
@@ -59,7 +58,7 @@ export default function SettingsIndexScreen() {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>About</Text>
-          <TouchableOpacity style={styles.item} onPress={() => navigate('/(settings)/About')}>
+          <TouchableOpacity style={styles.item} onPress={() => navigate('/(settings)/about')}>
             <View style={styles.itemLeft}>
               <Ionicons name="information-circle-outline" size={22} color="#1E90FF" />
               <Text style={styles.itemText}>About App</Text>
@@ -82,12 +81,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 16,
-  },
+ 
   section: {
     backgroundColor: '#fff',
     borderRadius: 10,
