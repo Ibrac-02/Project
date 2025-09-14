@@ -2,7 +2,7 @@ import * as Print from 'expo-print';
 import { useFocusEffect } from 'expo-router';
 import * as Sharing from 'expo-sharing';
 import React, { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert,Dimensions, FlatList, ScrollView, StyleSheet, Text,TouchableOpacity, View} from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { getAllUsers, UserProfile } from '../../lib/auth';
 import { getAllGrades, Grade } from '../../lib/grades';
 import { getAllSubjects, Subject } from '../../lib/subjects';
@@ -129,6 +129,26 @@ export default function GradeReportsScreen() {
       const html = `
         <h1 style="text-align:center;">Mai Aisha Academy</h1>
         <h2 style="text-align:center;">Grade Report</h2>
+        
+        <div style="background-color: #f8f9fa; padding: 15px; margin: 20px 0; border-left: 4px solid #007bff; border-radius: 4px;">
+          <h3 style="color: #007bff; margin-top: 0;">📋 Report Limitations & Notes</h3>
+          <ul style="margin: 10px 0; padding-left: 20px;">
+            <li><strong>Approval Status:</strong> Only grades with "approved" status are included in this report</li>
+            <li><strong>Pending Grades:</strong> Grades awaiting headteacher approval are excluded</li>
+            <li><strong>Rejected Grades:</strong> Rejected grades are not included in this report</li>
+            <li><strong>Data Completeness:</strong> Report accuracy depends on teacher grade entry and headteacher approval workflow</li>
+            <li><strong>Student Names:</strong> Students without proper names will show as "Unknown" or email addresses</li>
+            <li><strong>Subject Names:</strong> Subjects without proper names will show as "Unknown"</li>
+            <li><strong>Date Range:</strong> This report includes all approved grades regardless of date</li>
+            <li><strong>Grade Validation:</strong> All grades have been validated (marks ≤ total marks, percentages calculated correctly)</li>
+          </ul>
+          <p style="margin: 10px 0 0 0; font-style: italic; color: #666;">
+            <strong>Total Approved Grades:</strong> ${grades.length} | 
+            <strong>Students:</strong> ${gradesByStudent.length} | 
+            <strong>Subjects:</strong> ${gradesBySubject.length}
+          </p>
+        </div>
+        
         <h2>Student Performance</h2>${studentHTML}
         <h2>Subject Performance</h2>${subjectHTML}
       `;
@@ -154,6 +174,22 @@ export default function GradeReportsScreen() {
 
   return (
     <ScrollView style={styles.container}>
+      <View style={styles.limitationsCard}>
+        <Text style={styles.limitationsTitle}>📋 Report Limitations & Notes</Text>
+        <Text style={styles.limitationsText}>
+          • Only grades with "approved" status are included{'\n'}
+          • Pending grades awaiting headteacher approval are excluded{'\n'}
+          • Rejected grades are not included in this report{'\n'}
+          • Report accuracy depends on teacher grade entry and headteacher approval workflow{'\n'}
+          • Students without proper names will show as "Unknown" or email addresses{'\n'}
+          • Subjects without proper names will show as "Unknown"{'\n'}
+          • This report includes all approved grades regardless of date
+        </Text>
+        <Text style={styles.limitationsSummary}>
+          Total Approved Grades: {grades.length} | Students: {gradesByStudent.length} | Subjects: {gradesBySubject.length}
+        </Text>
+      </View>
+
       <Text style={styles.sectionTitle}>Student Performance</Text>
       {gradesByStudent.length === 0 ? (
         <Text style={styles.noData}>No student grades found.</Text>
@@ -234,4 +270,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   exportButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  limitationsCard: {
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    padding: 18,
+    marginBottom: 20,
+    borderLeftWidth: 4,
+    borderLeftColor: '#007bff',
+  },
+  limitationsTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#007bff',
+    marginBottom: 10,
+  },
+  limitationsText: {
+    fontSize: 14,
+    color: '#555',
+    lineHeight: 20,
+    marginBottom: 10,
+  },
+  limitationsSummary: {
+    fontSize: 13,
+    color: '#666',
+    fontStyle: 'italic',
+    fontWeight: '500',
+  },
 });

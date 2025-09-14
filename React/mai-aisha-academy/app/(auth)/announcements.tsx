@@ -105,8 +105,6 @@ export default function AnnouncementsScreen() {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.pageTitle}>Announcements</Text>
-
         {canCreateAnnouncement && (
           <TouchableOpacity style={styles.createButton} onPress={() => {
             setEditingAnnouncement(null);
@@ -189,13 +187,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#f0f2f5',
   },
-  pageTitle: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
+  
   createButton: {
     backgroundColor: '#1E90FF',
     flexDirection: 'row',

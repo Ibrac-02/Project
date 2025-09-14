@@ -33,7 +33,6 @@ const ForgotPasswordScreen = () => {
     <View style={styles.container}>
       <Image source={require('../../assets/images/maa.jpg')} style={styles.logo} />
       <Text style={styles.schoolName}>Mai Aisha Academy</Text>
-      {/* <Text style={styles.title}>Forgot Password?</Text> */}
       <Text style={styles.subtitle}>Enter your email address to receive a password reset link.</Text>
       <TextInput
         style={styles.input}
@@ -81,14 +80,8 @@ const styles = StyleSheet.create({
   schoolName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#1E90FF',
     marginBottom: 10,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#333',
   },
   subtitle: {
     fontSize: 14,

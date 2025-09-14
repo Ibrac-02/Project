@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     marginHorizontal: 8,
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 10, 
     alignItems: 'center',
     elevation: 3,
   },

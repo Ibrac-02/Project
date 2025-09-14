@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   summaryValue: {
-    fontSize: 20,
+    fontSize: 20, 
     fontWeight: 'bold',
     color: '#1E90FF',
   },

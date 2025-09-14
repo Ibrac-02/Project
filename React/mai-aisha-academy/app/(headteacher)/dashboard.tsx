@@ -1,16 +1,22 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
 import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { useAuth } from '../../lib/auth';
-import { getUnreadNotificationsCount } from '../../lib/notifications'; // Import getUnreadNotificationsCount
+import {  getStudents, useAuth  } from '../../lib/auth';
+import { getUnreadNotificationsCount } from '../../lib/notifications';
 
 const { width } = Dimensions.get('window');
 
 export default function HeadteacherDashboardScreen() {
   const [showLogout, setShowLogout] = useState(false);
-  const { userName, loading, userProfile, user } = useAuth(); // Destructure user from useAuth
+  const { userName, loading, userProfile, user } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
+
+  const [classesCount, setClassesCount] = useState(0);
+  const [studentsCount, setStudentsCount] = useState(0);
+  const [pendingTasksCount, setPendingTasksCount] = useState(0);
 
   const fetchUnreadCount = useCallback(async () => {
     if (user?.uid) {
@@ -23,23 +29,46 @@ export default function HeadteacherDashboardScreen() {
     } 
   }, [user]);
 
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      if (!user?.uid) return;
+
+      // Fetch all classes
+      const classesSnapshot = await getDocs(collection(db, 'classes'));
+      setClassesCount(classesSnapshot.size);
+
+      // Fetch students
+      const students = await getStudents();
+      setStudentsCount(students.length);
+
+      // Fetch pending tasks (example: assignments not approved yet)
+      const assignmentsSnapshot = await getDocs(collection(db, 'assignments'));
+      const pendingTasks = assignmentsSnapshot.docs.filter(doc => !doc.data().approved);
+      setPendingTasksCount(pendingTasks.length);
+
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      setClassesCount(0);
+      setStudentsCount(0);
+      setPendingTasksCount(0);
+    }
+  }, [user]);
+
   useFocusEffect(
     useCallback(() => {
       fetchUnreadCount();
-    }, [fetchUnreadCount])
+      fetchDashboardData();
+    }, [fetchUnreadCount, fetchDashboardData])
   );
 
   const getInitials = (name: string | null) => {
     if (!name) return 'U';
     const nameParts = name.split(' ');
-    if (nameParts.length === 1) {
-      return nameParts[0].charAt(0).toUpperCase();
-    }
+    if (nameParts.length === 1) return nameParts[0].charAt(0).toUpperCase();
     return nameParts[0].charAt(0).toUpperCase() + nameParts[nameParts.length - 1].charAt(0).toUpperCase();
   };
 
   const handleLogout = () => {
-    console.log('User logged out');
     router.replace('/(auth)/login');
   };
 
@@ -50,11 +79,9 @@ export default function HeadteacherDashboardScreen() {
     return 'Good Evening';
   };
 
-
   return (
     <TouchableWithoutFeedback onPress={() => setShowLogout(false)}>
       <View style={styles.container}>
-        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Image source={require('../../assets/images/maa.jpg')} style={styles.headerLogo} />
@@ -99,67 +126,54 @@ export default function HeadteacherDashboardScreen() {
           </Text>
         </View>
 
-         <ScrollView contentContainerStyle={styles.contentContainer}>
-           {/* Summary Cards */}
-           <View style={styles.summaryContainer}>
-             <View style={styles.summaryCard}>
-               <Text style={styles.summaryNumber}>0</Text>
-               <Text style={styles.summaryLabel}>Classes</Text>
-             </View>
-             <View style={styles.summaryCard}>
-               <Text style={styles.summaryNumber}>0</Text>
-               <Text style={styles.summaryLabel}>Students</Text>
-             </View>
-             <View style={styles.summaryCard}>
-               <Text style={styles.summaryNumber}>0</Text>
-               <Text style={styles.summaryLabel}>Pending Tasks</Text>
-             </View>
-           </View>
+        <ScrollView contentContainerStyle={styles.contentContainer}>
+          <View style={styles.summaryContainer}>
+            <View style={styles.summaryCard}>
+              <Text style={styles.summaryNumber}>{classesCount}</Text>
+              <Text style={styles.summaryLabel}>Classes</Text>
+            </View>
+            <View style={styles.summaryCard}>
+              <Text style={styles.summaryNumber}>{studentsCount}</Text>
+              <Text style={styles.summaryLabel}>Students</Text>
+            </View>
+            <View style={styles.summaryCard}>
+              <Text style={styles.summaryNumber}>{pendingTasksCount}</Text>
+              <Text style={styles.summaryLabel}>Pending Tasks</Text>
+            </View>
+          </View>
 
-           {/* Quick Actions */}
-           <Text style={styles.quickActionsTitle}>Quick Actions</Text>
-           <View style={styles.quickActionsGrid}>
-             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/lesson-plan-screen')}>
-               <Ionicons name="book-outline" size={24} color="#1E90FF" />
-               <Text style={styles.quickActionText}>Lesson Plans</Text>
-             </TouchableOpacity>
-             
-             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/manage-teacher-screen')}>
-               <Ionicons name="people-outline" size={24} color="#1E90FF" />
-               <Text style={styles.quickActionText}>Manage Teachers</Text>
-             </TouchableOpacity>
-             
-             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/manage-subject-screen')}>
-               <Ionicons name="library-outline" size={24} color="#1E90FF" />
-               <Text style={styles.quickActionText}>Manage Subjects</Text>
-             </TouchableOpacity>
-             
-             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/grade-approval-screen')}>
-               <Ionicons name="checkmark-circle-outline" size={24} color="#1E90FF" />
-               <Text style={styles.quickActionText}>Grade Approval</Text>
-             </TouchableOpacity>
-             
-             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/performance-analytic-screen')}>
-               <Ionicons name="bar-chart-outline" size={24} color="#1E90FF" />
-               <Text style={styles.quickActionText}>Class Performance</Text>
-             </TouchableOpacity>
-             
-             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(auth)/attendance')}>
-               <Ionicons name="checkmark-done-outline" size={24} color="#1E90FF" />
-               <Text style={styles.quickActionText}>Attendance</Text>
-             </TouchableOpacity>
-             
-             <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(auth)/announcements')}>
-               <Ionicons name="megaphone-outline" size={24} color="#1E90FF" />
-               <Text style={styles.quickActionText}>Announcements</Text>
-             </TouchableOpacity>
-             
-             {/* <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(settings)/index' as any)}>
-               <Ionicons name="settings-outline" size={24} color="#1E90FF" />
-               <Text style={styles.quickActionText}>Settings</Text>
-             </TouchableOpacity> */}
-           </View>
-         </ScrollView>
+          <Text style={styles.quickActionsTitle}>Quick Actions</Text>
+          <View style={styles.quickActionsGrid}>
+            <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/lesson-plan-screen')}>
+              <Ionicons name="book-outline" size={24} color="#1E90FF" />
+              <Text style={styles.quickActionText}>Lesson Plans</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/manage-teacher-screen')}>
+              <Ionicons name="people-outline" size={24} color="#1E90FF" />
+              <Text style={styles.quickActionText}>Manage Teachers</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/manage-subject-screen')}>
+              <Ionicons name="library-outline" size={24} color="#1E90FF" />
+              <Text style={styles.quickActionText}>Manage Subjects</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/grade-approval-screen')}>
+              <Ionicons name="checkmark-circle-outline" size={24} color="#1E90FF" />
+              <Text style={styles.quickActionText}>Grade Approval</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(headteacher)/performance-analytic-screen')}>
+              <Ionicons name="bar-chart-outline" size={24} color="#1E90FF" />
+              <Text style={styles.quickActionText}>Class Performance</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(auth)/attendance')}>
+              <Ionicons name="checkmark-done-outline" size={24} color="#1E90FF" />
+              <Text style={styles.quickActionText}>Attendance</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/(auth)/announcements')}>
+              <Ionicons name="megaphone-outline" size={24} color="#1E90FF" />
+              <Text style={styles.quickActionText}>Announcements</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -170,73 +184,79 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f0f2f5',
   },
-   contentContainer: {
-     padding: 20,
-     backgroundColor: '#f0f2f5',
-     paddingBottom: 100,
-   },
-   summaryContainer: {
-     flexDirection: 'row',
-     marginBottom: 20,
-     gap: 12,
-   },
-   summaryCard: {
-     flex: 1,
-     backgroundColor: '#fff',
-     paddingVertical: 12,
-     paddingHorizontal: 10,
-     borderRadius: 10,
-     alignItems: 'center',
-     shadowColor: '#000',
-     shadowOffset: { width: 0, height: 2 },
-     shadowOpacity: 0.1,
-     shadowRadius: 4,
-     elevation: 3,
-   },
-   summaryNumber: {
-     fontSize: 32,
-     fontWeight: 'bold',
-     color: '#1E90FF',
-     marginBottom: 4,
-   },
-   summaryLabel: {
-     fontSize: 14,
-     color: '#666',
-     fontWeight: '500',
-   },
-   quickActionsTitle: {
-     fontSize: 20,
-     fontWeight: 'bold',
-     color: '#333',
-     marginBottom: 16,
-   },
-   quickActionsGrid: {
-     flexDirection: 'row',
-     flexWrap: 'wrap',
-     justifyContent: 'flex-start',
-     gap: 12,
-   },
-   quickActionButton: {
-     width: (width - 80) / 4,
-     height: 100,
-     borderRadius: 12,
-     marginBottom: 16,
-     justifyContent: 'center',
-     alignItems: 'center',
-     backgroundColor: '#fff',
-     shadowColor: '#000',
-     shadowOffset: { width: 0, height: 2 },
-     shadowOpacity: 0.1,
-     shadowRadius: 4,
-     elevation: 3,
-   },
-   quickActionText: {
-     color: '#333',
-     fontSize: 12,
-     fontWeight: '600',
-     marginTop: 8,
-     textAlign: 'center',
-   },
+  contentContainer: {
+    padding: 20,
+    backgroundColor: '#f0f2f5',
+    paddingBottom: 100,
+  },
+  summaryContainer: {
+    flexDirection: 'row',
+    marginBottom: 20,
+    gap: 12,
+  },
+  summaryCard: {
+    flex: 1,
+    backgroundColor: '#fff',
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  summaryNumber: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#1E90FF',
+    marginBottom: 4,
+  },
+  summaryLabel: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+  },
+  quickActionsTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 16,
+  },
+  quickActionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    gap: 12,
+  },
+  quickActionButton: {
+    width: (width - 80) / 4,
+    height: 100,
+    borderRadius: 12,
+    marginBottom: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  quickActionText: {
+    color: '#333',
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 8,
+    textAlign: 'center',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -245,12 +265,11 @@ const styles = StyleSheet.create({
     paddingTop: 70,
     paddingHorizontal: 20,
     paddingBottom: 35,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-    borderBottomEndRadius: 0,
-    borderBottomStartRadius: 0,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.1,
     shadowRadius: 1.5,
     elevation: 3,
@@ -304,7 +323,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.15,
     shadowRadius: 3.84,
     elevation: 5,
@@ -328,7 +350,10 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.15,
     shadowRadius: 3,
     elevation: 5,
@@ -367,4 +392,4 @@ const styles = StyleSheet.create({
   settingsIconContainer: {
     marginRight: 5,
   },
-}); 
+});
