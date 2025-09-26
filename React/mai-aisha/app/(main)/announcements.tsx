@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { AnnouncementCard } from '../../components/AnnouncementCard';
-import { Announcement, createAnnouncement, deleteAnnouncement, getAnnouncements, updateAnnouncement } from '../../lib/announcements';
-import { useAuth } from '../../lib/auth';
+import { AnnouncementCard } from '@/components/AnnouncementCard';
+import { Announcement, createAnnouncement, deleteAnnouncement, getAnnouncements, updateAnnouncement } from '@/lib/announcements';
+import { useAuth } from '@/lib/auth';
 
 export default function AnnouncementsScreen() {
   const { user, role: userRole, loading: authLoading } = useAuth();
@@ -16,7 +16,7 @@ export default function AnnouncementsScreen() {
   const [scope] = useState('school-wide');
   const [selectedAnnouncements, setSelectedAnnouncements] = useState<string[]>([]);
 
-  const fetchAnnouncements = async () => {
+  const fetchAnnouncements = useCallback(async () => {
     console.log("fetchAnnouncements called.");
     if (authLoading || !user || !userRole) {
       console.log("fetchAnnouncements skipped: authLoading=", authLoading, ", user=", !!user, ", userRole=", userRole);
@@ -35,15 +35,21 @@ export default function AnnouncementsScreen() {
       setLoading(false);
       console.log("fetchAnnouncements finished. Loading set to false.");
     }
-  };
+  }, [authLoading, user, userRole]);
 
   useEffect(() => {
     fetchAnnouncements();
-  }, [user, userRole, authLoading]);
+  }, [fetchAnnouncements]);
 
   const handleCreateOrUpdateAnnouncement = async () => {
     if (!user || !userRole || !title || !content || !scope) {
       Alert.alert("Error", "Please fill all required fields.");
+      return;
+    }
+
+    // Role guard: only admin/headteacher can create or update
+    if (!(userRole === 'admin' || userRole === 'headteacher')) {
+      Alert.alert("Permission Denied", "Only administrators or headteachers can manage announcements.");
       return;
     }
 
@@ -124,8 +130,9 @@ export default function AnnouncementsScreen() {
     );
   };
 
-  const canCreateAnnouncement = userRole === 'admin' || userRole === 'headteacher' || userRole === 'teacher';
-  const showDeleteSelectedButton = selectedAnnouncements.length > 0;
+  const canManageAnnouncements = userRole === 'admin' || userRole === 'headteacher';
+  const canCreateAnnouncement = canManageAnnouncements; // teachers cannot create
+  const showDeleteSelectedButton = canManageAnnouncements && selectedAnnouncements.length > 0;
 
   if (loading || authLoading) {
     return (
@@ -168,8 +175,9 @@ export default function AnnouncementsScreen() {
               announcement={announcement}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              showActions={canManageAnnouncements}
               isSelected={selectedAnnouncements.includes(announcement.id)}
-              onSelect={toggleSelectAnnouncement}
+              onSelect={canManageAnnouncements ? toggleSelectAnnouncement : undefined}
             />
           ))
         )}

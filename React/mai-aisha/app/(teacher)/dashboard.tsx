@@ -1,48 +1,74 @@
-import { DashboardHeader, GreetingCard, QuickActionCard, QuickActionsGrid, SummaryBox, SummaryRow } from '@/components/dashboard/UI';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/lib/auth';
 import { router } from 'expo-router';
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+interface DashboardCardProps {
+  iconName: keyof typeof Ionicons.glyphMap; // Type for Ionicons
+  title: string;
+  onPress: () => void;
+}
+
+const DashboardCard: React.FC<DashboardCardProps> = ({ iconName, title, onPress }) => (
+  <TouchableOpacity style={styles.card} onPress={onPress}>
+    <Ionicons name={iconName} size={32} color="#1E90FF" />
+    <Text style={styles.cardTitle}>{title}</Text>
+  </TouchableOpacity>
+);
+
+const greeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good Morning';
+  if (hour < 17) return 'Good Afternoon';
+  return 'Good Evening';
+};
 
 export default function TeacherDashboardScreen() {
   const { userName } = useAuth();
 
-  const greeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
-  };
-
   return (
     <View style={styles.container}>
-      <DashboardHeader
-        title="Teacher Dashboard"
-        userName={userName}
-        onPressNotifications={() => router.push('/(main)/announcements' as any)}
-        onPressProfile={() => router.push('/(settings)/profile' as any)}
-        onPressMenu={() => router.push('/(settings)/profile' as any)}
-      />
+      {/* Simple Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Teacher Dashboard</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity onPress={() => router.push('/(main)/announcements' as any)} style={{ marginRight: 12 }}>
+            <Ionicons name="notifications-outline" size={24} color="#333" />
+            {/* unreadCount can be shown as a badge later if desired */}
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/(settings)/profile' as any)}>
+            <Ionicons name="person-circle-outline" size={28} color="#333" />
+          </TouchableOpacity>
+        </View>
+      </View>
 
-      <ScrollView contentContainerStyle={styles.container}>
-        <GreetingCard>
-          <Text style={styles.welcomeMessage}>
-            {greeting()}, {userName || 'Teacher'}
-          </Text>
-        </GreetingCard>
-
-        <SummaryRow>
-          <SummaryBox label="Classes" value={0} />
-          <SummaryBox label="Students" value={0} />
-          <SummaryBox label="Pending Tasks" value={0} />
-        </SummaryRow>
+      <ScrollView contentContainerStyle={styles.cardsContainer}>
+        <Text style={styles.welcomeMessage}>{greeting()}, {userName || 'Teacher'}</Text>
         <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <QuickActionsGrid>
-          <QuickActionCard iconName="people-outline" title="My Students" onPress={() => router.push('/(teacher)/my-classes' as any)} />
-          <QuickActionCard iconName="document-text-outline" title="Lesson Plan" onPress={() => router.push('/(teacher)/lesson-plan' )} />
-          <QuickActionCard iconName="bar-chart-outline" title="Performance" onPress={() => router.push('/(teacher)/performance-screen' as any)} />
-          <QuickActionCard iconName="calendar-outline" title="Academic Calendar" onPress={() => router.push('/(main)/academic-calendar' as any)} />
-        </QuickActionsGrid>
+
+        <View style={styles.cardsContainer}>
+          <DashboardCard
+            iconName="checkbox-outline"
+            title="Attendance"
+            onPress={() => router.push('/(teacher)/attendance' as any)}
+          />
+          <DashboardCard
+            iconName="create-outline"
+            title="Marks"
+            onPress={() => router.push('/(teacher)/grade-screen' as any)}
+          />
+          <DashboardCard
+            iconName="document-text-outline"
+            title="Lesson Plans"
+            onPress={() => router.push('/(teacher)/lesson-plan' as any)}
+          />
+          <DashboardCard
+            iconName="bar-chart-outline"
+            title="Reports"
+            onPress={() => router.push('/(teacher)/performance-screen' as any)}
+          />
+        </View>
       </ScrollView>
     </View>
   );
@@ -54,7 +80,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f2f5',
   },
   header: {
-    backgroundColor: '#FFD700',
+    backgroundColor: '#1E90FF',
     paddingTop: 60,
     paddingBottom: 20,
     alignItems: 'center',
@@ -67,19 +93,26 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   headerTitle: {
-    color: '#333',
+    color: '#fff',
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 5,
   },
-  welcomeText: {
+  welcomeMessage: {
     color: '#333',
+    fontSize: 18,
+    fontWeight: '500',
+    marginTop: 15,
+    marginBottom: 10,
+  },
+  welcomeText: {
+    color: '#fff',
     fontSize: 18,
     fontWeight: '500',
     marginTop: 5,
   },
   roleText: {
-    color: 'rgba(51,51,51,0.8)',
+    color: 'rgba(255,255,255,0.8)',
     fontSize: 14,
     marginTop: 2,
   },
@@ -112,8 +145,8 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-  },
-  welcomeMessage: {
-    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#444',
+    marginVertical: 10,
   },
 });

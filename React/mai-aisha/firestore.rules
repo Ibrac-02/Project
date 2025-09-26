@@ -17,28 +17,24 @@ service cloud.firestore {
       allow read: if request.auth != null && (
         resource.data.scope == 'school-wide' ||
         (resource.data.scope == 'staff-only' && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'headteacher')) ||
-        (resource.data.scope == 'class-' + request.auth.uid && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'teacher') ||
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
       );
 
       // Create access
       allow create: if request.auth != null && (
         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
-        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'headteacher' && (request.resource.data.scope == 'school-wide' || request.resource.data.scope == 'staff-only')) ||
-        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'teacher' && request.resource.data.scope == 'class-' + request.auth.uid && request.resource.data.createdByUserId == request.auth.uid)
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'headteacher' && (request.resource.data.scope == 'school-wide' || request.resource.data.scope == 'staff-only'))
       );
 
       // Update access
       allow update: if request.auth != null && (
         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
-        (resource.data.createdByUserId == request.auth.uid) ||
         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'headteacher' && resource.data.createdByUserId == request.auth.uid)
       );
 
       // Delete access
       allow delete: if request.auth != null && (
         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
-        (resource.data.createdByUserId == request.auth.uid) ||
         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'headteacher' && resource.data.createdByUserId == request.auth.uid)
       );
     }

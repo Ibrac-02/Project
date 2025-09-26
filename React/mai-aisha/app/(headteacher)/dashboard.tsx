@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import React from 'react';
+import React, { FC } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '@/lib/auth';
 
@@ -9,14 +9,8 @@ interface DashboardCardProps {
   title: string;
   onPress: () => void;
 }
-const greeting = () => {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Good Morning';
-  if (hour < 17) return 'Good Afternoon';
-  return 'Good Evening';
-};
 
-const DashboardCard: React.FC<DashboardCardProps> = ({ iconName, title, onPress }) => (
+const DashboardCard: FC<DashboardCardProps> = ({ iconName, title, onPress }) => (
   <TouchableOpacity style={styles.card} onPress={onPress}>
     <Ionicons name={iconName} size={40} color="#1E90FF" />
     <Text style={styles.cardTitle}>{title}</Text>
@@ -30,35 +24,35 @@ export default function HeadteacherDashboardScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Headteacher Dashboard</Text>
-        <Text style={styles.welcomeText}>{greeting()}, {userName || 'Headteacher'}!</Text>
+        <Text style={styles.welcomeText}>Welcome, {userName || 'Headteacher'}!</Text>
         {role && <Text style={styles.roleText}>Role: {role.toUpperCase()}</Text>}
       </View>
 
       <ScrollView contentContainerStyle={styles.cardsContainer}>
-        <DashboardCard 
+        <DashboardCard
           iconName="people-outline"
           title="Manage Teachers"
-          onPress={() => router.push('/(headteacher)/manage-teachers' as any)}
+          onPress={() => router.push('/(headteacher)/teacher-supervision' as any)}
         />
         <DashboardCard
           iconName="document-text-outline"
-          title="View Reports"
-          onPress={() => router.push('/(headteacher)/reports' as any)}
+          title="Approve Reports"
+          onPress={() => router.push('/(headteacher)/reports-approvals' as any)}
         />
         <DashboardCard
           iconName="reader-outline"
           title="View Lesson Plans"
-          onPress={() => router.push('/(headteacher)/lesson-plan')}
+          onPress={() => router.push('/(headteacher)/view-lesson-plans' as any)}
         />
         <DashboardCard
           iconName="calendar-outline"
-          title="Timetable Management"
-          onPress={() => router.push('/(headteacher)/timetable' as any)}
+          title="Exam Schedules"
+          onPress={() => router.push('/(headteacher)/exams' as any)}
         />
         <DashboardCard
           iconName="megaphone-outline"
           title="Announcements"
-          onPress={() => router.push('/(main)/announcements' as any)}
+          onPress={() => router.push('/(headteacher)/announcements' as any)}
         />
         <DashboardCard
           iconName="person-circle-outline"

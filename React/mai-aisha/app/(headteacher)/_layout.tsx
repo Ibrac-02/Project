@@ -17,6 +17,10 @@ export default function HeadteacherLayout() {
       }}
     >
       <Stack.Screen name="dashboard" options={{ headerShown: false }} />
+      <Stack.Screen name="teacher-supervision" options={{ headerShown: false, title: 'Teacher Supervision' }} />
+      <Stack.Screen name="reports-approvals" options={{ headerShown: false, title: 'Approve Reports' }} />
+      <Stack.Screen name="exams" options={{ headerShown: false, title: 'Exams' }} />
+      <Stack.Screen name="announcements" options={{ headerShown: false, title: 'Announcements' }} />
       
     </Stack>
   );

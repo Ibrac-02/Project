@@ -1,91 +1,94 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, FlatList, Modal, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/lib/auth';
-import { createLessonPlan, deleteLessonPlan, listLessonPlansForTeacher, updateLessonPlan, type LessonPlanRecord } from '@/lib/lessonPlans';
+import { createGrade, deleteGrade, listGradesForTeacher, updateGrade, type GradeRecord } from '@/lib/grades';
 import { listClasses } from '@/lib/classes';
 import { listSubjects } from '@/lib/subjects';
 
-export default function TeacherLessonPlanScreen() {
+export default function TeacherMarksScreen() {
   const { user } = useAuth();
   const teacherId = user?.uid || '';
 
-  const [items, setItems] = useState<LessonPlanRecord[]>([]);
+  const [items, setItems] = useState<GradeRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [classes, setClasses] = useState<{ id: string; name: string }[]>([]);
   const [subjects, setSubjects] = useState<{ id: string; name: string }[]>([]);
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<LessonPlanRecord | null>(null);
-  const [title, setTitle] = useState('');
-  const [date, setDate] = useState('');
+  const [editing, setEditing] = useState<GradeRecord | null>(null);
   const [classId, setClassId] = useState('');
   const [subjectId, setSubjectId] = useState('');
-  const [notes, setNotes] = useState('');
+  const [studentId, setStudentId] = useState('');
+  const [marksObtained, setMarksObtained] = useState('');
+  const [totalMarks, setTotalMarks] = useState('');
 
-  async function load() {
+  const load = useCallback(async () => {
     if (!teacherId) return;
     setLoading(true);
-    const [plans, cls, subs] = await Promise.all([
-      listLessonPlansForTeacher(teacherId),
+    const [grades, cls, subs] = await Promise.all([
+      listGradesForTeacher(teacherId),
       listClasses(),
       listSubjects(),
     ]);
-    setItems(plans);
+    setItems(grades);
     setClasses(cls.map(c => ({ id: c.id, name: c.name })));
     setSubjects(subs.map(s => ({ id: s.id, name: s.name })));
     setLoading(false);
-  }
+  }, [teacherId]);
 
-  useEffect(() => { load(); }, [teacherId]);
+  useEffect(() => { load(); }, [load]);
 
   const openNew = () => {
     setEditing(null);
-    setTitle('');
-    setDate('');
     setClassId('');
     setSubjectId('');
-    setNotes('');
+    setStudentId('');
+    setMarksObtained('');
+    setTotalMarks('');
     setModalOpen(true);
   };
 
-  const openEdit = (rec: LessonPlanRecord) => {
+  const openEdit = (rec: GradeRecord) => {
     setEditing(rec);
-    setTitle(rec.title);
-    setDate(rec.date);
-    setClassId(rec.classId);
+    setClassId(rec.classId || '');
     setSubjectId(rec.subjectId);
-    setNotes(rec.notes || '');
+    setStudentId(rec.studentId);
+    setMarksObtained(String(rec.marksObtained));
+    setTotalMarks(String(rec.totalMarks));
     setModalOpen(true);
   };
 
   const save = async () => {
     if (!teacherId) { Alert.alert('Not allowed'); return; }
-    if (!title.trim() || !date.trim() || !classId || !subjectId) { Alert.alert('Validation', 'Title, date, class and subject are required.'); return; }
+    if (!subjectId || !studentId.trim() || !marksObtained || !totalMarks) { Alert.alert('Validation', 'Subject, student, and marks are required.'); return; }
+    const mo = Number(marksObtained); const tm = Number(totalMarks);
+    if (Number.isNaN(mo) || Number.isNaN(tm) || tm <= 0) { Alert.alert('Validation', 'Marks must be valid numbers and total > 0'); return; }
     const payload = {
-      title: title.trim(),
+      classId: classId || undefined,
       subjectId,
-      classId,
+      studentId: studentId.trim(),
       teacherId,
-      date: date.trim(),
+      marksObtained: mo,
+      totalMarks: tm,
       status: 'pending' as const,
-      notes: notes.trim() || undefined,
-    } as Omit<LessonPlanRecord, 'id'>;
+      createdAt: new Date().toISOString(),
+    } as Omit<GradeRecord, 'id'>;
     try {
-      if (editing) await updateLessonPlan(editing.id, payload);
-      else await createLessonPlan(payload);
+      if (editing) await updateGrade(editing.id, payload);
+      else await createGrade(payload);
       setModalOpen(false);
       await load();
     } catch (e: any) {
-      Alert.alert('Failed', e?.message || 'Could not save lesson plan');
+      Alert.alert('Failed', e?.message || 'Could not save marks');
     }
   };
 
-  const remove = (rec: LessonPlanRecord) => {
-    Alert.alert('Delete plan', `Delete lesson plan '${rec.title}'?`, [
+  const remove = (rec: GradeRecord) => {
+    Alert.alert('Delete record', `Delete marks for ${rec.studentId}?`, [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => { await deleteLessonPlan(rec.id); await load(); } }
+      { text: 'Delete', style: 'destructive', onPress: async () => { await deleteGrade(rec.id); await load(); } }
     ]);
   };
 
@@ -94,12 +97,12 @@ export default function TeacherLessonPlanScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Lesson Plans</Text>
-      <Text style={styles.subtitle}>Upload lesson plans for approval</Text>
+      <Text style={styles.title}>Student Marks</Text>
+      <Text style={styles.subtitle}>Add and edit exam results</Text>
 
       <TouchableOpacity onPress={openNew} style={styles.addBtn}>
         <Ionicons name="add" size={20} color="#fff" />
-        <Text style={styles.addBtnText}>New Plan</Text>
+        <Text style={styles.addBtnText}>New Marks</Text>
       </TouchableOpacity>
 
       <FlatList
@@ -111,24 +114,21 @@ export default function TeacherLessonPlanScreen() {
         renderItem={({ item }) => (
           <View style={styles.card}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.cardTitle}>{item.title}</Text>
-              <Text style={styles.cardMeta}>Subject: {subjectName.get(item.subjectId) || item.subjectId} • Class: {className.get(item.classId) || item.classId}</Text>
-              <Text style={styles.cardMeta}>Date: {item.date} • Status: {item.status}</Text>
-              {!!item.notes && <Text style={styles.cardMeta}>Notes: {item.notes}</Text>}
+              <Text style={styles.cardTitle}>{item.studentId}</Text>
+              <Text style={styles.cardMeta}>Subject: {subjectName.get(item.subjectId) || item.subjectId} {item.classId ? `• Class: ${className.get(item.classId) || item.classId}` : ''}</Text>
+              <Text style={styles.cardMeta}>Marks: {item.marksObtained}/{item.totalMarks} • Status: {item.status}</Text>
             </View>
             <TouchableOpacity onPress={() => openEdit(item)} style={styles.iconBtn}><Ionicons name="create-outline" size={20} color="#1E90FF" /></TouchableOpacity>
             <TouchableOpacity onPress={() => remove(item)} style={styles.iconBtn}><Ionicons name="trash-outline" size={20} color="#D11A2A" /></TouchableOpacity>
           </View>
         )}
-        ListEmptyComponent={!loading ? (<Text style={{ color: '#666' }}>No lesson plans yet.</Text>) : null}
+        ListEmptyComponent={!loading ? (<Text style={{ color: '#666' }}>No marks yet.</Text>) : null}
       />
 
       <Modal visible={modalOpen} animationType="slide" transparent>
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>{editing ? 'Edit Lesson Plan' : 'New Lesson Plan'}</Text>
-            <TextInput value={title} onChangeText={setTitle} placeholder="Title" style={styles.input} />
-            <TextInput value={date} onChangeText={setDate} placeholder="Date (YYYY-MM-DD)" style={styles.input} />
+            <Text style={styles.modalTitle}>{editing ? 'Edit Marks' : 'New Marks'}</Text>
             <Text style={styles.label}>Class</Text>
             <View style={styles.chipsRow}>
               {classes.map(c => (
@@ -145,7 +145,11 @@ export default function TeacherLessonPlanScreen() {
                 </TouchableOpacity>
               ))}
             </View>
-            <TextInput value={notes} onChangeText={setNotes} placeholder="Notes (optional)" style={styles.input} />
+            <TextInput value={studentId} onChangeText={setStudentId} placeholder="Student ID" style={styles.input} />
+            <View style={{ flexDirection: 'row' }}>
+              <TextInput value={marksObtained} onChangeText={setMarksObtained} placeholder="Marks" keyboardType="numeric" style={[styles.input, { flex: 1, marginRight: 6 }]} />
+              <TextInput value={totalMarks} onChangeText={setTotalMarks} placeholder="Total" keyboardType="numeric" style={[styles.input, { flex: 1, marginLeft: 6 }]} />
+            </View>
             <View style={styles.modalActions}>
               <TouchableOpacity onPress={() => setModalOpen(false)} style={[styles.btn, styles.btnGhost]}>
                 <Text style={styles.btnGhostText}>Cancel</Text>

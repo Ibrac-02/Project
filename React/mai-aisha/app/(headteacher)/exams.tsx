@@ -1,44 +1,38 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, FlatList, Modal, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '@/lib/auth';
-import { createLessonPlan, deleteLessonPlan, listLessonPlansForTeacher, updateLessonPlan, type LessonPlanRecord } from '@/lib/lessonPlans';
+import { createExam, deleteExam, listExams, updateExam, type ExamSchedule } from '@/lib/exams';
 import { listClasses } from '@/lib/classes';
 import { listSubjects } from '@/lib/subjects';
 
-export default function TeacherLessonPlanScreen() {
-  const { user } = useAuth();
-  const teacherId = user?.uid || '';
-
-  const [items, setItems] = useState<LessonPlanRecord[]>([]);
+export default function ExamsScreen() {
+  const [items, setItems] = useState<ExamSchedule[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [classes, setClasses] = useState<{ id: string; name: string }[]>([]);
   const [subjects, setSubjects] = useState<{ id: string; name: string }[]>([]);
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<LessonPlanRecord | null>(null);
+  const [editing, setEditing] = useState<ExamSchedule | null>(null);
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
   const [classId, setClassId] = useState('');
   const [subjectId, setSubjectId] = useState('');
-  const [notes, setNotes] = useState('');
 
   async function load() {
-    if (!teacherId) return;
     setLoading(true);
-    const [plans, cls, subs] = await Promise.all([
-      listLessonPlansForTeacher(teacherId),
+    const [exams, cls, subs] = await Promise.all([
+      listExams(),
       listClasses(),
       listSubjects(),
     ]);
-    setItems(plans);
+    setItems(exams);
     setClasses(cls.map(c => ({ id: c.id, name: c.name })));
     setSubjects(subs.map(s => ({ id: s.id, name: s.name })));
     setLoading(false);
   }
 
-  useEffect(() => { load(); }, [teacherId]);
+  useEffect(() => { load(); }, []);
 
   const openNew = () => {
     setEditing(null);
@@ -46,60 +40,49 @@ export default function TeacherLessonPlanScreen() {
     setDate('');
     setClassId('');
     setSubjectId('');
-    setNotes('');
     setModalOpen(true);
   };
 
-  const openEdit = (rec: LessonPlanRecord) => {
-    setEditing(rec);
-    setTitle(rec.title);
-    setDate(rec.date);
-    setClassId(rec.classId);
-    setSubjectId(rec.subjectId);
-    setNotes(rec.notes || '');
+  const openEdit = (e: ExamSchedule) => {
+    setEditing(e);
+    setTitle(e.title);
+    setDate(e.date);
+    setClassId(e.classId);
+    setSubjectId(e.subjectId);
     setModalOpen(true);
   };
 
   const save = async () => {
-    if (!teacherId) { Alert.alert('Not allowed'); return; }
-    if (!title.trim() || !date.trim() || !classId || !subjectId) { Alert.alert('Validation', 'Title, date, class and subject are required.'); return; }
-    const payload = {
-      title: title.trim(),
-      subjectId,
-      classId,
-      teacherId,
-      date: date.trim(),
-      status: 'pending' as const,
-      notes: notes.trim() || undefined,
-    } as Omit<LessonPlanRecord, 'id'>;
+    if (!title.trim() || !date.trim() || !classId || !subjectId) {
+      Alert.alert('Validation', 'Title, date, class and subject are required.');
+      return;
+    }
     try {
-      if (editing) await updateLessonPlan(editing.id, payload);
-      else await createLessonPlan(payload);
+      const payload = { title: title.trim(), date: date.trim(), classId, subjectId } as Omit<ExamSchedule, 'id'>;
+      if (editing) await updateExam(editing.id, payload);
+      else await createExam(payload);
       setModalOpen(false);
       await load();
     } catch (e: any) {
-      Alert.alert('Failed', e?.message || 'Could not save lesson plan');
+      Alert.alert('Failed', e?.message || 'Could not save exam');
     }
   };
 
-  const remove = (rec: LessonPlanRecord) => {
-    Alert.alert('Delete plan', `Delete lesson plan '${rec.title}'?`, [
+  const remove = (e: ExamSchedule) => {
+    Alert.alert('Delete exam', `Delete ${e.title}?`, [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => { await deleteLessonPlan(rec.id); await load(); } }
+      { text: 'Delete', style: 'destructive', onPress: async () => { await deleteExam(e.id); await load(); } }
     ]);
   };
 
-  const className = useMemo(() => new Map(classes.map(c => [c.id, c.name])), [classes]);
-  const subjectName = useMemo(() => new Map(subjects.map(s => [s.id, s.name])), [subjects]);
-
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Lesson Plans</Text>
-      <Text style={styles.subtitle}>Upload lesson plans for approval</Text>
+      <Text style={styles.title}>Exam Schedules</Text>
+      <Text style={styles.subtitle}>Create and manage exam schedules</Text>
 
       <TouchableOpacity onPress={openNew} style={styles.addBtn}>
         <Ionicons name="add" size={20} color="#fff" />
-        <Text style={styles.addBtnText}>New Plan</Text>
+        <Text style={styles.addBtnText}>New Exam</Text>
       </TouchableOpacity>
 
       <FlatList
@@ -112,21 +95,21 @@ export default function TeacherLessonPlanScreen() {
           <View style={styles.card}>
             <View style={{ flex: 1 }}>
               <Text style={styles.cardTitle}>{item.title}</Text>
-              <Text style={styles.cardMeta}>Subject: {subjectName.get(item.subjectId) || item.subjectId} • Class: {className.get(item.classId) || item.classId}</Text>
-              <Text style={styles.cardMeta}>Date: {item.date} • Status: {item.status}</Text>
-              {!!item.notes && <Text style={styles.cardMeta}>Notes: {item.notes}</Text>}
+              <Text style={styles.cardMeta}>Date: {item.date}</Text>
+              <Text style={styles.cardMeta}>Class: {classes.find(c => c.id === item.classId)?.name || item.classId}</Text>
+              <Text style={styles.cardMeta}>Subject: {subjects.find(s => s.id === item.subjectId)?.name || item.subjectId}</Text>
             </View>
             <TouchableOpacity onPress={() => openEdit(item)} style={styles.iconBtn}><Ionicons name="create-outline" size={20} color="#1E90FF" /></TouchableOpacity>
             <TouchableOpacity onPress={() => remove(item)} style={styles.iconBtn}><Ionicons name="trash-outline" size={20} color="#D11A2A" /></TouchableOpacity>
           </View>
         )}
-        ListEmptyComponent={!loading ? (<Text style={{ color: '#666' }}>No lesson plans yet.</Text>) : null}
+        ListEmptyComponent={!loading ? (<Text style={{ color: '#666' }}>No exams scheduled.</Text>) : null}
       />
 
       <Modal visible={modalOpen} animationType="slide" transparent>
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>{editing ? 'Edit Lesson Plan' : 'New Lesson Plan'}</Text>
+            <Text style={styles.modalTitle}>{editing ? 'Edit Exam' : 'New Exam'}</Text>
             <TextInput value={title} onChangeText={setTitle} placeholder="Title" style={styles.input} />
             <TextInput value={date} onChangeText={setDate} placeholder="Date (YYYY-MM-DD)" style={styles.input} />
             <Text style={styles.label}>Class</Text>
@@ -145,7 +128,6 @@ export default function TeacherLessonPlanScreen() {
                 </TouchableOpacity>
               ))}
             </View>
-            <TextInput value={notes} onChangeText={setNotes} placeholder="Notes (optional)" style={styles.input} />
             <View style={styles.modalActions}>
               <TouchableOpacity onPress={() => setModalOpen(false)} style={[styles.btn, styles.btnGhost]}>
                 <Text style={styles.btnGhostText}>Cancel</Text>

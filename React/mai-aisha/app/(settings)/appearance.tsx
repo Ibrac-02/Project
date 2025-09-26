@@ -5,8 +5,8 @@ import { Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity, useColorScheme as useDeviceColorScheme, View } from 'react-native';
 
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
 
 type ThemePreference = 'light' | 'dark' | 'system';

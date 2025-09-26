@@ -122,7 +122,7 @@ export default function AdminDashboardScreen() {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Image
-              source={require('../../assets/images/icon.png')}
+              source={require('../../assets/images/maa.png')}
               style={styles.headerLogo}
             />
             <View>
@@ -132,7 +132,7 @@ export default function AdminDashboardScreen() {
           </View>
           <View style={styles.headerRight}>
             <TouchableOpacity
-              onPress={() => router.push('/(main)/announcements')}
+              onPress={() => router.push('/(main)/announcements' as any)}
               style={styles.notificationIconContainer}
             >
                <Ionicons name="notifications-outline" size={28} color="#fff" /> 
@@ -198,9 +198,8 @@ export default function AdminDashboardScreen() {
             <DashboardCard iconName="school-outline" title="School Setup" onPress={() => router.push('/(admin)/school-data' as any)} />
             <DashboardCard iconName="bar-chart-outline" title="Reports & Analytics" onPress={() => router.push('/(admin)/grade-report' as any)} />
             <DashboardCard iconName="checkmark-done-outline" title="Attendance Overview" onPress={() => router.push('/(main)/attendance' as any)} />
-            <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => router.push('/(main)/academic-calendar' as any)} />
-            <DashboardCard iconName="analytics-outline" title="Performance Reports" onPress={() => router.push('/(admin)/grade-report' as any)} />
-            <DashboardCard iconName="notifications-outline" title="Notifications" onPress={() => router.push('/(main)/announcements' as any)} />
+            <DashboardCard iconName="analytics-outline" title="Performance Reports" onPress={() => router.push('/(admin)/grade-report' )} />
+            <DashboardCard iconName="notifications-outline" title="Announcements" onPress={() => router.push('/(admin)/announcements')} />
           </View>
         </ScrollView>
       </View>
