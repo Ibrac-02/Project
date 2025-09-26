@@ -3,7 +3,7 @@ import { getAbsentStudentsToday } from '@/lib/attendance';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Picker, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { deleteUserById, getAllUsers, UserProfile } from '../../lib/auth';
 
 export default function ManageUsersScreen() {
@@ -15,6 +15,9 @@ export default function ManageUsersScreen() {
   const [errorUsers, setErrorUsers] = useState<string | null>(null);
   const [showAbsentStudents, setShowAbsentStudents] = useState(false);
   const [absentStudentIds, setAbsentStudentIds] = useState<string[]>([]);
+  const [selectedRoleFilter, setSelectedRoleFilter] = useState<string>('all'); // New state for role filter
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc'); // New state for sort order
+  const [sortBy, setSortBy] = useState<'name' | 'email' | 'role'>('name'); // New state for sort by field
 
   const { searchTerm, setSearchTerm, searchResults, loading: loadingSearch, error: errorSearch } = useSmartSearch();
 
@@ -23,10 +26,39 @@ export default function ManageUsersScreen() {
     setErrorUsers(null);
     try {
       const all = await getAllUsers();
-      setAdmins(all.filter(u => u.role === 'admin'));
-      setHeadteachers(all.filter(u => u.role === 'headteacher'));
-      setTeachers(all.filter(u => u.role === 'teacher'));
-      setStudents(all.filter(u => u.role === 'student')); // Fetch students
+
+      // Filter users based on selectedRoleFilter
+      let filteredUsers = selectedRoleFilter === 'all' 
+        ? all 
+        : all.filter(u => u.role === selectedRoleFilter);
+
+      // Apply sorting
+      filteredUsers.sort((a, b) => {
+        let valA: string | null = null;
+        let valB: string | null = null;
+
+        if (sortBy === 'name') {
+          valA = a.name;
+          valB = b.name;
+        } else if (sortBy === 'email') {
+          valA = a.email;
+          valB = b.email;
+        } else if (sortBy === 'role') {
+          valA = a.role;
+          valB = b.role;
+        }
+
+        if (valA === null && valB === null) return 0;
+        if (valA === null) return sortOrder === 'asc' ? 1 : -1;
+        if (valB === null) return sortOrder === 'asc' ? -1 : 1;
+
+        return sortOrder === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+      });
+
+      setAdmins(filteredUsers.filter(u => u.role === 'admin'));
+      setHeadteachers(filteredUsers.filter(u => u.role === 'headteacher'));
+      setTeachers(filteredUsers.filter(u => u.role === 'teacher'));
+      setStudents(filteredUsers.filter(u => u.role === 'student'));
 
       if (showAbsentStudents) {
         const absentIds = await getAbsentStudentsToday();
@@ -37,7 +69,7 @@ export default function ManageUsersScreen() {
     } finally {
       setLoadingUsers(false);
     }
-  }, [showAbsentStudents]);
+  }, [showAbsentStudents, selectedRoleFilter, sortOrder, sortBy]); // Add sort states to dependencies
 
   useFocusEffect(
     useCallback(() => {
@@ -186,6 +218,14 @@ export default function ManageUsersScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>System Users</Text>
 
+      <TouchableOpacity 
+        style={styles.addButton}
+        onPress={() => router.push('/(admin)/create-user')}
+      >
+        <Ionicons name="person-add-outline" size={24} color="#fff" />
+        <Text style={styles.addButtonText}>Add New User</Text>
+      </TouchableOpacity>
+
       <TextInput
         style={styles.searchInput}
         placeholder="Search students, teachers, or subjects..."
@@ -194,6 +234,45 @@ export default function ManageUsersScreen() {
       />
 
       {errorSearch && <Text style={styles.errorText}>{errorSearch}</Text>}
+
+      <View style={styles.filterContainer}>
+        <Text style={styles.filterLabel}>Filter by Role:</Text>
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={selectedRoleFilter}
+            onValueChange={(itemValue) => setSelectedRoleFilter(itemValue)}
+            style={styles.picker}
+          >
+            <Picker.Item label="All Users" value="all" />
+            <Picker.Item label="Admins" value="admin" />
+            <Picker.Item label="Headteachers" value="headteacher" />
+            <Picker.Item label="Teachers" value="teacher" />
+            <Picker.Item label="Students" value="student" />
+          </Picker>
+        </View>
+      </View>
+
+      <View style={styles.filterContainer}> {/* New container for sorting */}
+        <Text style={styles.filterLabel}>Sort By:</Text>
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={sortBy}
+            onValueChange={(itemValue) => setSortBy(itemValue as 'name' | 'email' | 'role')}
+            style={styles.picker}
+          >
+            <Picker.Item label="Name" value="name" />
+            <Picker.Item label="Email" value="email" />
+            <Picker.Item label="Role" value="role" />
+          </Picker>
+        </View>
+        <TouchableOpacity
+          style={styles.sortToggleButton}
+          onPress={() => setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'))}
+        >
+          <Ionicons name={sortOrder === 'asc' ? 'arrow-up' : 'arrow-down'} size={20} color="#1E90FF" />
+          <Text style={styles.sortButtonText}>{sortOrder === 'asc' ? 'Asc' : 'Desc'}</Text>
+        </TouchableOpacity>
+      </View>
 
       <TouchableOpacity 
         style={styles.filterButton}
@@ -214,6 +293,22 @@ export default function ManageUsersScreen() {
                 <Text style={styles.userEmail}>{result.type.charAt(0).toUpperCase() + result.type.slice(1)}</Text>
               </View>
               {/* Add actions based on result type if needed */}
+              <View style={styles.userActions}> 
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() =>
+                    router.push({ pathname: '/(admin)/edit-user', params: { uid: result.id } })
+                  }
+                >
+                  <Ionicons name="pencil-outline" size={24} color="#4CAF50" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => handleDeleteUser(result.id, result.name)}
+                >
+                  <Ionicons name="trash-outline" size={24} color="#F44336" />
+                </TouchableOpacity>
+              </View>
             </View>
           ))}
         </View>
@@ -222,10 +317,10 @@ export default function ManageUsersScreen() {
       ) : (
         // Display original user lists when no search term or no results
         <>
-          {admins.map(a => renderSingleUserCard(a, '#E91E63'))}
-          {headteachers.map(h => renderSingleUserCard(h, '#FF9800'))}
-          {renderTeachersCard()}
-          {renderStudentsCard(filteredStudents)}
+          {selectedRoleFilter === 'all' || selectedRoleFilter === 'admin' ? admins.map(a => renderSingleUserCard(a, '#E91E63')) : null}
+          {selectedRoleFilter === 'all' || selectedRoleFilter === 'headteacher' ? headteachers.map(h => renderSingleUserCard(h, '#FF9800')) : null}
+          {selectedRoleFilter === 'all' || selectedRoleFilter === 'teacher' ? renderTeachersCard() : null}
+          {selectedRoleFilter === 'all' || selectedRoleFilter === 'student' ? renderStudentsCard(filteredStudents) : null}
         </>
       )}
     </ScrollView>
@@ -385,5 +480,60 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#4CAF50',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 10,
+  },
+  filterContainer: {
+    marginBottom: 20,
+  },
+  filterLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#555',
+    marginBottom: 8,
+  },
+  pickerContainer: {
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+  },
+  sortToggleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#e0e0e0',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    marginTop: 10,
+    justifyContent: 'center',
+  },
+  sortButtonText: {
+    marginLeft: 5,
+    fontSize: 16,
+    color: '#333',
   },
 });

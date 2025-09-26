@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, EmailAuthProvider, onAuthStateChanged, reauthenticateWithCredential, sendPasswordResetEmail, signInWithEmailAndPassword, updatePassword, User, } from 'firebase/auth';
+import { createUserWithEmailAndPassword, EmailAuthProvider, onAuthStateChanged, reauthenticateWithCredential, sendPasswordResetEmail, signInWithEmailAndPassword, signOut, updatePassword, User, } from 'firebase/auth';
 import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where, } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { auth, db } from './firebase';
@@ -13,7 +13,7 @@ interface AuthState {
   role: string | null;
   userProfile: UserProfile | null;
 }
-
+ 
 export const useAuth = () => {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
@@ -21,23 +21,14 @@ export const useAuth = () => {
     userName: null,
     role: null,
     userProfile: null,
-  });
+  }); 
 
   // 🔹 Fetch user data and update state
   const fetchAndUpdateUserProfile = async (user: User | null) => {
     if (user) {
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      const userData = userDoc.exists() ? userDoc.data() : null;
-
-      const userProfile: UserProfile = {
-        uid: user.uid,
-        email: user.email,
-        name: userData ? userData.name : null,
-        role: userData ? userData.role : null,
-      };
-
-      const userName = userProfile.name;
-      const role = userProfile.role;
+      const userProfile = await getUserProfile(user.uid);
+      const userName = userProfile?.name || null;
+      const role = userProfile?.role || null;
 
       setAuthState({ user, loading: false, userName, role, userProfile });
     } else {
@@ -87,7 +78,6 @@ export const useAuth = () => {
 
   return {
     ...authState,
-    userRole: authState.role,
     refreshUserProfile,
     changePassword,
     enable2FA,
@@ -160,7 +150,7 @@ export const signUp = async (
 };
 
 export const sendPasswordReset = async (email: string) => {
-  const continueUrl = process.env.EXPO_PUBLIC_RESET_CONTINUE_URL || 'https://example.com/login';
+  const continueUrl = process.env.EXPO_PUBLIC_RESET_CONTINUE_URL || 'https://mai-aisha-academy.firebaseapp.com/login';
   await sendPasswordResetEmail(auth, email, { url: continueUrl });
 };
 
@@ -188,5 +178,29 @@ export const getUserNameById = async (uid: string): Promise<string | null> => {
   } catch (error: any) {
     console.error('Error fetching user name by ID:', error);
     return null;
+  }
+};
+
+export const getUserProfile = async (uid: string): Promise<UserProfile | null> => {
+  if (!uid) throw new Error("UID is required");
+  try {
+    const userDocRef = doc(db, 'users', uid);
+    const userDoc = await getDoc(userDocRef);
+    if (userDoc.exists()) {
+      return { uid: userDoc.id, ...(userDoc.data() as Omit<UserProfile, 'uid'>) };
+    }
+    return null;
+  } catch (error: any) {
+    console.error('Error fetching user profile by ID:', error);
+    throw new Error(error.message);
+  }
+};
+
+export const signOutUser = async () => {
+  try {
+    await signOut(auth);
+  } catch (error: any) {
+    console.error("Error signing out:", error);
+    throw new Error(error.message);
   }
 };

@@ -3,18 +3,32 @@ module.exports = function (api) {
   return {
     presets: ['babel-preset-expo'],
     plugins: [
-      'react-native-worklets/plugin',
+    
+      'babel-plugin-react-compiler',
+
+      [
+        'module-resolver',
+        {
+          alias: {
+            '@': './',
+          },
+          extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
+        },
+      ],
+
+      // Dotenv
       [
         'module:react-native-dotenv',
         {
           moduleName: '@env',
           path: '.env',
-          blacklist: null,
-          whitelist: null,
           safe: false,
           allowUndefined: true,
         },
       ],
+
+      // Reanimated plugin must be last
+      'react-native-reanimated/plugin',
     ],
   };
 };

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="03c05482-c2da-4bd9-8d37-9b7c766c1d9e" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../lib/academicCalendar.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/announcements.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/assignments.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/attendance.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/auth.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/eventNotifications.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/firebase.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/grades.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/lessonPlans.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/notificationService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/notifications.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/performance.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/reportGeneration.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/schoolData.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/searchUtils.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/students.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/subjects.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/types.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/warningNotifications.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/warningUtils.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(admin)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/(admin)/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(admin)/dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/(admin)/dashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(admin)/edit-user.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/(admin)/edit-user.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(admin)/grade-report.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/(admin)/grade-report.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(admin)/manage-user.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/(admin)/manage-user.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(admin)/school-data.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/(admin)/school-data.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(auth)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/(auth)/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(auth)/academic-calendar.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(auth)/announcements.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(auth)/attendance.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(auth)/forgot-password.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/(auth)/forgot-password.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(auth)/login.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/(auth)/login.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(auth)/sign-up.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/(auth)/sign-up.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(headteacher)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/(headteacher)/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(headteacher)/dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/(headteacher)/dashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(settings)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/(settings)/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(settings)/change-password.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/(settings)/change-password.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(settings)/profile.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/(settings)/profile.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(teacher)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/(teacher)/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(teacher)/dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/(teacher)/dashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/(teacher)/upload-document.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/(teacher)/upload-document.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/+not-found.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/+not-found.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/app/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/app/splash.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/assets/images/maa.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/babel.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/babel.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/config/firebase.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/config/firebase.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/firestore.rules" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/firestore.rules" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/index.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/lib/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/lib/auth.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/lib/lessonPlans.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/lib/lessonPlans.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/lib/reportGeneration.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/lib/reportGeneration.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/lib/schoolData.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/lib/schoolData.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/lib/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/lib/types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/scripts/reset-project.js" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha-academy/scripts/reset-project.js" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="32qIIOvndSyC3vKzTOd9GwwWNdX" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Project\\React\\mai-aisha-academy-sms\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-b598e85cdad2-JavaScript-WS-252.25557.126" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="03c05482-c2da-4bd9-8d37-9b7c766c1d9e" name="Changes" comment="" />
+      <created>1758141598194</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1758141598194</updated>
+      <workItem from="1758141604706" duration="1580000" />
+      <workItem from="1758143255707" duration="182000" />
+      <workItem from="1758143480579" duration="1165000" />
+      <workItem from="1758181857958" duration="1525000" />
+      <workItem from="1758183463245" duration="1702000" />
+      <workItem from="1758185260579" duration="353000" />
+      <workItem from="1758185707277" duration="2296000" />
+      <workItem from="1758188361459" duration="755000" />
+      <workItem from="1758200191888" duration="1905000" />
+      <workItem from="1758266066273" duration="1250000" />
+      <workItem from="1758312826413" duration="1587000" />
+      <workItem from="1758774226544" duration="2017000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

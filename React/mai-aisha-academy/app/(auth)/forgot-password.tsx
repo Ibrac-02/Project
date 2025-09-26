@@ -31,7 +31,7 @@ const ForgotPasswordScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Image source={require('../../assets/images/maa.jpg')} style={styles.logo} />
+      <Image source={require('../../assets/images/maa.png')} style={styles.logo} />
       <Text style={styles.schoolName}>Mai Aisha Academy</Text>
       <Text style={styles.subtitle}>Enter your email address to receive a password reset link.</Text>
       <TextInput

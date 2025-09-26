@@ -1,35 +1,83 @@
 import { signUp } from '@/lib/auth';
 import { Ionicons } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, Image, KeyboardAvoidingView,Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function SignUpScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
+  const [selectedRole, setSelectedRole] = useState('teacher'); // Default role
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSignUp = async () => {
+    if (!name) {
+      Alert.alert("Error", "Please enter your full name.");
+      return;
+    }
+    if (!email) {
+      Alert.alert("Error", "Please enter your email address.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      Alert.alert("Error", "Please enter a valid email address.");
+      return;
+    }
+    if (!password) {
+      Alert.alert("Error", "Please enter a password.");
+      return;
+    }
+    if (password.length < 6) {
+      Alert.alert("Error", "Password should be at least 6 characters long.");
+      return;
+    }
     if (password !== confirmPassword) {
       Alert.alert("Error", "Passwords do not match.");
       return;
     }
     try {
-      await signUp(email, password, name, "teacher"); // Always use "teacher" as role
+      await signUp(email, password, name, selectedRole); // Use selectedRole
       Alert.alert("Success", "Account created successfully!");
-      router.replace('/(teacher)/dashboard');
+      // Redirect based on the selected role
+      if (selectedRole === 'teacher') {
+        router.replace('/(teacher)/dashboard');
+      } else if (selectedRole === 'headteacher') {
+        router.replace('/(headteacher)/dashboard');
+      } else {
+        router.replace('/(auth)/login'); // Fallback if role is not recognized
+      }
     } catch (error: any) {
-      Alert.alert("Signup Failed", error.message);
+      let errorMessage = "An unexpected error occurred during sign-up. Please try again.";
+      if (error.code) {
+        switch (error.code) {
+          case "auth/email-already-in-use":
+            errorMessage = "The email address is already in use by another account.";
+            break;
+          case "auth/invalid-email":
+            errorMessage = "Invalid email address format.";
+            break;
+          case "auth/operation-not-allowed":
+            errorMessage = "Email/password accounts are not enabled. Please contact support.";
+            break;
+          case "auth/weak-password":
+            errorMessage = "Password is too weak. Please use a stronger password.";
+            break;
+          default:
+            errorMessage = error.message; // Use Firebase's default message for other errors
+        }
+      }
+      Alert.alert("Signup Failed", errorMessage);
     }
   };
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
     <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps='handled'>
-      <Image source={require('../../assets/images/maa.jpg')} style={styles.logo} />
+      <Image source={require('../../assets/images/maa.png')} style={styles.logo} />
       <Text style={styles.schoolName}>Mai Aisha Academy</Text>
       <Text style={styles.welcomeText}>Create your account to get started.</Text>
       <TextInput
@@ -81,6 +129,19 @@ export default function SignUpScreen() {
           <Ionicons name={showConfirmPassword ? "eye-off" : "eye"} size={24} color="gray" />
         </TouchableOpacity>
       </View>
+
+      <Text style={styles.inputLabel}>Role:</Text>
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={selectedRole}
+          onValueChange={(itemValue) => setSelectedRole(itemValue as string)}
+          style={styles.picker}
+        >
+          <Picker.Item label="Teacher" value="teacher" />
+          <Picker.Item label="Headteacher" value="headteacher" />
+        </Picker>
+      </View>
+
       <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
@@ -167,5 +228,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     backgroundColor: '#fff',
+  },
+  inputLabel: {
+    alignSelf: 'flex-start',
+    fontWeight: '600',
+    marginTop: 10,
+    marginBottom: 5,
+    color: '#333',
+    fontSize: 16,
+  },
+  pickerContainer: {
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 25,
+    marginBottom: 15,
+    backgroundColor: '#f9f9f9',
+    justifyContent: 'center',
+  },
+  picker: {
+    width: '100%',
+    height: 50,
   },
 });

@@ -7,8 +7,8 @@ import { useEffect, useRef } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { ensureHolidaysForYear, getTermsEndingSoon, getUpcomingAcademicEvents } from '@/lib/academicCalendar';
-import { getAllUsers, useAuth, UserProfile } from '@/lib/auth';
+import { ensureHolidaysForYear, getTermsEndingSoon, getUpcomingAcademicEvents, } from '@/lib/academicCalendar';
+import { getAllUsers, useAuth } from '@/lib/auth';
 import { generateNotificationsForEvent } from '@/lib/eventNotifications';
 import { getAllGrades } from '@/lib/grades';
 import { registerForPushNotificationsAsync } from '@/lib/notificationService';
@@ -19,6 +19,7 @@ import { generateNotificationForAttendanceWarning, generateNotificationForPerfor
 import { checkStudentAttendanceWarnings, checkStudentPerformanceWarnings } from '@/lib/warningUtils';
 import { Timestamp } from 'firebase/firestore';
 
+// AsyncStorage keys
 const NOTIFIED_EVENTS_KEY = 'notified_academic_events';
 const NOTIFIED_WARNINGS_KEY = 'notified_student_warnings';
 const HOLIDAYS_CHECKED_KEY = 'holidays_checked_for_year';
@@ -27,68 +28,77 @@ const REPORTS_GENERATED_KEY = 'reports_generated_for_term';
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const { user, loading, role } = useAuth();
-  const [loaded] = useFonts({
+
+  const [fontsLoaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
   const notificationListener = useRef<Notifications.Subscription | null>(null);
   const responseListener = useRef<Notifications.Subscription | null>(null);
+  const hasRedirected = useRef(false);
 
+  // --- Redirect & notifications logic ---
   useEffect(() => {
-    if (!loaded || loading) {
+    if (!fontsLoaded || loading) return;
+
+    // Prevent multiple redirects
+    if (hasRedirected.current) return;
+    hasRedirected.current = true;
+
+    if (!user) {
+      console.log("Redirecting to login" + user + " " + role);
+      router.replace('/(auth)/login');
       return;
     }
 
-    if (!user) {
-      router.replace('/(auth)/login'); 
-    } else {
-      // Redirect based on role
-      if (role === 'admin') {
+    // Redirect by role
+    switch (role) {
+      case 'admin':
         router.replace('/(admin)/dashboard');
-      } else if (role === 'headteacher') {
+        break;
+      case 'headteacher':
         router.replace('/(headteacher)/dashboard');
-      } else if (role === 'teacher') {
+        break;
+      case 'teacher':
         router.replace('/(teacher)/dashboard');
-      } else {
-        router.replace('/(auth)/login'); // Fallback if role is not recognized
-      }
+        break;
+      default:
+        router.replace('/(auth)/login');
+    }
 
-      // Notification and data fetching logic (moved from the original block)
-      registerForPushNotificationsAsync(user.uid);
+    // Register push notifications
+    registerForPushNotificationsAsync(user.uid);
 
-      notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-        console.log("Notification received:", notification);
-      });
+    // Listen to notifications
+    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
+      console.log('Notification received:', notification);
+    });
 
-      responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-        console.log("Notification response received:", response);
-        const { notification } = response;
-        const { data } = notification.request.content;
+    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+      console.log('Notification response received:', response);
+      const { data } = response.notification.request.content;
+      if (data?.link) router.push(data.link as any);
+    });
 
-        if (data && typeof data.link === 'string') {
-          router.push(data.link as any);
-        }
-      });
+    // Async tasks (holidays, events, warnings, reports)
+    const asyncTasks = async () => {
+      try {
+        const currentYear = new Date().getFullYear();
 
-      const checkAndNotify = async () => {
-        // Auto-mark holidays
+        // Admin: ensure holidays
         if (role === 'admin') {
-          const currentYear = new Date().getFullYear();
-          const holidaysCheckedForYear = await AsyncStorage.getItem(HOLIDAYS_CHECKED_KEY);
-          if (holidaysCheckedForYear !== String(currentYear)) {
-            console.log(`Ensuring holidays for ${currentYear}...`);
+          const holidaysChecked = await AsyncStorage.getItem(HOLIDAYS_CHECKED_KEY);
+          if (holidaysChecked !== String(currentYear)) {
+            console.log(`Ensuring holidays for ${currentYear}`);
             await ensureHolidaysForYear(currentYear, user.uid);
             await AsyncStorage.setItem(HOLIDAYS_CHECKED_KEY, String(currentYear));
-          } else {
-            console.log(`Holidays for ${currentYear} already checked.`);
           }
         }
 
-        // Check for upcoming events
+        // Upcoming events
         const upcomingEvents = await getUpcomingAcademicEvents(7, user.uid, role || '');
         const storedNotifiedEvents = await AsyncStorage.getItem(NOTIFIED_EVENTS_KEY);
-        let notifiedEvents: string[] = storedNotifiedEvents ? JSON.parse(storedNotifiedEvents) : [];
-
+        let notifiedEvents = storedNotifiedEvents ? JSON.parse(storedNotifiedEvents) : [];
         for (const event of upcomingEvents) {
           if (!notifiedEvents.includes(event.id)) {
             await generateNotificationsForEvent(event);
@@ -97,81 +107,73 @@ export default function RootLayout() {
         }
         await AsyncStorage.setItem(NOTIFIED_EVENTS_KEY, JSON.stringify(notifiedEvents));
 
-        // Check for student warnings (attendance and performance)
-        const students: UserProfile[] = await getAllUsers();
-        const studentProfiles = students.filter(u => u.role === 'student');
-
+        // Student warnings
+        const allUsers = await getAllUsers();
+        const students = allUsers.filter((u) => u.role === 'student');
         const storedNotifiedWarnings = await AsyncStorage.getItem(NOTIFIED_WARNINGS_KEY);
-        let notifiedWarnings: string[] = storedNotifiedWarnings ? JSON.parse(storedNotifiedWarnings) : [];
+        let notifiedWarnings = storedNotifiedWarnings ? JSON.parse(storedNotifiedWarnings) : [];
 
-        for (const student of studentProfiles) {
-          // Attendance Warnings
+        for (const student of students) {
           const attendanceWarning = await checkStudentAttendanceWarnings(student.uid, student.name || student.email || '');
           if (attendanceWarning) {
             const warningId = `attendance-${student.uid}-${attendanceWarning.absentCount}`;
-            if (!notifiedWarnings.includes(warningId)) {
-              if (role === 'admin' || role === 'headteacher') {
-                await generateNotificationForAttendanceWarning(attendanceWarning, user.uid);
-                notifiedWarnings.push(warningId);
-              }
+            if (!notifiedWarnings.includes(warningId) && ['admin','headteacher'].includes(role || '')) {
+              await generateNotificationForAttendanceWarning(attendanceWarning, user.uid);
+              notifiedWarnings.push(warningId);
             }
           }
 
-          // Performance Warnings
           const performanceWarning = await checkStudentPerformanceWarnings(student.uid, student.name || student.email || '');
           if (performanceWarning) {
             const warningId = `performance-${student.uid}-${performanceWarning.averageGrade}`;
-            if (!notifiedWarnings.includes(warningId)) {
-              if (role === 'admin' || role === 'headteacher') {
-                await generateNotificationForPerformanceWarning(performanceWarning, user.uid);
-                notifiedWarnings.push(warningId);
-              }
+            if (!notifiedWarnings.includes(warningId) && ['admin','headteacher'].includes(role || '')) {
+              await generateNotificationForPerformanceWarning(performanceWarning, user.uid);
+              notifiedWarnings.push(warningId);
             }
           }
         }
+
         await AsyncStorage.setItem(NOTIFIED_WARNINGS_KEY, JSON.stringify(notifiedWarnings));
 
-        // Auto-generate reports at the end of each term
-        if (role === 'admin' || role === 'headteacher') {
+        // Generate reports
+        if (['admin','headteacher'].includes(role || '')) {
           const termsEndingSoon = await getTermsEndingSoon(7);
-          const storedGeneratedReports = await AsyncStorage.getItem(REPORTS_GENERATED_KEY);
-          let generatedReports: string[] = storedGeneratedReports ? JSON.parse(storedGeneratedReports) : [];
+          const storedReports = await AsyncStorage.getItem(REPORTS_GENERATED_KEY);
+          let generatedReports = storedReports ? JSON.parse(storedReports) : [];
 
           for (const term of termsEndingSoon) {
-            const reportIdentifier = `term-report-${term.id}`;
-            if (!generatedReports.includes(reportIdentifier)) {
-              console.log(`Generating end-of-term report for term: ${term.name}...`);
+            const reportId = `term-report-${term.id}`;
+            if (!generatedReports.includes(reportId)) {
+              const [allGrades, allSubjects] = await Promise.all([getAllGrades(), getAllSubjects()]);
 
-              const [allGrades, allUsers, allSubjects] = await Promise.all([
-                getAllGrades(),
-                getAllUsers(),
-                getAllSubjects(),
-              ]);
+              const approvedGrades = allGrades.filter(g => g.status === 'approved');
 
-              const approvedGrades = allGrades.filter(grade => grade.status === 'approved');
-
+              // Group grades by student
               const gradesByStudentMap = new Map<string, Grade[]>();
               approvedGrades.forEach(g => {
                 if (!gradesByStudentMap.has(g.studentId)) gradesByStudentMap.set(g.studentId, []);
                 gradesByStudentMap.get(g.studentId)!.push(g);
               });
+
               const gradesByStudent = Array.from(gradesByStudentMap.entries()).map(([studentId, studentGrades]) => ({
                 studentId,
-                studentName: allUsers.find((u: UserProfile) => u.uid === studentId)?.name || 'Unknown',
+                studentName: allUsers.find(u => u.uid === studentId)?.name || 'Unknown',
                 grades: studentGrades,
-                averagePercentage: studentGrades.reduce((s, g) => s + g.gradePercentage, 0) / studentGrades.length,
+                averagePercentage: studentGrades.reduce((s,g)=>s+g.gradePercentage,0)/studentGrades.length,
               }));
 
+              // Group grades by subject
               const gradesBySubjectMap = new Map<string, Grade[]>();
               approvedGrades.forEach(g => {
                 if (!gradesBySubjectMap.has(g.subjectId)) gradesBySubjectMap.set(g.subjectId, []);
                 gradesBySubjectMap.get(g.subjectId)!.push(g);
               });
+
               const gradesBySubject = Array.from(gradesBySubjectMap.entries()).map(([subjectId, subjectGrades]) => ({
                 subjectId,
-                subjectName: allSubjects.find(s => s.id === subjectId)?.name || 'Unknown',
+                subjectName: allSubjects.find(s => s.id===subjectId)?.name || 'Unknown',
                 grades: subjectGrades,
-                averagePercentage: subjectGrades.reduce((s, g) => s + g.gradePercentage, 0) / subjectGrades.length,
+                averagePercentage: subjectGrades.reduce((s,g)=>s+g.gradePercentage,0)/subjectGrades.length,
               }));
 
               const downloadURL = await generateAndUploadGradeReport(
@@ -184,14 +186,14 @@ export default function RootLayout() {
               );
 
               if (downloadURL) {
-                console.log(`Report for term ${term.name} generated and uploaded: ${downloadURL}`);
-                generatedReports.push(reportIdentifier);
+                console.log(`Report uploaded: ${downloadURL}`);
+                generatedReports.push(reportId);
                 await generateNotificationsForEvent({
                   id: `report-${term.id}`,
                   title: `End-of-term report for ${term.name}`,
-                  description: `A grade report for ${term.name} has been generated.`, 
-                  startDate: Timestamp.fromDate(new Date()), 
-                  endDate: Timestamp.fromDate(new Date()), 
+                  description: `A grade report for ${term.name} has been generated.`,
+                  startDate: Timestamp.fromDate(new Date()),
+                  endDate: Timestamp.fromDate(new Date()),
                   type: 'school-event',
                   audience: 'admin',
                   createdByUserId: 'system',
@@ -199,35 +201,36 @@ export default function RootLayout() {
               }
             }
           }
+
           await AsyncStorage.setItem(REPORTS_GENERATED_KEY, JSON.stringify(generatedReports));
         }
-      };
-      checkAndNotify();
-    }
 
-    return () => {
-      if (notificationListener.current) {
-        notificationListener.current.remove();
-      }
-      if (responseListener.current) {
-        responseListener.current.remove();
+      } catch (err) {
+        console.error('Error in async tasks:', err);
       }
     };
-  }, [user, loading, role, loaded]);
 
-  if (!loaded) {
-    return null;
-  }
+    asyncTasks();
+
+    return () => {
+      notificationListener.current?.remove();
+      responseListener.current?.remove();
+    };
+  }, [fontsLoaded, loading, user, role]);
+
+  // --- Render ---
+  if (!fontsLoaded) return null;
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="splash" options={{ headerShown: false }} redirect />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(admin)" options={{ headerShown: false }} />
         <Stack.Screen name="(teacher)" options={{ headerShown: false }} />
         <Stack.Screen name="(headteacher)" options={{ headerShown: false }} />
         <Stack.Screen name="(settings)" options={{ headerShown: false }} />
+        <Stack.Screen name="(main)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
     </ThemeProvider>

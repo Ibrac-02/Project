@@ -1,116 +1,146 @@
 import { addDoc, collection, deleteDoc, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { db } from './firebase';
-import { LessonActivity, LessonPlan } from './types';
+import { LessonPlan, LessonActivity } from './types';
 
-// Create a new lesson plan
-export const createLessonPlan = async (lessonData: Omit<LessonPlan, 'id' | 'createdAt' | 'updatedAt'>): Promise<LessonPlan> => {
+// Data transfer object for creating a lesson plan
+export interface CreateLessonPlanData {
+  title: string;
+  subjectId: string;
+  classId: string;
+  teacherId: string;
+  date: string; // YYYY-MM-DD format
+  duration: number; // Duration in minutes
+  objectives: string[];
+  materials: string[];
+  activities: Omit<LessonActivity, 'id'>[]; // Activities without auto-generated ID
+  assessment: string;
+  homework?: string;
+  notes?: string;
+}
+
+/**
+ * Creates a new lesson plan in Firestore.
+ * @param data The lesson plan data to create.
+ * @returns The created LessonPlan object with its Firestore ID.
+ */
+export const createLessonPlan = async (data: CreateLessonPlanData): Promise<LessonPlan> => {
   try {
-    const lessonPlansCollection = collection(db, "lessonPlans");
-    const newLessonRef = await addDoc(lessonPlansCollection, {
-      ...lessonData,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }); 
-    return { 
-      id: newLessonRef.id, 
-      ...lessonData, 
-      createdAt: new Date().toISOString(), 
-      updatedAt: new Date().toISOString() 
-    };
+    const now = new Date().toISOString();
+    const lessonPlanCollection = collection(db, 'lessonPlans');
+    const docRef = await addDoc(lessonPlanCollection, {
+      ...data,
+      createdAt: now,
+      updatedAt: now,
+      status: 'draft', // Default status
+    });
+    return { id: docRef.id, ...data, createdAt: now, updatedAt: now, status: 'draft' };
   } catch (error: any) {
-    console.error("Error creating lesson plan:", error);
+    console.error('Error creating lesson plan:', error);
     throw new Error(error.message);
   }
 };
 
-// Get lesson plans by teacher
-export const getLessonPlansByTeacher = async (teacherId: string): Promise<LessonPlan[]> => {
+/**
+ * Fetches lesson plans for a specific teacher.
+ * @param teacherId The UID of the teacher.
+ * @returns An array of LessonPlan objects.
+ */
+export const getTeacherLessonPlans = async (teacherId: string): Promise<LessonPlan[]> => {
   try {
-    const q = query(
-      collection(db, "lessonPlans"), 
-      where("teacherId", "==", teacherId)
-    );
+    const lessonPlanCollection = collection(db, 'lessonPlans');
+    const q = query(lessonPlanCollection, where('teacherId', '==', teacherId));
     const querySnapshot = await getDocs(q);
-    const lessonPlans = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as LessonPlan));
-    
-    // Sort in JavaScript instead of Firestore to avoid composite index
-    return lessonPlans.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const lessonPlans: LessonPlan[] = [];
+    querySnapshot.forEach((doc) => {
+      lessonPlans.push({ id: doc.id, ...doc.data() } as LessonPlan);
+    });
+    return lessonPlans;
   } catch (error: any) {
-    console.error("Error getting lesson plans by teacher:", error);
+    console.error('Error fetching teacher lesson plans:', error);
     throw new Error(error.message);
   }
 };
 
-// Get all lesson plans (for headteacher/admin)
-export const getAllLessonPlans = async (): Promise<LessonPlan[]> => {
+/**
+ * Fetches all lesson plans, with optional filters.
+ * Primarily for Headteacher.
+ * @param filters Optional filters (e.g., classId, subjectId, teacherId, academicYearId, termId).
+ * @returns An array of LessonPlan objects.
+ */
+export const getFilteredLessonPlans = async (
+  filters: { classId?: string; subjectId?: string; teacherId?: string; academicYearId?: string; termId?: string; status?: LessonPlan['status'] }
+): Promise<LessonPlan[]> => {
   try {
-    const querySnapshot = await getDocs(collection(db, "lessonPlans"));
-    const lessonPlans = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as LessonPlan));
-    
-    // Sort in JavaScript instead of Firestore to avoid composite index
-    return lessonPlans.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    let q = collection(db, 'lessonPlans');
+    let queryConstraints = [];
+
+    if (filters.classId) queryConstraints.push(where('classId', '==', filters.classId));
+    if (filters.subjectId) queryConstraints.push(where('subjectId', '==', filters.subjectId));
+    if (filters.teacherId) queryConstraints.push(where('teacherId', '==', filters.teacherId));
+    // Assuming academicYearId and termId might be added to LessonPlan structure later if needed for filtering
+    if (filters.status) queryConstraints.push(where('status', '==', filters.status));
+
+    const finalQuery = query(q, ...queryConstraints);
+    const querySnapshot = await getDocs(finalQuery);
+    const lessonPlans: LessonPlan[] = [];
+    querySnapshot.forEach((doc) => {
+      lessonPlans.push({ id: doc.id, ...doc.data() } as LessonPlan);
+    });
+    return lessonPlans;
   } catch (error: any) {
-    console.error("Error getting all lesson plans:", error);
+    console.error('Error fetching filtered lesson plans:', error);
     throw new Error(error.message);
   }
 };
 
-// Get lesson plans by subject
-export const getLessonPlansBySubject = async (subjectId: string): Promise<LessonPlan[]> => {
-  try {
-    const q = query(
-      collection(db, "lessonPlans"), 
-      where("subjectId", "==", subjectId)
-    );
-    const querySnapshot = await getDocs(q);
-    const lessonPlans = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as LessonPlan));
-    
-    // Sort in JavaScript instead of Firestore to avoid composite index
-    return lessonPlans.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  } catch (error: any) {
-    console.error("Error getting lesson plans by subject:", error);
-    throw new Error(error.message);
-  }
-};
+// Data transfer object for updating a lesson plan
+export interface UpdateLessonPlanData {
+  title?: string;
+  subjectId?: string;
+  classId?: string;
+  teacherId?: string;
+  date?: string;
+  duration?: number;
+  objectives?: string[];
+  materials?: string[];
+  activities?: Omit<LessonActivity, 'id'>[];
+  assessment?: string;
+  homework?: string;
+  notes?: string;
+  status?: LessonPlan['status'];
+  reviewedBy?: string;
+  reviewedAt?: string;
+  feedback?: string;
+}
 
-// Get lesson plans by class
-export const getLessonPlansByClass = async (classId: string): Promise<LessonPlan[]> => {
+/**
+ * Updates an existing lesson plan in Firestore.
+ * @param id The ID of the lesson plan to update.
+ * @param updates The partial lesson plan data to update.
+ */
+export const updateLessonPlan = async (id: string, updates: UpdateLessonPlanData): Promise<void> => {
   try {
-    const q = query(
-      collection(db, "lessonPlans"), 
-      where("classId", "==", classId)
-    );
-    const querySnapshot = await getDocs(q);
-    const lessonPlans = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as LessonPlan));
-    
-    // Sort in JavaScript instead of Firestore to avoid composite index
-    return lessonPlans.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  } catch (error: any) {
-    console.error("Error getting lesson plans by class:", error);
-    throw new Error(error.message);
-  }
-};
-
-// Update a lesson plan
-export const updateLessonPlan = async (id: string, updates: Partial<Omit<LessonPlan, 'id' | 'createdAt'>>): Promise<void> => {
-  try {
-    const lessonRef = doc(db, "lessonPlans", id);
-    await updateDoc(lessonRef, {
+    const lessonPlanDocRef = doc(db, 'lessonPlans', id);
+    await updateDoc(lessonPlanDocRef, {
       ...updates,
       updatedAt: new Date().toISOString(),
     });
   } catch (error: any) {
-    console.error("Error updating lesson plan:", error);
+    console.error('Error updating lesson plan:', error);
     throw new Error(error.message);
   }
 };
 
-// Delete a lesson plan
+/**
+ * Deletes a lesson plan from Firestore.
+ * @param id The ID of the lesson plan to delete.
+ */
 export const deleteLessonPlan = async (id: string): Promise<void> => {
   try {
-    await deleteDoc(doc(db, "lessonPlans", id));
+    const lessonPlanDocRef = doc(db, 'lessonPlans', id);
+    await deleteDoc(lessonPlanDocRef);
   } catch (error: any) {
-    console.error("Error deleting lesson plan:", error);
+    console.error('Error deleting lesson plan:', error);
     throw new Error(error.message);
   }
 };

@@ -1,9 +1,12 @@
 
 import { signIn } from '@/lib/auth';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
-import { Alert, Image, KeyboardAvoidingView,Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Alert, Image, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
+const REMEMBER_ME_KEY = 'remember_me_email'; 
 
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
@@ -11,28 +14,79 @@ export default function SignInScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false); // New state for 'Remember me'
 
+  useEffect(() => {
+    const loadRememberedEmail = async () => {
+      const savedEmail = await AsyncStorage.getItem(REMEMBER_ME_KEY);
+      if (savedEmail) {
+        setEmail(savedEmail);
+        setRememberMe(true);
+      }
+    };
+    loadRememberedEmail();
+  }, []);
+
   const handleSignIn = async () => {
+    if (!email) {
+      Alert.alert("Error", "Please enter your email address.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      Alert.alert("Error", "Please enter a valid email address.");
+      return;
+    }
+    if (!password) {
+      Alert.alert("Error", "Please enter your password.");
+      return;
+    }
     try {
       const { role } = await signIn(email, password);
+
+      if (rememberMe) {
+        await AsyncStorage.setItem(REMEMBER_ME_KEY, email);
+      } else {
+        await AsyncStorage.removeItem(REMEMBER_ME_KEY);
+      }
+
       if (role === 'admin') {
         router.replace('/(admin)/dashboard');
       } else if (role === 'teacher') {
         router.replace('/(teacher)/dashboard');
       } else if (role === 'headteacher') {
         router.replace('/(headteacher)/dashboard');
-      } else {
-        // Default redirection for other roles or if role is not found
-        // router.replace('/(tabs)/index'); 
-      }
+      } 
+      
     } catch (error: any) {
-      Alert.alert("Login Failed", error.message);
+      let errorMessage = "An unexpected error occurred. Please try again.";
+      if (error.code) {
+        switch (error.code) {
+          case "auth/invalid-email":
+            errorMessage = "Invalid email address format.";
+            break;
+          case "auth/user-disabled":
+            errorMessage = "This user account has been disabled.";
+            break;
+          case "auth/user-not-found":
+            errorMessage = "No user found with this email.";
+            break;
+          case "auth/wrong-password":
+          case "auth/invalid-credential":
+            errorMessage = "Incorrect password or invalid credentials.";
+            break;
+          case "auth/too-many-requests":
+            errorMessage = "Too many failed login attempts. Please try again later.";
+            break;
+          default:
+            errorMessage = error.message; // Use Firebase's default message for other errors
+        }
+      }
+      Alert.alert("Login Failed", errorMessage);
     }
   };
 
   return (
     <KeyboardAvoidingView style={{ flex: 4 }}  behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <View style={styles.container}>
-        <Image source={require('../../assets/images/maa.jpg')} style={styles.logo} />
+        <Image source={require('../../assets/images/maa.png')} style={styles.logo} />
         <Text style={styles.schoolName}>Mai Aisha Academy</Text>
         <Text style={styles.welcomeText}>Welcome back! Please sign in to continue.</Text>
         <TextInput
@@ -80,7 +134,7 @@ export default function SignInScreen() {
         <Text style={styles.buttonText}>Sign In</Text>
       </TouchableOpacity>
       <Text style={styles.signUpText}>
-        Don't have an account? <Text style={styles.signUpLink} onPress={() => router.push('/(auth)/sign-up')}>Sign Up</Text>
+        Don&apos;t have an account? <Text style={styles.signUpLink} onPress={() => router.push('/(auth)/sign-up')}>Sign Up</Text>
       </Text>
     </View>
     </KeyboardAvoidingView> 

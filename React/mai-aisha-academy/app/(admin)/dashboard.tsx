@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import { collection, getDocs } from 'firebase/firestore';
 import React, { useCallback, useState } from 'react';
-import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity,TouchableWithoutFeedback, View,} from 'react-native';
+import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View, } from 'react-native';
 import { getAllUsers, getStudents, useAuth } from '../../lib/auth';
 import { db } from '../../lib/firebase';
 import { getUnreadNotificationsCount } from '../../lib/notifications';
@@ -123,7 +123,7 @@ export default function AdminDashboardScreen() {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Image
-              source={require('../../assets/images/maa.jpg')}
+              source={require('../../assets/images/maa.png')}
               style={styles.headerLogo}
             />
             <View>
@@ -133,7 +133,7 @@ export default function AdminDashboardScreen() {
           </View>
           <View style={styles.headerRight}>
             <TouchableOpacity
-              onPress={() => router.push('/(auth)/announcements')}
+              onPress={() => router.push('/(main)/announcements')}
               style={styles.notificationIconContainer}
             >
               <Ionicons name="notifications-outline" size={28} color="#fff" />
@@ -198,10 +198,10 @@ export default function AdminDashboardScreen() {
             <DashboardCard iconName="people-outline" title="User Management" onPress={() => router.push('/(admin)/manage-user')} />
             <DashboardCard iconName="school-outline" title="School Setup" onPress={() => router.push('/(admin)/school-data')} />
             <DashboardCard iconName="bar-chart-outline" title="Reports & Analytics" onPress={() => router.push('/(admin)/grade-report')} />
-            <DashboardCard iconName="checkmark-done-outline" title="Attendance Overview" onPress={() => router.push('/(auth)/attendance')} />
-            <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => router.push('/(auth)/academic-calendar')} />
-            <DashboardCard iconName="analytics-outline" title="Performance Reports" onPress={() => router.push('/(admin)/edit-user')} />
-            <DashboardCard iconName="notifications-outline" title="Notifications" onPress={() => router.push('/(auth)/announcements')} />
+            <DashboardCard iconName="checkmark-done-outline" title="Attendance Overview" onPress={() => router.push('/(main)/attendance')} />
+            <DashboardCard iconName="calendar-outline" title="Academic Calendar" onPress={() => router.push('/(main)/academic-calendar')} />
+            <DashboardCard iconName="analytics-outline" title="Performance Reports" onPress={() => router.push('/(admin)/grade-report')} />
+            <DashboardCard iconName="notifications-outline" title="Notifications" onPress={() => router.push('/(main)/announcements')} />
           </View>
         </ScrollView>
       </View>
