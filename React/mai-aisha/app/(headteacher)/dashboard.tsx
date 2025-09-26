@@ -46,6 +46,11 @@ export default function HeadteacherDashboardScreen() {
         />
         <DashboardCard
           iconName="calendar-outline"
+          title="Calendar"
+          onPress={() => router.push('/(main)/academic-calendar' as any)}
+        />
+        <DashboardCard
+          iconName="time-outline"
           title="Exam Schedules"
           onPress={() => router.push('/(headteacher)/exams' as any)}
         />

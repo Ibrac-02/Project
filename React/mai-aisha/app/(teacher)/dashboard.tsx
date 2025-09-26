@@ -68,6 +68,11 @@ export default function TeacherDashboardScreen() {
             title="Reports"
             onPress={() => router.push('/(teacher)/performance-screen' as any)}
           />
+          <DashboardCard
+            iconName="calendar-outline"
+            title="Calendar"
+            onPress={() => router.push('/(main)/academic-calendar' as any)}
+          />
         </View>
       </ScrollView>
     </View>
