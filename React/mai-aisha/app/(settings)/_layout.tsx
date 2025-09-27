@@ -2,8 +2,17 @@ import { Stack } from 'expo-router';
 
 export default function SettingsLayout() {
   return (
-    <Stack>
-      {/* Make the index menu the entry for settings */}
+    <Stack screenOptions={{ 
+       headerStyle: {
+          backgroundColor: '#1E90FF', 
+        },
+        headerTintColor: '#fff',
+        headerTitleStyle: {
+          fontWeight: '500',
+          fontSize: 20,
+        },
+        headerTitleAlign: 'left',
+        }}>
       <Stack.Screen name="index" options={{ headerShown: true, title: 'Settings' }} />
       <Stack.Screen name="profile" options={{ title: 'Edit Profile' }} />
       <Stack.Screen name="change-password" options={{ title: 'Change Password' }} />

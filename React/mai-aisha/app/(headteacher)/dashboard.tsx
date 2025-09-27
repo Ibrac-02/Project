@@ -130,7 +130,7 @@ export default function HeadteacherDashboardScreen() {
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => router.push('/(settings)/profile' as any)} style={styles.settingsIconContainer}>
+            <TouchableOpacity onPress={() => router.push('/(settings)' )} style={styles.settingsIconContainer}>
               <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
             </TouchableOpacity>
           </View>
@@ -160,13 +160,13 @@ export default function HeadteacherDashboardScreen() {
           {/* Quick Actions */}
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.cardGroupContainer}>
-            <DashboardCard iconName="people-outline" title="Manage Teachers" onPress={() => router.push('/(headteacher)/teacher-supervision' as any)} />
-            <DashboardCard iconName="document-text-outline" title="Approve Reports" onPress={() => router.push('/(headteacher)/reports-approvals' as any)} />
-            <DashboardCard iconName="reader-outline" title="View Lesson Plans" onPress={() => router.push('/(headteacher)/view-lesson-plans' as any)} />
-            <DashboardCard iconName="calendar-outline" title="Calendar" onPress={() => router.push('/(main)/academic-calendar' as any)} />
-            <DashboardCard iconName="time-outline" title="Exam Schedules" onPress={() => router.push('/(headteacher)/exams' as any)} />
-            <DashboardCard iconName="megaphone-outline" title="Announcements" onPress={() => router.push('/(headteacher)/announcements' as any)} />
-            <DashboardCard iconName="person-circle-outline" title="Profile & Settings" onPress={() => router.push('/(settings)/profile' as any)} />
+            <DashboardCard iconName="people-outline" title="Manage Teachers" onPress={() => router.push('/(headteacher)/teacher-supervision' )} />
+            <DashboardCard iconName="document-text-outline" title="Approve Reports" onPress={() => router.push('/(headteacher)/reports-approvals')} />
+            <DashboardCard iconName="reader-outline" title="View Lesson Plans" onPress={() => router.push('/(headteacher)/view-lesson-plans')} />
+            <DashboardCard iconName="calendar-outline" title="Calendar" onPress={() => router.push('/(main)/academic-calendar')} />
+            <DashboardCard iconName="time-outline" title="Exam Schedules" onPress={() => router.push('/(headteacher)/exams')} />
+            <DashboardCard iconName="megaphone-outline" title="Announcements" onPress={() => router.push('/(headteacher)/announcements')} />
+
           </View>
         </ScrollView>
       </View>
