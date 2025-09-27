@@ -5,24 +5,24 @@ export default function HeadteacherLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: {
-          backgroundColor: '#FFD700', // Gold color for Headteacher
+         headerStyle: {
+          backgroundColor: '#1E90FF', 
         },
-        headerTintColor: '#333',
+        headerTintColor: '#fff',
         headerTitleStyle: {
           fontWeight: '500',
           fontSize: 20,
         },
-        headerTitleAlign: 'center',
+        headerTitleAlign: 'left',
       }}
     >
       <Stack.Screen name="dashboard" options={{ headerShown: false }} />
-      <Stack.Screen name="teacher-supervision" options={{ headerShown: false, title: 'Teacher Supervision' }} />
-      <Stack.Screen name="reports-approvals" options={{ headerShown: false, title: 'Approve Reports' }} />
-      <Stack.Screen name="exams" options={{ headerShown: false, title: 'Exams' }} />
-      <Stack.Screen name="announcements" options={{ headerShown: false, title: 'Announcements' }} />
-      <Stack.Screen name="view-lesson-plans" options={{ headerShown: false, title: 'Lesson Plans' }} />
-      
+      <Stack.Screen name="teacher-supervision" options={{ headerShown: true, title: 'Teacher Supervision' }} />
+      <Stack.Screen name="reports-approvals" options={{ headerShown: true, title: 'Approve Reports' }} />
+      <Stack.Screen name="exams" options={{ headerShown: true, title: 'Exams' }} />
+      <Stack.Screen name="announcements" options={{ headerShown: true, title: 'Announcements' }} />
+      <Stack.Screen name="view-lesson-plans" options={{ headerShown: true, title: 'Lesson Plans' }} />
+
     </Stack>
   );
 }

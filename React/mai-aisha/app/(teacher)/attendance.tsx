@@ -5,6 +5,7 @@ import { createAttendance, deleteAttendance, listAttendanceForTeacher, updateAtt
 import { useAuth } from '@/lib/auth';
 import { useRequireRole } from '@/lib/access';
 import { listClasses } from '@/lib/classes';
+import AutoComplete from '@/components/AutoComplete';
 
 export default function TeacherAttendanceScreen() {
   const { allowed, loading: roleLoading } = useRequireRole('teacher');
@@ -83,6 +84,15 @@ export default function TeacherAttendanceScreen() {
   };
 
   const className = useMemo(() => new Map(classes.map(c => [c.id, c.name])), [classes]);
+  const classOptions = useMemo(() => classes.map(c => ({ id: c.id, name: c.name })), [classes]);
+  const studentOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const it of items) { if (it.studentId) set.add(it.studentId); }
+    // Also include current input if typed
+    if (studentId && !set.has(studentId)) set.add(studentId);
+    return Array.from(set).map(s => ({ id: s, name: s }));
+  }, [items, studentId]);
+  const statusOptions = useMemo(() => (['present', 'absent', 'late'] as AttendanceStatus[]).map(s => ({ id: s, name: s })), []);
 
   return (
     !allowed || roleLoading ? null : (
@@ -121,22 +131,32 @@ export default function TeacherAttendanceScreen() {
             <Text style={styles.modalTitle}>{editing ? 'Edit Attendance' : 'New Attendance'}</Text>
             <TextInput value={date} onChangeText={setDate} placeholder="Date (YYYY-MM-DD)" style={styles.input} />
             <Text style={styles.label}>Class</Text>
-            <View style={styles.chipsRow}>
-              {classes.map(c => (
-                <TouchableOpacity key={c.id} onPress={() => setClassId(c.id)} style={[styles.chip, classId === c.id && styles.chipActive]}>
-                  <Text style={[styles.chipText, classId === c.id && styles.chipTextActive]}>{c.name}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            <TextInput value={studentId} onChangeText={setStudentId} placeholder="Student ID" style={styles.input} />
+            <AutoComplete
+              value={className.get(classId) || ''}
+              placeholder="Search class..."
+              data={classOptions}
+              labelExtractor={(i) => i.name}
+              onChangeText={() => { /* display-only input for search; selection sets id */ }}
+              onSelectItem={(it) => setClassId(it.id)}
+            />
+            <Text style={styles.label}>Student</Text>
+            <AutoComplete
+              value={studentId}
+              placeholder="Type or select student ID..."
+              data={studentOptions}
+              labelExtractor={(i) => i.name}
+              onChangeText={setStudentId}
+              onSelectItem={(it) => setStudentId(it.id)}
+            />
             <Text style={styles.label}>Status</Text>
-            <View style={styles.chipsRow}>
-              {(['present','absent','late'] as AttendanceStatus[]).map(s => (
-                <TouchableOpacity key={s} onPress={() => setStatus(s)} style={[styles.chip, status === s && styles.chipActive]}>
-                  <Text style={[styles.chipText, status === s && styles.chipTextActive]}>{s}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            <AutoComplete
+              value={status}
+              placeholder="Select status..."
+              data={statusOptions}
+              labelExtractor={(i) => i.name}
+              onChangeText={(t) => setStatus((t as AttendanceStatus) || 'present')}
+              onSelectItem={(it) => setStatus(it.id as AttendanceStatus)}
+            />
             <View style={styles.modalActions}>
               <TouchableOpacity onPress={() => setModalOpen(false)} style={[styles.btn, styles.btnGhost]}>
                 <Text style={styles.btnGhostText}>Cancel</Text>

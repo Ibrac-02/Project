@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '@/lib/auth';
+import { useAuth, signOutUser } from '@/lib/auth';
 import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
@@ -18,7 +18,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ iconName, title, onPress 
     <Ionicons name={iconName} size={32} color="#1E90FF" />
     <Text style={styles.cardTitle}>{title}</Text>
   </TouchableOpacity>
-);
+); 
 
 const { width } = Dimensions.get('window');
 
@@ -90,6 +90,14 @@ export default function TeacherDashboardScreen() {
     }, [fetchUnreadCount, fetchSummaryCounts])
   );
 
+  const handleLogout = async () => {
+    try {
+      await signOutUser();
+    } finally {
+      router.replace('/(auth)/login');
+    }
+  };
+
   const SummaryBox = ({ label, value }: { label: string; value: number }) => (
     <View style={styles.summaryBox}>
       <Text style={styles.summaryValue}>{value}</Text>
@@ -110,7 +118,7 @@ export default function TeacherDashboardScreen() {
             </View>
           </View>
           <View style={styles.headerRight}>
-            <TouchableOpacity onPress={() => router.push('/(main)/announcements' as any)} style={styles.notificationIconContainer}>
+            <TouchableOpacity onPress={() => router.push('/(main)/announcements' )} style={styles.notificationIconContainer}>
               <Ionicons name="notifications-outline" size={28} color="#fff" />
               {unreadCount > 0 && (
                 <View style={styles.notificationBadge}>
@@ -131,11 +139,19 @@ export default function TeacherDashboardScreen() {
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => router.push('/(settings)/profile')} style={styles.settingsIconContainer}>
+            <TouchableOpacity onPress={() => router.push('/(settings)')} style={styles.settingsIconContainer}>
               <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
             </TouchableOpacity>
           </View>
         </View>
+
+        {showLogout && (
+          <View style={styles.logoutDropdown}>
+            <TouchableOpacity onPress={handleLogout} style={styles.dropdownItem}>
+              <Text style={styles.dropdownItemText}>Sign out</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Greeting */}
         <View style={styles.greetingCard}>
@@ -239,6 +255,18 @@ const styles = StyleSheet.create({
     color: '#333',
     textAlign: 'center',
   },
+  logoutDropdown: {
+    position: 'absolute',
+    top: 45,
+    right: 20,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    elevation: 5,
+    zIndex: 999,
+    width: 100,
+  },
+  dropdownItem: { paddingVertical: 12, paddingHorizontal: 15 },
+  dropdownItemText: { fontSize: 16, color: '#333' },
   welcomeText: {
     color: '#fff',
     fontSize: 18,

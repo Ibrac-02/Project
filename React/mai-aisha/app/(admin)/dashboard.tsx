@@ -4,7 +4,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import React, { useCallback, useState } from 'react';
 import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View, } from 'react-native';
 import { db } from '../../config/firebase';
-import { getAllUsers, getStudents, useAuth } from '@/lib/auth';
+import { getAllUsers, getStudents, useAuth, signOutUser } from '@/lib/auth';
 import { getUnreadNotificationsCount } from '@/lib/notifications';
 
 const { width } = Dimensions.get('window');
@@ -89,8 +89,12 @@ export default function AdminDashboardScreen() {
     );
   };
 
-  const handleLogout = () => {
-    router.replace('/(auth)/login');
+  const handleLogout = async () => {
+    try {
+      await signOutUser();
+    } finally {
+      router.replace('/(auth)/login');
+    }
   };
 
   const DashboardCard = ({
@@ -132,7 +136,7 @@ export default function AdminDashboardScreen() {
           </View>
           <View style={styles.headerRight}>
             <TouchableOpacity
-              onPress={() => router.push('/(main)/announcements' as any)}
+              onPress={() => router.push('/(main)/announcements' )}
               style={styles.notificationIconContainer}
             >
                <Ionicons name="notifications-outline" size={28} color="#fff" /> 
@@ -158,7 +162,7 @@ export default function AdminDashboardScreen() {
             </TouchableOpacity>
 
              <TouchableOpacity
-             onPress={() => router.push('/(settings)/profile')}
+             onPress={() => router.push('/(settings)')}
              style={styles.settingsIconContainer}
             >
               <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
@@ -194,11 +198,11 @@ export default function AdminDashboardScreen() {
           {/* Quick Actions */}
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.cardGroupContainer}>
-            <DashboardCard iconName="people-outline" title="User Management" onPress={() => router.push('/(admin)/manage-user' as any)} />
-            <DashboardCard iconName="school-outline" title="School Setup" onPress={() => router.push('/(admin)/school-data' as any)} />
-            <DashboardCard iconName="bar-chart-outline" title="Reports & Analytics" onPress={() => router.push('/(admin)/grade-report' as any)} />
-            <DashboardCard iconName="checkmark-done-outline" title="Attendance Overview" onPress={() => router.push('/(main)/attendance' as any)} />
-            <DashboardCard iconName="analytics-outline" title="Performance Reports" onPress={() => router.push('/(admin)/grade-report' )} />
+            <DashboardCard iconName="people-outline" title="User Management" onPress={() => router.push('/(admin)/manage-user')} />
+            <DashboardCard iconName="school-outline" title="School Setup" onPress={() => router.push('/(admin)/school-data')} />
+            <DashboardCard iconName="bar-chart-outline" title="Reports & Analytics" onPress={() => router.push('/(admin)/grade-report')} />
+            <DashboardCard iconName="checkmark-done-outline" title="Attendance Overview" onPress={() => router.push('/(main)/attendance')} />
+            <DashboardCard iconName="analytics-outline" title="Performance Reports" onPress={() => router.push('/(admin)/grade-report')} />
             <DashboardCard iconName="notifications-outline" title="Announcements" onPress={() => router.push('/(admin)/announcements')} />
           </View>
         </ScrollView>

@@ -6,6 +6,7 @@ import { useRequireRole } from '@/lib/access';
 import { createGrade, deleteGrade, listGradesForTeacher, updateGrade, type GradeRecord } from '@/lib/grades';
 import { listClasses } from '@/lib/classes';
 import { listSubjects } from '@/lib/subjects';
+import AutoComplete from '@/components/AutoComplete';
 
 export default function TeacherMarksScreen() {
   const { allowed, loading: roleLoading } = useRequireRole('teacher');
@@ -96,6 +97,14 @@ export default function TeacherMarksScreen() {
 
   const className = useMemo(() => new Map(classes.map(c => [c.id, c.name])), [classes]);
   const subjectName = useMemo(() => new Map(subjects.map(s => [s.id, s.name])), [subjects]);
+  const classOptions = useMemo(() => classes.map(c => ({ id: c.id, name: c.name })), [classes]);
+  const subjectOptions = useMemo(() => subjects.map(s => ({ id: s.id, name: s.name })), [subjects]);
+  const studentOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const it of items) { if (it.studentId) set.add(it.studentId); }
+    if (studentId && !set.has(studentId)) set.add(studentId);
+    return Array.from(set).map(s => ({ id: s, name: s }));
+  }, [items, studentId]);
 
   return (
     !allowed || roleLoading ? null : (
@@ -133,22 +142,32 @@ export default function TeacherMarksScreen() {
           <View style={styles.modalCard}>
             <Text style={styles.modalTitle}>{editing ? 'Edit Marks' : 'New Marks'}</Text>
             <Text style={styles.label}>Class</Text>
-            <View style={styles.chipsRow}>
-              {classes.map(c => (
-                <TouchableOpacity key={c.id} onPress={() => setClassId(c.id)} style={[styles.chip, classId === c.id && styles.chipActive]}>
-                  <Text style={[styles.chipText, classId === c.id && styles.chipTextActive]}>{c.name}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            <AutoComplete
+              value={classId ? (className.get(classId) || '') : ''}
+              placeholder="Search class..."
+              data={classOptions}
+              labelExtractor={(i) => i.name}
+              onChangeText={() => { /* search-only */ }}
+              onSelectItem={(it) => setClassId(it.id)}
+            />
             <Text style={styles.label}>Subject</Text>
-            <View style={styles.chipsRow}>
-              {subjects.map(s => (
-                <TouchableOpacity key={s.id} onPress={() => setSubjectId(s.id)} style={[styles.chip, subjectId === s.id && styles.chipActive]}>
-                  <Text style={[styles.chipText, subjectId === s.id && styles.chipTextActive]}>{s.name}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            <TextInput value={studentId} onChangeText={setStudentId} placeholder="Student ID" style={styles.input} />
+            <AutoComplete
+              value={subjectId ? (subjectName.get(subjectId) || '') : ''}
+              placeholder="Search subject..."
+              data={subjectOptions}
+              labelExtractor={(i) => i.name}
+              onChangeText={() => { /* search-only */ }}
+              onSelectItem={(it) => setSubjectId(it.id)}
+            />
+            <Text style={styles.label}>Student</Text>
+            <AutoComplete
+              value={studentId}
+              placeholder="Type or select student ID..."
+              data={studentOptions}
+              labelExtractor={(i) => i.name}
+              onChangeText={setStudentId}
+              onSelectItem={(it) => setStudentId(it.id)}
+            />
             <View style={{ flexDirection: 'row' }}>
               <TextInput value={marksObtained} onChangeText={setMarksObtained} placeholder="Marks" keyboardType="numeric" style={[styles.input, { flex: 1, marginRight: 6 }]} />
               <TextInput value={totalMarks} onChangeText={setTotalMarks} placeholder="Total" keyboardType="numeric" style={[styles.input, { flex: 1, marginLeft: 6 }]} />

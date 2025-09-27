@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/config/firebase';
+import { useRequireRole } from '@/lib/access';
 
 interface GradeDoc {
   marksObtained: number;
@@ -13,6 +14,7 @@ interface AttendanceDoc {
 }
 
 export default function GradeReportScreen() {
+  const { allowed, loading: roleLoading } = useRequireRole('admin');
   const [loading, setLoading] = useState(true);
   const [grades, setGrades] = useState<GradeDoc[]>([]);
   const [attendance, setAttendance] = useState<AttendanceDoc[]>([]);
@@ -35,7 +37,7 @@ export default function GradeReportScreen() {
     }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { if (allowed) { load(); } }, [allowed]);
 
   const gradeAgg = useMemo(() => {
     if (!grades.length) return { count: 0, avgPercent: 0 };
@@ -59,6 +61,7 @@ export default function GradeReportScreen() {
   }, [attendance]);
 
   return (
+    !allowed || roleLoading ? null : (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Reports & Analytics</Text>
       <Text style={styles.subtitle}>Overview of performance and attendance</Text>
@@ -92,7 +95,7 @@ export default function GradeReportScreen() {
         </View>
       )}
     </SafeAreaView>
-  );
+  ));
 }
 
 const styles = StyleSheet.create({

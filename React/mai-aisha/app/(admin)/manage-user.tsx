@@ -2,9 +2,11 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, FlatList, Modal, Pressable, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getAllUsers, updateUserProfile, deleteUserById } from '@/lib/auth';
+import { useRequireRole } from '@/lib/access';
 import type { UserProfile } from '@/lib/types';
 
 export default function ManageUserScreen() {
+  const { allowed, loading: roleLoading } = useRequireRole('admin');
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'teacher' | 'headteacher'>('all');
@@ -23,9 +25,7 @@ export default function ManageUserScreen() {
     setLoading(false);
   }
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { if (allowed) { load(); } }, [allowed]);
 
   const filtered = useMemo(() => {
     let data = users;
@@ -77,6 +77,7 @@ export default function ManageUserScreen() {
   };
 
   return (
+    !allowed || roleLoading ? null : (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>User Management</Text>
       <Text style={styles.subtitle}>Manage Teachers and Headteachers</Text>
@@ -157,7 +158,7 @@ export default function ManageUserScreen() {
         </View>
       </Modal>
     </SafeAreaView>
-  );
+  ));
 }
 
 const styles = StyleSheet.create({

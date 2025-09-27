@@ -48,8 +48,8 @@ export default function SignInScreen() {
       }
 
       if (role === 'admin') {
-        // Go directly to Admin Tabs Home so the bottom nav bar (icons) is visible
-        router.replace('/(admin)/(tabs)/home');
+        // Redirect admin to the existing admin dashboard route
+        router.replace('/(admin)/dashboard');
       } else if (role === 'teacher') {
         router.replace('/(teacher)/dashboard');
       } else if (role === 'headteacher') {

@@ -4,9 +4,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { listClasses, createClass, updateClass, deleteClass } from '@/lib/classes';
 import { listSubjects, createSubject, updateSubject, deleteSubject } from '@/lib/subjects';
 import { getAllUsers } from '@/lib/auth';
+import { useRequireRole } from '@/lib/access';
 import type { SchoolClass, Subject, UserProfile } from '@/lib/types';
 
 export default function SchoolDataScreen() {
+  const { allowed, loading: roleLoading } = useRequireRole('admin');
   const [classes, setClasses] = useState<SchoolClass[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [teachers, setTeachers] = useState<UserProfile[]>([]);
@@ -39,7 +41,7 @@ export default function SchoolDataScreen() {
     setLoading(false);
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { if (allowed) { load(); } }, [allowed]);
 
   // Create/Edit Class
   const openNewClass = () => {
@@ -58,12 +60,16 @@ export default function SchoolDataScreen() {
   };
   const saveClass = async () => {
     try {
-      const payload = { name: className.trim(), description: classDesc.trim() || undefined, teacherId: classTeacherId } as Omit<SchoolClass, 'id'>;
-      if (!payload.name) { Alert.alert('Validation', 'Class name is required'); return; }
+      const name = className.trim();
+      if (!name) { Alert.alert('Validation', 'Class name is required'); return; }
+      const desc = classDesc.trim();
+      const payload: Partial<SchoolClass> & { name: string } = { name };
+      if (desc) payload.description = desc;
+      if (classTeacherId) payload.teacherId = classTeacherId;
       if (editingClass) {
-        await updateClass(editingClass.id, payload);
+        await updateClass(editingClass.id, payload as Omit<SchoolClass, 'id'>);
       } else {
-        await createClass(payload);
+        await createClass(payload as Omit<SchoolClass, 'id'>);
       }
       setClassModalOpen(false);
       await load();
@@ -95,12 +101,17 @@ export default function SchoolDataScreen() {
   };
   const saveSubject = async () => {
     try {
-      const payload = { name: subjectName.trim(), description: subjectDesc.trim() || undefined, teachersAssigned: subjectTeachersAssigned.length ? subjectTeachersAssigned : null } as Omit<Subject, 'id'>;
-      if (!payload.name) { Alert.alert('Validation', 'Subject name is required'); return; }
+      const name = subjectName.trim();
+      if (!name) { Alert.alert('Validation', 'Subject name is required'); return; }
+      const desc = subjectDesc.trim();
+      const payload: Partial<Subject> & { name: string } = { name };
+      if (desc) payload.description = desc;
+      // Use null only when explicitly desired; omit field if empty
+      if (subjectTeachersAssigned.length) payload.teachersAssigned = subjectTeachersAssigned;
       if (editingSubject) {
-        await updateSubject(editingSubject.id, payload);
+        await updateSubject(editingSubject.id, payload as Omit<Subject, 'id'>);
       } else {
-        await createSubject(payload);
+        await createSubject(payload as Omit<Subject, 'id'>);
       }
       setSubjectModalOpen(false);
       await load();
@@ -121,6 +132,7 @@ export default function SchoolDataScreen() {
   };
 
   return (
+    !allowed || roleLoading ? null : (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         <Text style={styles.title}>School Data</Text>
@@ -250,7 +262,7 @@ export default function SchoolDataScreen() {
         </View>
       </Modal>
     </SafeAreaView>
-  );
+  ));
 }
 
 const styles = StyleSheet.create({

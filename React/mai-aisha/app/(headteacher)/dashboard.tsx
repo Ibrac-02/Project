@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import React, { FC, useCallback, useState } from 'react';
 import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { useAuth, getAllUsers } from '@/lib/auth';
+import { useAuth, getAllUsers, signOutUser } from '@/lib/auth';
 import { getUnreadNotificationsCount } from '@/lib/notifications';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/config/firebase';
@@ -45,6 +45,14 @@ export default function HeadteacherDashboardScreen() {
     const parts = name.split(' ');
     if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
     return parts[0].charAt(0).toUpperCase() + parts[parts.length - 1].charAt(0).toUpperCase();
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOutUser();
+    } finally {
+      router.replace('/(auth)/login');
+    }
   };
 
   const SummaryBox = ({ label, value }: { label: string; value: number }) => (
@@ -133,6 +141,14 @@ export default function HeadteacherDashboardScreen() {
           <Text style={styles.welcomeMessage}>{greeting()}, {userName || 'Headteacher'}</Text>
         </View>
 
+        {showLogout && (
+          <View style={styles.logoutDropdown}>
+            <TouchableOpacity onPress={handleLogout} style={styles.dropdownItem}>
+              <Text style={styles.dropdownItemText}>Sign out</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         <ScrollView contentContainerStyle={styles.contentContainer}>
           {/* Summary Boxes */}
           <View style={styles.summaryRow}>
@@ -201,6 +217,9 @@ const styles = StyleSheet.create({
     borderColor: 'whitesmoke',
   },
   profileText: { color: '#1E90FF', fontSize: 14, fontWeight: 'bold' },
+  logoutDropdown: { position: 'absolute', top: 45, right: 20, backgroundColor: '#fff', borderRadius: 8, elevation: 5, zIndex: 999, width: 100 },
+  dropdownItem: { paddingVertical: 12, paddingHorizontal: 15 },
+  dropdownItemText: { fontSize: 16, color: '#333' },
   notificationIconContainer: { position: 'relative', marginRight: 15 },
   notificationBadge: {
     position: 'absolute',
