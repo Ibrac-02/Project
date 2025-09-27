@@ -3,7 +3,7 @@ import { useAuth, signOutUser } from '@/lib/auth';
 import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { getUnreadNotificationsCount } from '@/lib/notifications';
+// notifications bell removed from header
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 
@@ -31,21 +31,10 @@ const greeting = () => {
 export default function TeacherDashboardScreen() {
   const { userName, user } = useAuth();
   const [showLogout, setShowLogout] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [classesCount, setClassesCount] = useState(0);
   const [studentsCount, setStudentsCount] = useState(0);
   const [pendingTasks, setPendingTasks] = useState(0);
   const uid = user?.uid;
-
-  const fetchUnreadCount = useCallback(async () => {
-    if (!user?.uid) return;
-    try {
-      const count = await getUnreadNotificationsCount(user.uid);
-      setUnreadCount(count);
-    } catch {
-      setUnreadCount(0);
-    }
-  }, [user]);
 
   const getInitials = (name: string | null | undefined) => {
     if (!name) return 'U';
@@ -85,9 +74,8 @@ export default function TeacherDashboardScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      fetchUnreadCount();
       fetchSummaryCounts();
-    }, [fetchUnreadCount, fetchSummaryCounts])
+    }, [fetchSummaryCounts])
   );
 
   const handleLogout = async () => {
@@ -118,15 +106,6 @@ export default function TeacherDashboardScreen() {
             </View>
           </View>
           <View style={styles.headerRight}>
-            <TouchableOpacity onPress={() => router.push('/(main)/announcements' )} style={styles.notificationIconContainer}>
-              <Ionicons name="notifications-outline" size={28} color="#fff" />
-              {unreadCount > 0 && (
-                <View style={styles.notificationBadge}>
-                  <Text style={styles.notificationBadgeText}>{unreadCount}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-
             <TouchableOpacity
               onPress={(event) => {
                 event.stopPropagation();
@@ -139,8 +118,8 @@ export default function TeacherDashboardScreen() {
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => router.push('/(settings)')} style={styles.settingsIconContainer}>
-              <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
+            <TouchableOpacity onPress={() => router.push('/(settings)')} style={styles.settingsIconContainer} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <Ionicons name="menu-outline" size={40} color="#fff" />
             </TouchableOpacity>
           </View>
         </View>
@@ -238,7 +217,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   notificationBadgeText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
-  settingsIconContainer: { marginRight: 5 },
+  settingsIconContainer: { marginRight: 5, marginLeft: 12, padding: 6 },
   greetingCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
@@ -257,13 +236,13 @@ const styles = StyleSheet.create({
   },
   logoutDropdown: {
     position: 'absolute',
-    top: 45,
+    top: 115, // show below header under profile icon
     right: 20,
     backgroundColor: '#fff',
     borderRadius: 8,
     elevation: 5,
     zIndex: 999,
-    width: 100,
+    width: 120,
   },
   dropdownItem: { paddingVertical: 12, paddingHorizontal: 15 },
   dropdownItemText: { fontSize: 16, color: '#333' },

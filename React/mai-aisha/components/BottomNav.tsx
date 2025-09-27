@@ -1,19 +1,34 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router, usePathname } from 'expo-router';
+import { router, usePathname, useSegments } from 'expo-router';
 import { useAuth } from '@/lib/auth';
 import { getUnreadNotificationsCount } from '@/lib/notifications';
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const segments = useSegments();
   const { user, role } = useAuth();
   const [unread, setUnread] = useState(0);
 
   const hidden = useMemo(() => {
-    // Hide on auth and on the root index splash if any
-    return pathname?.startsWith('/(auth)');
-  }, [pathname]);
+    // Hide on any auth route. Some environments may provide different path shapes, so cover common patterns.
+    const p = pathname || '';
+    return (
+      // Root index (splash): when there is no first segment
+      (!segments?.[0]) ||
+      p.startsWith('/(auth)') ||
+      p.includes('/(auth)/') ||
+      p === '/(auth)' ||
+      // Hide on splash/index routes
+      p === '/' ||
+      p === '/index' ||
+      p.endsWith('/index') ||
+      p === '/login' ||
+      p === '/register' ||
+      p.includes('/forgot-password')
+    );
+  }, [pathname, segments]);
 
   useEffect(() => {
     let mounted = true;
@@ -32,7 +47,8 @@ export default function BottomNav() {
     return () => { mounted = false; };
   }, [user?.uid, pathname]);
 
-  if (hidden) return null;
+  // Also hide when no authenticated user is present
+  if (hidden || !user) return null;
 
   const goHome = () => {
     if (role === 'admin') router.replace('/(admin)/dashboard');
@@ -49,24 +65,26 @@ export default function BottomNav() {
       <View style={styles.bar}>
         <TouchableOpacity style={styles.item} onPress={goHome}>
           <View>
-            <Ionicons name="home" size={26} color="#111" />
+            <Ionicons name="home" size={26} color="#fff" />
+          </View>
+          <Text style={styles.label}>Home</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.item} onPress={goNotifications}>
+          <View>
+            <Ionicons name="notifications-outline" size={26} color="#fff" />
             {unread > 0 && (
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>{unread > 9 ? '9+' : unread}</Text>
               </View>
             )}
           </View>
-          <Text style={styles.label}>Home</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.item} onPress={goNotifications}>
-          <Ionicons name="notifications-outline" size={26} color="#666" />
           <Text style={styles.label}>Notifications</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.item} onPress={goProfile}>
           <View>
-            <Ionicons name="person-circle-outline" size={28} color="#666" />
+            <Ionicons name="person-circle-outline" size={28} color="#fff" />
             <View style={styles.presenceDot} />
           </View>
           <Text style={styles.label}>You</Text>
@@ -76,7 +94,7 @@ export default function BottomNav() {
   );
 }
 
-const HEIGHT = 62;
+const HEIGHT = 70;
 
 const styles = StyleSheet.create({
   container: {
@@ -88,20 +106,20 @@ const styles = StyleSheet.create({
   },
   bar: {
     height: HEIGHT,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#1E90FF',
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#e5e7eb',
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingBottom: Platform.OS === 'ios' ? 10 : 6,
+    paddingBottom: Platform.OS === 'ios' ? 14 : 10,
   },
   item: {
     alignItems: 'center',
     justifyContent: 'center',
     minWidth: 90,
   },
-  label: { color: '#555', marginTop: 2, fontSize: 12, fontWeight: '600' },
+  label: { color: '#fff', marginTop: 2, fontSize: 12, fontWeight: '700' },
   badge: {
     position: 'absolute',
     top: -6,
@@ -123,6 +141,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#86efac',
     borderWidth: 1,
-    borderColor: '#fff',
+    borderColor: '#1E90FF',
   },
 });

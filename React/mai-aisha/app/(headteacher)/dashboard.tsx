@@ -3,7 +3,6 @@ import { router, useFocusEffect } from 'expo-router';
 import React, { FC, useCallback, useState } from 'react';
 import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { useAuth, getAllUsers, signOutUser } from '@/lib/auth';
-import { getUnreadNotificationsCount } from '@/lib/notifications';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 
@@ -23,22 +22,13 @@ const DashboardCard: FC<DashboardCardProps> = ({ iconName, title, onPress }) => 
 const { width } = Dimensions.get('window');
 
 export default function HeadteacherDashboardScreen() {
-  const { userName, user } = useAuth();
+  const { userName } = useAuth();
   const [showLogout, setShowLogout] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
+  // removed unread notifications bell and count from header
   const [teachersCount, setTeachersCount] = useState(0);
   const [reportsPending, setReportsPending] = useState(0);
   const [pendingTasks, setPendingTasks] = useState(0);
 
-  const fetchUnreadCount = useCallback(async () => {
-    if (!user?.uid) return;
-    try {
-      const count = await getUnreadNotificationsCount(user.uid);
-      setUnreadCount(count);
-    } catch {
-      setUnreadCount(0);
-    }
-  }, [user]);
 
   const getInitials = (name: string | null | undefined) => {
     if (!name) return 'U';
@@ -84,9 +74,8 @@ export default function HeadteacherDashboardScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      fetchUnreadCount();
       fetchSummaryCounts();
-    }, [fetchUnreadCount, fetchSummaryCounts])
+    }, [fetchSummaryCounts])
   );
 
   const greeting = () => {
@@ -109,15 +98,6 @@ export default function HeadteacherDashboardScreen() {
             </View>
           </View>
           <View style={styles.headerRight}>
-            <TouchableOpacity onPress={() => router.push('/(main)/announcements' as any)} style={styles.notificationIconContainer}>
-              <Ionicons name="notifications-outline" size={28} color="#fff" />
-              {unreadCount > 0 && (
-                <View style={styles.notificationBadge}>
-                  <Text style={styles.notificationBadgeText}>{unreadCount}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-
             <TouchableOpacity
               onPress={(event) => {
                 event.stopPropagation();
@@ -130,8 +110,8 @@ export default function HeadteacherDashboardScreen() {
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => router.push('/(settings)' )} style={styles.settingsIconContainer}>
-              <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
+            <TouchableOpacity onPress={() => router.push('/(settings)' )} style={styles.settingsIconContainer} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <Ionicons name="menu-outline" size={40} color="#fff" />
             </TouchableOpacity>
           </View>
         </View>
@@ -220,21 +200,8 @@ const styles = StyleSheet.create({
   logoutDropdown: { position: 'absolute', top: 45, right: 20, backgroundColor: '#fff', borderRadius: 8, elevation: 5, zIndex: 999, width: 100 },
   dropdownItem: { paddingVertical: 12, paddingHorizontal: 15 },
   dropdownItemText: { fontSize: 16, color: '#333' },
-  notificationIconContainer: { position: 'relative', marginRight: 15 },
-  notificationBadge: {
-    position: 'absolute',
-    right: -5,
-    top: -5,
-    backgroundColor: 'red',
-    borderRadius: 7,
-    width: 14,
-    height: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1,
-  },
-  notificationBadgeText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
-  settingsIconContainer: { marginRight: 5 },
+  // notification styles removed with bell icon
+  settingsIconContainer: { marginRight: 5, padding: 6 },
   greetingCard: {
     backgroundColor: '#fff',
     borderRadius: 12,

@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 
 export default function AdminLayout() {
   return (
@@ -17,7 +18,8 @@ export default function AdminLayout() {
       <Stack.Screen name="manage-user" options={{ headerShown: true, title: 'Manage Users' }} />
       <Stack.Screen name="school-data" options={{ headerShown: true, title: 'School Data' }} />
       <Stack.Screen name="grade-report" options={{ headerShown: true, title: 'Grade Report' }} />
-    </Stack>
+      <StatusBar style='auto' />
+     </Stack>
   );
 }
 

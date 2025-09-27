@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, StyleSheet,Image, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/config/firebase';
@@ -50,6 +50,8 @@ export default function ForgotPasswordScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={styles.container}>
+      <Image source={require('../../assets/images/maa.png')} style={styles.headerLogo} />
+      <Text style={styles.schoolName}>MAI AISHA ACADEMY</Text>
         <Text style={styles.title}>Reset your password</Text>
         <TextInput
           style={styles.input}
@@ -84,9 +86,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '500',
     marginBottom: 20,
-    color: '#1E90FF',
+    color: '#4e4343ff',
   },
   input: {
     width: '100%',
@@ -108,7 +110,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  primaryText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+  primaryText: { color: '#fff', fontSize: 18, fontWeight: '500' },
   link: { color: '#1E90FF' },
+  headerLogo: {
+    width: 80,
+    height: 80,
+    resizeMode: 'contain',
+    marginBottom: 10,
+    borderRadius: 40,
+    borderWidth: 1,
+    borderColor: 'whitesmoke',
+  },
+  schoolName: {  fontSize: 20, fontWeight: 'bold', marginBottom: 30 },
 });
 

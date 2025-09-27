@@ -5,29 +5,21 @@ import React, { useCallback, useState } from 'react';
 import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View, } from 'react-native';
 import { db } from '../../config/firebase';
 import { getAllUsers, getStudents, useAuth, signOutUser } from '@/lib/auth';
-import { getUnreadNotificationsCount } from '@/lib/notifications';
+// removed unread notifications badge from header
 
 const { width } = Dimensions.get('window');
 
 export default function AdminDashboardScreen() {
   const [showLogout, setShowLogout] = useState(false);
   const { userName, loading, userProfile, user } = useAuth();
-  const [unreadCount, setUnreadCount] = useState(0);
+  // const [unreadCount, setUnreadCount] = useState(0);
 
   // Summary values
   const [teachersCount, setTeachersCount] = useState(0);
   const [studentsCount, setStudentsCount] = useState(0);
   const [reportsCount, setReportsCount] = useState(0);
 
-  const fetchUnreadCount = useCallback(async () => {
-    if (!user?.uid) return;
-    try {
-      const count = await getUnreadNotificationsCount(user.uid);
-      setUnreadCount(count);
-    } catch (error) {
-      console.error('Error fetching unread notifications count:', error);
-    }
-  }, [user]);
+  // Unread count removed with bell icon
 
   /** 🔹 Fetch dynamic dashboard data */
   const fetchDashboardData = useCallback(async () => {
@@ -65,9 +57,8 @@ export default function AdminDashboardScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      fetchUnreadCount();
       fetchDashboardData();
-    }, [fetchUnreadCount, fetchDashboardData])
+    }, [fetchDashboardData])
   );
 
   const getGreetingTime = () => {
@@ -136,18 +127,6 @@ export default function AdminDashboardScreen() {
           </View>
           <View style={styles.headerRight}>
             <TouchableOpacity
-              onPress={() => router.push('/(main)/announcements' )}
-              style={styles.notificationIconContainer}
-            >
-               <Ionicons name="notifications-outline" size={28} color="#fff" /> 
-               {unreadCount > 0 && (
-                <View style={styles.notificationBadge}>
-                  <Text style={styles.notificationBadgeText}>{unreadCount}</Text>
-                </View>
-              )} 
-            </TouchableOpacity>
-           
-            <TouchableOpacity
               onPress={(event) => {
                 event.stopPropagation();
                 setShowLogout(!showLogout);
@@ -164,8 +143,9 @@ export default function AdminDashboardScreen() {
              <TouchableOpacity
              onPress={() => router.push('/(settings)')}
              style={styles.settingsIconContainer}
+             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
+              <Ionicons name="menu-outline" size={40} color="#fff" />
             </TouchableOpacity>
           </View>
         </View>
@@ -198,6 +178,10 @@ export default function AdminDashboardScreen() {
           {/* Quick Actions */}
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.cardGroupContainer}>
+            <DashboardCard iconName="people-circle-outline" title="Student Management" onPress={() => router.push({ pathname: '/(admin)/students' as any })} />
+            <DashboardCard iconName="briefcase-outline" title="Teachers" onPress={() => router.push({ pathname: '/(admin)/teachers' as any })} />
+            <DashboardCard iconName="ribbon-outline" title="Headteachers" onPress={() => router.push({ pathname: '/(admin)/headteachers' as any })} />
+            <DashboardCard iconName="construct-outline" title="Admins" onPress={() => router.push({ pathname: '/(admin)/admins' as any })} />
             <DashboardCard iconName="people-outline" title="User Management" onPress={() => router.push('/(admin)/manage-user')} />
             <DashboardCard iconName="school-outline" title="School Setup" onPress={() => router.push('/(admin)/school-data')} />
             <DashboardCard iconName="bar-chart-outline" title="Reports & Analytics" onPress={() => router.push('/(admin)/grade-report')} />
@@ -218,7 +202,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f2f5',
     paddingBottom: 20,
     flexGrow: 1,
-  },
+  }, 
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -255,13 +239,13 @@ const styles = StyleSheet.create({
   profileText: { color: '#1E90FF', fontSize: 14, fontWeight: 'bold' },
   logoutDropdown: {
     position: 'absolute',
-    top: 45,
+    top: 115, // show below header under profile icon
     right: 20,
     backgroundColor: '#fff',
     borderRadius: 8,
     elevation: 5,
     zIndex: 999,
-    width: 100,
+    width: 120,
   },
   dropdownItem: { paddingVertical: 12, paddingHorizontal: 15 },
   dropdownItemText: { fontSize: 16, color: '#333' },
@@ -355,5 +339,5 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   notificationBadgeText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
-  settingsIconContainer: { marginRight: 5 },
+  settingsIconContainer: { marginRight: 5, marginLeft: 12 },
 });
