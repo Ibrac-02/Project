@@ -5,7 +5,39 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="03c05482-c2da-4bd9-8d37-9b7c766c1d9e" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/components/AnnouncementCard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/components/AttendanceRecordCard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/components/ExternalLink.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/components/HapticTab.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/components/HelloWave.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/components/ParallaxScrollView.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/components/ThemedText.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha-academy/components/ThemedView.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/app/(admin)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha/app/(admin)/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/app/(admin)/dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha/app/(admin)/dashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/app/(headteacher)/dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha/app/(headteacher)/dashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/app/(headteacher)/lesson-plan.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/app/(main)/academic-calendar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha/app/(main)/academic-calendar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/app/(main)/attendance.tsx" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../mai-aisha/app/(main)/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/app/(settings)/appearance.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha/app/(settings)/appearance.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/app/(teacher)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha/app/(teacher)/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/app/(teacher)/dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha/app/(teacher)/dashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/app/(teacher)/lesson-plan.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/components/AnnouncementCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha/components/AnnouncementCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/components/AttendanceRecordCard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/components/dashboard/UI.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha/components/dashboard/UI.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/lib/assignments.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/lib/grades.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/lib/lessonPlans.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/lib/notifications.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha/lib/notifications.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/lib/schoolData.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/lib/searchUtils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha/lib/searchUtils.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/lib/students.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/lib/subjects.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mai-aisha/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../mai-aisha/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,6 +105,7 @@
       <workItem from="1758312826413" duration="1587000" />
       <workItem from="1758774226544" duration="2017000" />
       <workItem from="1758898877829" duration="65000" />
+      <workItem from="1758915391142" duration="518000" />
     </task>
     <servers />
   </component>

@@ -2,11 +2,13 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, FlatList, Modal, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/lib/auth';
+import { useRequireRole } from '@/lib/access';
 import { createGrade, deleteGrade, listGradesForTeacher, updateGrade, type GradeRecord } from '@/lib/grades';
 import { listClasses } from '@/lib/classes';
 import { listSubjects } from '@/lib/subjects';
 
 export default function TeacherMarksScreen() {
+  const { allowed, loading: roleLoading } = useRequireRole('teacher');
   const { user } = useAuth();
   const teacherId = user?.uid || '';
 
@@ -38,7 +40,7 @@ export default function TeacherMarksScreen() {
     setLoading(false);
   }, [teacherId]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { if (allowed) { load(); } }, [allowed, load]);
 
   const openNew = () => {
     setEditing(null);
@@ -96,6 +98,7 @@ export default function TeacherMarksScreen() {
   const subjectName = useMemo(() => new Map(subjects.map(s => [s.id, s.name])), [subjects]);
 
   return (
+    !allowed || roleLoading ? null : (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Student Marks</Text>
       <Text style={styles.subtitle}>Add and edit exam results</Text>
@@ -162,7 +165,7 @@ export default function TeacherMarksScreen() {
         </View>
       </Modal>
     </SafeAreaView>
-  );
+  ));
 }
 
 const styles = StyleSheet.create({

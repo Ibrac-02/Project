@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/config/firebase';
+import { useRequireRole } from '@/lib/access';
 import { getAllUsers } from '@/lib/auth';
 
 interface LessonPlanDoc {
@@ -15,6 +16,7 @@ interface LessonPlanDoc {
 }
 
 export default function HeadteacherViewLessonPlansScreen() {
+  const { allowed, loading: roleLoading } = useRequireRole('headteacher');
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<LessonPlanDoc[]>([]);
   const [teachers, setTeachers] = useState<{ uid: string; name: string | null; email: string | null }[]>([]);
@@ -30,11 +32,12 @@ export default function HeadteacherViewLessonPlansScreen() {
     setLoading(false);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { if (allowed) { load(); } }, [allowed, load]);
 
   const teacherName = useMemo(() => new Map(teachers.map(t => [t.uid, t.name || t.email || t.uid])), [teachers]);
 
   return (
+    !allowed || roleLoading ? null : (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Lesson Plans</Text>
       <Text style={styles.subtitle}>All submitted lesson plans</Text>
@@ -63,7 +66,7 @@ export default function HeadteacherViewLessonPlansScreen() {
         />
       )}
     </SafeAreaView>
-  );
+  ));
 }
 
 const styles = StyleSheet.create({

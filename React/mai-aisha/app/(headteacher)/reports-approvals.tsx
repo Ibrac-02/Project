@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Alert, FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { collection, getDocs, query, updateDoc, where, doc } from 'firebase/firestore';
 import { db } from '@/config/firebase';
+import { useRequireRole } from '@/lib/access';
 
 interface GradeDoc {
   id: string;
@@ -14,6 +15,7 @@ interface GradeDoc {
 }
 
 export default function ReportsApprovalsScreen() {
+  const { allowed, loading: roleLoading } = useRequireRole('headteacher');
   const [items, setItems] = useState<GradeDoc[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,7 +26,7 @@ export default function ReportsApprovalsScreen() {
     setLoading(false);
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { if (allowed) { load(); } }, [allowed]);
 
   const setStatus = async (id: string, status: 'approved' | 'rejected') => {
     try {
@@ -36,6 +38,7 @@ export default function ReportsApprovalsScreen() {
   };
 
   return (
+    !allowed || roleLoading ? null : (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Approve Reports</Text>
       <Text style={styles.subtitle}>Review class performance submissions</Text>
@@ -66,7 +69,7 @@ export default function ReportsApprovalsScreen() {
         ListEmptyComponent={!loading ? (<Text style={{ color: '#666' }}>No pending reports.</Text>) : null}
       />
     </SafeAreaView>
-  );
+  ));
 }
 
 const styles = StyleSheet.create({

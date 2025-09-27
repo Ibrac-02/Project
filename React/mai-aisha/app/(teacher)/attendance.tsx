@@ -1,11 +1,13 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, FlatList, Modal, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { createAttendance, deleteAttendance, listAttendanceForTeacher, updateAttendance, type AttendanceRecord, type AttendanceStatus } from '@/lib/attendance';
 import { useAuth } from '@/lib/auth';
+import { useRequireRole } from '@/lib/access';
 import { listClasses } from '@/lib/classes';
 
 export default function TeacherAttendanceScreen() {
+  const { allowed, loading: roleLoading } = useRequireRole('teacher');
   const { user } = useAuth();
   const teacherId = user?.uid || '';
 
@@ -21,7 +23,7 @@ export default function TeacherAttendanceScreen() {
   const [studentId, setStudentId] = useState('');
   const [status, setStatus] = useState<AttendanceStatus>('present');
 
-  async function load() {
+  const load = useCallback(async () => {
     if (!teacherId) return;
     setLoading(true);
     const [att, cls] = await Promise.all([
@@ -31,9 +33,9 @@ export default function TeacherAttendanceScreen() {
     setItems(att);
     setClasses(cls.map(c => ({ id: c.id, name: c.name })));
     setLoading(false);
-  }
+  }, [teacherId]);
 
-  useEffect(() => { load(); }, [teacherId]);
+  useEffect(() => { if (allowed) { load(); } }, [allowed, load]);
 
   const openNew = () => {
     setEditing(null);
@@ -83,6 +85,7 @@ export default function TeacherAttendanceScreen() {
   const className = useMemo(() => new Map(classes.map(c => [c.id, c.name])), [classes]);
 
   return (
+    !allowed || roleLoading ? null : (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Student Attendance</Text>
       <Text style={styles.subtitle}>Mark, edit and view attendance</Text>
@@ -146,7 +149,7 @@ export default function TeacherAttendanceScreen() {
         </View>
       </Modal>
     </SafeAreaView>
-  );
+  ));
 }
 
 const styles = StyleSheet.create({
