@@ -6,13 +6,12 @@ import BottomNavSpacer from "../components/BottomNavSpacer";
 import NetworkStatus from "@/components/NetworkStatus";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { useEffect } from "react";
-// import { pushNotificationService } from "@/lib/pushNotifications";
+import { pushNotificationService } from "@/lib/pushNotifications.stub";
 
 function AppContent() {
   useEffect(() => {
     // Initialize push notifications when app starts
-    // Temporarily disabled until packages are installed
-    // pushNotificationService.initialize().catch(console.error);
+    pushNotificationService.initialize().catch(console.error);
   }, []);
 
   return (

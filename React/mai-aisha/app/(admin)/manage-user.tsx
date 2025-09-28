@@ -9,19 +9,21 @@ export default function ManageUserScreen() {
   const { allowed, loading: roleLoading } = useRequireRole('admin');
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'teacher' | 'headteacher'>('all');
+  const [filter, setFilter] = useState<'all' | 'teachers' | 'admin'>('all');
   const [query, setQuery] = useState('');
 
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [editName, setEditName] = useState('');
   const [editTitle, setEditTitle] = useState('');
-  const [editRole, setEditRole] = useState<'teacher' | 'headteacher' | 'admin' | 'student' | ''>('');
+  const [editRole, setEditRole] = useState<'teacher' | 'headteacher' | 'admin' | ''>('');
 
   async function load() {
     setLoading(true);
     const res = await getAllUsers();
-    setUsers(res);
+    // Filter out students - they are managed separately in the students collection
+    const staffUsers = res.filter(user => user.role !== 'student');
+    setUsers(staffUsers);
     setLoading(false);
   }
 
@@ -29,7 +31,16 @@ export default function ManageUserScreen() {
 
   const filtered = useMemo(() => {
     let data = users;
-    if (filter !== 'all') data = data.filter(u => u.role === filter);
+    
+    // Apply role filter
+    if (filter === 'teachers') {
+      // Group teachers and headteachers together as "teaching staff"
+      data = data.filter(u => u.role === 'teacher' || u.role === 'headteacher');
+    } else if (filter === 'admin') {
+      data = data.filter(u => u.role === 'admin');
+    }
+    // 'all' shows all staff (admin, teacher, headteacher) but no students
+    
     if (query.trim()) {
       const q = query.toLowerCase();
       data = data.filter(u => (u.name || u.email || '').toLowerCase().includes(q));
@@ -79,8 +90,8 @@ export default function ManageUserScreen() {
   return (
     !allowed || roleLoading ? null : (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>User Management</Text>
-      <Text style={styles.subtitle}>Manage Teachers and Headteachers</Text>
+      <Text style={styles.title}>Staff Management</Text>
+      <Text style={styles.subtitle}>Manage Administrative and Teaching Staff</Text>
 
       <View style={styles.searchRow}>
         <View style={styles.searchBox}>
@@ -93,10 +104,14 @@ export default function ManageUserScreen() {
           />
         </View>
         <View style={styles.filters}>
-          {(['all', 'teacher', 'headteacher'] as const).map(key => (
+          {([
+            { key: 'all', label: 'All Staff' },
+            { key: 'teachers', label: 'Teachers' },
+            { key: 'admin', label: 'Administrators' }
+          ] as const).map(({ key, label }) => (
             <Pressable key={key} onPress={() => setFilter(key)} style={[styles.filterChip, filter === key && styles.filterChipActive]}>
               <Text style={[styles.filterText, filter === key && styles.filterTextActive]}>
-                {key}
+                {label}
               </Text>
             </Pressable>
           ))}
@@ -126,8 +141,8 @@ export default function ManageUserScreen() {
         )}
         ListEmptyComponent={!loading ? (
           <View style={styles.emptyBox}>
-            <Text>No users found.</Text>
-            <Text style={styles.helper}>Note: Creating new login accounts requires a backend admin API. You can edit roles/titles here.</Text>
+            <Text>No staff members found.</Text>
+            <Text style={styles.helper}>Note: This manages administrative and teaching staff only. Students are managed separately in Student Management.</Text>
           </View>
         ) : null}
       />

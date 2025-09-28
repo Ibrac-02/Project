@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet, Switch, Text, View, Alert, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { pushNotificationService, sendSchoolNotification, NotificationTypes } from '@/lib/pushNotifications';
+// Using stub until expo-notifications is installed
+import { pushNotificationService, sendSchoolNotification, NotificationTypes } from '@/lib/pushNotifications.stub';
 import { useTheme } from '@/contexts/ThemeContext';
 
 export default function NotificationsSettingsScreen() {
@@ -74,7 +75,7 @@ export default function NotificationsSettingsScreen() {
         'Test Notification',
         'This is a test notification from Mai Aisha Academy!'
       );
-      Alert.alert('Success', 'Test notification sent!');
+      Alert.alert('Success', 'Test notification sent! (Using stub - install expo-notifications for real functionality)');
     } catch {
       Alert.alert('Error', 'Failed to send test notification.');
     }

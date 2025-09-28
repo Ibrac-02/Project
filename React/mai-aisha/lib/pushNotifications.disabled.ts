@@ -1,6 +1,7 @@
-import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
-import Constants from 'expo-constants';
+// Temporarily disabled until expo-notifications package is installed
+// import * as Notifications from 'expo-notifications';
+// import * as Device from 'expo-device';
+// import Constants from 'expo-constants';
 // Platform import removed as it's not currently used
 import AsyncStorage from '@react-native-async-storage/async-storage';
 

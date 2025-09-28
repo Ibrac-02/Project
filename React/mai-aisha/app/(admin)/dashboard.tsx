@@ -181,9 +181,7 @@ export default function AdminDashboardScreen() {
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Actions</Text>
           <View style={styles.cardGroupContainer}>
             <DashboardCard iconName="people-circle-outline" title="Student Management" onPress={() => router.push({ pathname: '/(admin)/students' })} />
-            <DashboardCard iconName="briefcase-outline" title="Teachers" onPress={() => router.push({ pathname: '/(admin)/teachers' })} />
-            <DashboardCard iconName="ribbon-outline" title="Headteachers" onPress={() => router.push({ pathname: '/(admin)/headteachers' })} />
-            <DashboardCard iconName="people-outline" title="User Management" onPress={() => router.push('/(admin)/manage-user')} />
+            <DashboardCard iconName="people-outline" title="Staff Management" onPress={() => router.push('/(admin)/manage-user')} />
             <DashboardCard iconName="school-outline" title="School Setup" onPress={() => router.push('/(admin)/school-data')} />
             <DashboardCard iconName="bar-chart-outline" title="Reports & Analytics" onPress={() => router.push('/(admin)/grade-report')} />
             <DashboardCard iconName="checkmark-done-outline" title="Attendance Overview" onPress={() => router.push('/(main)/attendance')} />

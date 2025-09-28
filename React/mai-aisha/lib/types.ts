@@ -20,6 +20,10 @@ export interface UserProfile {
   attendanceSubmitted?: string | null; // New field
   gradesSubmitted?: string | null; // New field
   twoFactorEnabled?: boolean; // ✅ new field for 2FA
+  // Student-specific fields
+  parentName?: string | null; // Parent/Guardian name
+  parentContactNumber?: string | null; // Parent/Guardian contact
+  parentEmail?: string | null; // Parent/Guardian email
 }
 
 export interface Department {

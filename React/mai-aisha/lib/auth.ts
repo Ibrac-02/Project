@@ -1,5 +1,5 @@
 import { createUserWithEmailAndPassword, EmailAuthProvider, onAuthStateChanged, reauthenticateWithCredential, sendPasswordResetEmail, signInWithEmailAndPassword, signOut, updatePassword, User, } from 'firebase/auth';
-import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where, } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, getDocs, setDoc, updateDoc } from 'firebase/firestore';
 import { useEffect, useState, type ReactNode } from 'react';
 import { auth, db } from '@/config/firebase';
 import { UserProfile } from './types';
