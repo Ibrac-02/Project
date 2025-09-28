@@ -3,7 +3,7 @@ import { db } from '@/config/firebase';
 import { UserProfile } from './types';
 import { offlineManager, withOfflineSupport } from './offline';
 
-const USERS_COLL = 'users';
+const STUDENTS_COLL = 'students';
 
 export type StudentInput = Partial<UserProfile> & {
   name: string;
@@ -80,7 +80,7 @@ export async function createStudent(data: StudentInput) {
   // Clean undefined fields
   Object.keys(payload).forEach((k) => (payload as any)[k] === undefined && delete (payload as any)[k]);
 
-  const ref = await addDoc(collection(db, USERS_COLL), { ...payload, role: 'student' });
+  const ref = await addDoc(collection(db, STUDENTS_COLL), { ...payload, role: 'student' });
   const result = { ...(payload as Omit<UserProfile, 'uid'>), uid: ref.id };
   
   // Update offline cache
@@ -113,7 +113,7 @@ export async function updateStudent(uid: string, data: Partial<StudentInput>) {
   }
   
   // Online operation
-  const docRef = doc(db, USERS_COLL, uid);
+  const docRef = doc(db, STUDENTS_COLL, uid);
   await updateDoc(docRef, data as any);
   
   // Update offline cache
@@ -143,21 +143,26 @@ export async function deleteStudent(uid: string) {
     return;
   }
   
-  // Online operation
-  const docRef = doc(db, USERS_COLL, uid);
-  await deleteDoc(docRef);
-  
-  // Remove from offline cache
-  const students = await offlineManager.getOfflineStudents();
-  const filtered = students.filter(s => s.uid !== uid);
-  await offlineManager.storeStudents(filtered);
+  try {
+    // Online operation
+    const docRef = doc(db, STUDENTS_COLL, uid);
+    await deleteDoc(docRef);
+    
+    // Remove from offline cache
+    const students = await offlineManager.getOfflineStudents();
+    const filtered = students.filter(s => s.uid !== uid);
+    await offlineManager.storeStudents(filtered);
+  } catch (error) {
+    console.error('Error deleting student:', error);
+    throw error;
+  }
 }
 
 export async function getStudentById(uid: string): Promise<UserProfile | null> {
   return withOfflineSupport(
     // Online operation
     async () => {
-      const docRef = doc(db, USERS_COLL, uid);
+      const docRef = doc(db, STUDENTS_COLL, uid);
       const snap = await getDoc(docRef);
       if (!snap.exists()) return null;
       return { uid: snap.id, ...snap.data() } as UserProfile;
@@ -174,7 +179,7 @@ export async function listStudents(classId?: string): Promise<UserProfile[]> {
   return withOfflineSupport(
     // Online operation
     async () => {
-      let q = query(collection(db, USERS_COLL), where('role', '==', 'student'));
+      let q = query(collection(db, STUDENTS_COLL), where('role', '==', 'student'));
       if (classId) {
         q = query(q, where('classes', '==', classId));
       }

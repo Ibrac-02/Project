@@ -1,47 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation, useTheme } from '@react-navigation/native';
 import { Stack } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, TouchableOpacity, useColorScheme as useDeviceColorScheme, View } from 'react-native';
+import React from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Colors } from '@/constants/Colors';
+import { useTheme } from '@/contexts/ThemeContext';
 
 type ThemePreference = 'light' | 'dark' | 'system';
 
 export default function AppearanceScreen() {
-  const navigation = useNavigation();
-  const deviceColorScheme = useDeviceColorScheme();
-  const { dark } = useTheme(); // Only need dark from useTheme for Colors indexing
-  const [themePreference, setThemePreference] = useState<ThemePreference>('system');
-
-  useEffect(() => {
-    const loadThemePreference = async () => {
-      try {
-        const storedPreference = await AsyncStorage.getItem('themePreference');
-        if (storedPreference) {
-          setThemePreference(storedPreference as ThemePreference);
-        }
-      } catch (error) {
-        console.error('Failed to load theme preference', error);
-      }
-    };
-    loadThemePreference();
-  }, []);
-
-  const saveThemePreference = async (preference: ThemePreference) => {
-    try {
-      await AsyncStorage.setItem('themePreference', preference);
-      setThemePreference(preference);
-    } catch (error) {
-      console.error('Failed to save theme preference', error);
-    }
-  };
-
-  // Determine the actual theme based on preference and device setting
-  const currentTheme = themePreference === 'system' ? deviceColorScheme : themePreference;
+  const { colors, themePreference, setThemePreference } = useTheme();
 
   return (
     <ThemedView style={styles.container}>
@@ -52,7 +21,7 @@ export default function AppearanceScreen() {
           <TouchableOpacity
             key={preference}
             style={styles.optionItem}
-            onPress={() => saveThemePreference(preference as ThemePreference)}
+            onPress={() => setThemePreference(preference as ThemePreference)}
           >
             <ThemedText style={styles.optionText}>
               {preference.charAt(0).toUpperCase() + preference.slice(1)}
@@ -62,7 +31,7 @@ export default function AppearanceScreen() {
                 <Ionicons
                   name="checkmark-circle"
                   size={24}
-                  color={Colors[dark ? 'dark' : 'light'].tint}
+                  color={colors.primaryBlue}
                 />
               )
             }

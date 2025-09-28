@@ -1,77 +1,140 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, SafeAreaView } from 'react-native';
+import { useAuth } from '@/lib/auth';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function SettingsIndexScreen() {
+  const { role } = useAuth();
   const navigate = (path: Parameters<typeof router.push>[0]) => router.push(path);
+  const { colors } = useTheme();
+
+  const goBack = () => {
+    // Navigate to appropriate dashboard based on user role
+    if (role === 'admin') {
+      router.replace('/(admin)/dashboard');
+    } else if (role === 'teacher') {
+      router.replace('/(teacher)/dashboard');
+    } else if (role === 'headteacher') {
+      router.replace('/(headteacher)/dashboard');
+    } else {
+      router.replace('/(main)/announcements');
+    }
+  };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.container}>
+    <SafeAreaView style={styles.safeArea}>
+      {/* Custom Header with Back Button */}
+      <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={goBack}
+        >
+          <Ionicons name="arrow-back" size={24} color="#fff" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Settings</Text>
+        <View style={styles.headerRight} />
+      </View>
+
+      <ScrollView contentContainerStyle={[styles.scrollContainer, { backgroundColor: colors.background }]}>
+        <View style={styles.container}>
       
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account</Text>
+        <View style={[styles.section, { backgroundColor: colors.cardBackground }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Account</Text>
           <TouchableOpacity style={styles.item} onPress={() => navigate('/(settings)/profile')}>
             <View style={styles.itemLeft}>
-              <Ionicons name="person-circle-outline" size={22} color="#1E90FF" />
-              <Text style={styles.itemText}>Profile</Text>
+              <Ionicons name="person-circle-outline" size={22} color={colors.primaryBlue} />
+              <Text style={[styles.itemText, { color: colors.text }]}>Profile</Text>
             </View>
-            <Ionicons name="chevron-forward-outline" size={18} color="#555" />
+            <Ionicons name="chevron-forward-outline" size={18} color={colors.icon} />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.item} onPress={() => navigate('/(settings)/change-password')}>
             <View style={styles.itemLeft}>
-              <Ionicons name="key-outline" size={22} color="#1E90FF" />
-              <Text style={styles.itemText}>Change Password</Text>
+              <Ionicons name="key-outline" size={22} color={colors.primaryBlue} />
+              <Text style={[styles.itemText, { color: colors.text }]}>Change Password</Text>
             </View>
-            <Ionicons name="chevron-forward-outline" size={18} color="#555" />
+            <Ionicons name="chevron-forward-outline" size={18} color={colors.icon} />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.item} onPress={() => navigate('/(settings)/delete-account')}>
             <View style={styles.itemLeft}>
-              <Ionicons name="trash-outline" size={22} color="#dc3545" />
-              <Text style={[styles.itemText, { color: '#dc3545' }]}>Delete Account</Text>
+              <Ionicons name="trash-outline" size={22} color={colors.danger} />
+              <Text style={[styles.itemText, { color: colors.danger }]}>Delete Account</Text>
             </View>
-            <Ionicons name="chevron-forward-outline" size={18} color="#555" />
+            <Ionicons name="chevron-forward-outline" size={18} color={colors.icon} />
           </TouchableOpacity>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Preferences</Text>
+        <View style={[styles.section, { backgroundColor: colors.cardBackground }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Preferences</Text>
           <TouchableOpacity style={styles.item} onPress={() => navigate('/(settings)/notifications')}>
             <View style={styles.itemLeft}>
-              <Ionicons name="notifications-outline" size={22} color="#1E90FF" />
-              <Text style={styles.itemText}>Notifications</Text>
+              <Ionicons name="notifications-outline" size={22} color={colors.primaryBlue} />
+              <Text style={[styles.itemText, { color: colors.text }]}>Notifications</Text>
             </View>
-             <Ionicons name="chevron-forward-outline" size={18} color="#555" />
+             <Ionicons name="chevron-forward-outline" size={18} color={colors.icon} />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.item} onPress={() => navigate('/(settings)/appearance')}>
             <View style={styles.itemLeft}>
-              <Ionicons name="color-palette-outline" size={22} color="#1E90FF" />
-              <Text style={styles.itemText}>Appearance</Text>
+              <Ionicons name="color-palette-outline" size={22} color={colors.primaryBlue} />
+              <Text style={[styles.itemText, { color: colors.text }]}>Appearance</Text>
             </View>
-            <Ionicons name="chevron-forward-outline" size={18} color="#555" />
+            <Ionicons name="chevron-forward-outline" size={18} color={colors.icon} />
           </TouchableOpacity>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>About</Text>
+        <View style={[styles.section, { backgroundColor: colors.cardBackground }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>About</Text>
           <TouchableOpacity style={styles.item} onPress={() => navigate('/(settings)/about')}>
             <View style={styles.itemLeft}>
-              <Ionicons name="information-circle-outline" size={22} color="#1E90FF" />
-              <Text style={styles.itemText}>About App</Text>
+              <Ionicons name="information-circle-outline" size={22} color={colors.primaryBlue} />
+              <Text style={[styles.itemText, { color: colors.text }]}>About App</Text>
             </View>
-            <Ionicons name="chevron-forward-outline" size={18} color="#555" />
+            <Ionicons name="chevron-forward-outline" size={18} color={colors.icon} />
           </TouchableOpacity>
         </View>
-      </View>
-    </ScrollView>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#1E90FF',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#1E90FF',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  backButton: {
+    padding: 8,
+    borderRadius: 20,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#fff',
+    flex: 1,
+    textAlign: 'center',
+    marginRight: 40, // Balance the back button
+  },
+  headerRight: {
+    width: 40, // Same width as back button for centering
+  },
   scrollContainer: {
     flexGrow: 1,
     backgroundColor: '#f0f2f5',

@@ -4,10 +4,19 @@ import { StatusBar } from "expo-status-bar";
 import BottomNav from "@/components/BottomNav";
 import BottomNavSpacer from "../components/BottomNavSpacer";
 import NetworkStatus from "@/components/NetworkStatus";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import { useEffect } from "react";
+// import { pushNotificationService } from "@/lib/pushNotifications";
 
-export default function RootLayout() {
+function AppContent() {
+  useEffect(() => {
+    // Initialize push notifications when app starts
+    // Temporarily disabled until packages are installed
+    // pushNotificationService.initialize().catch(console.error);
+  }, []);
+
   return (
-    <AuthProvider>
+    <>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
@@ -25,6 +34,16 @@ export default function RootLayout() {
       <BottomNavSpacer />
       {/* Persistent bottom navigation */}
       <BottomNav />
-    </AuthProvider>
+    </>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <ThemeProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

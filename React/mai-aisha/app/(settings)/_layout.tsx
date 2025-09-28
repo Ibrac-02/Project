@@ -13,7 +13,7 @@ export default function SettingsLayout() {
         },
         headerTitleAlign: 'left',
         }}>
-      <Stack.Screen name="index" options={{ headerShown: true, title: 'Settings' }} />
+      <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="profile" options={{ title: 'Edit Profile' }} />
       <Stack.Screen name="change-password" options={{ title: 'Change Password' }} />
       <Stack.Screen name="notifications" options={{ title: 'Notifications' }} />

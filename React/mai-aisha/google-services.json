@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "965960568727",
+    "project_id": "mai-aisha-app",
+    "storage_bucket": "mai-aisha-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:965960568727:android:1bf18d597cbd35f6f5fed2",
+        "android_client_info": {
+          "package_name": "com.maiaisha.academy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDf9lINiOQH28PrVBdCKpH5j0cM_xcXZuk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -2,9 +2,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import { collection, getDocs } from 'firebase/firestore';
 import React, { useCallback, useState } from 'react';
-import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View, } from 'react-native';
+import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { db } from '../../config/firebase';
 import { getAllUsers, getStudents, useAuth, signOutUser } from '@/lib/auth';
+import { useTheme } from '@/contexts/ThemeContext';
 // removed unread notifications badge from header
 
 const { width } = Dimensions.get('window');
@@ -12,6 +13,7 @@ const { width } = Dimensions.get('window');
 export default function AdminDashboardScreen() {
   const [showLogout, setShowLogout] = useState(false);
   const { userName, loading, userProfile, user } = useAuth();
+  const { colors } = useTheme();
   // const [unreadCount, setUnreadCount] = useState(0);
 
   // Summary values
@@ -97,22 +99,22 @@ export default function AdminDashboardScreen() {
     title: string;
     onPress: () => void;
   }) => (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
-      <Ionicons name={iconName} size={28} color="#1E90FF" />
-      <Text style={styles.cardTitle}>{title}</Text>
+    <TouchableOpacity style={[styles.card, { backgroundColor: colors.cardBackground }]} onPress={onPress}>
+      <Ionicons name={iconName} size={28} color={colors.primaryBlue} />
+      <Text style={[styles.cardTitle, { color: colors.text }]}>{title}</Text>
     </TouchableOpacity>
   );
 
   const SummaryBox = ({ label, value }: { label: string; value: number }) => (
-    <View style={styles.summaryBox}>
-      <Text style={styles.summaryValue}>{value}</Text>
-      <Text style={styles.summaryLabel}>{label}</Text>
+    <View style={[styles.summaryBox, { backgroundColor: colors.cardBackground }]}>
+      <Text style={[styles.summaryValue, { color: colors.primaryBlue }]}>{value}</Text>
+      <Text style={[styles.summaryLabel, { color: colors.text }]}>{label}</Text>
     </View>
   );
 
   return (
     <TouchableWithoutFeedback onPress={() => setShowLogout(false)}>
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -159,15 +161,15 @@ export default function AdminDashboardScreen() {
         )}
 
         {/* Greeting */}
-        <View style={styles.greetingCard}>
-          <Text style={styles.welcomeMessage}>
+        <View style={[styles.greetingCard, { backgroundColor: colors.cardBackground }]}>
+          <Text style={[styles.welcomeMessage, { color: colors.text }]}>
             {getGreetingTime()},{' '}
             {userProfile?.title || ''}{' '}
             {loading ? 'Loading...' : userName || 'User'}
           </Text>
         </View>
 
-        <ScrollView contentContainerStyle={styles.contentContainer}>
+        <ScrollView contentContainerStyle={[styles.contentContainer, { backgroundColor: colors.background }]}>
           {/* Summary Boxes */}
           <View style={styles.summaryRow}>
             <SummaryBox label="Teachers" value={teachersCount} />
@@ -176,7 +178,7 @@ export default function AdminDashboardScreen() {
           </View>
 
           {/* Quick Actions */}
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Actions</Text>
           <View style={styles.cardGroupContainer}>
             <DashboardCard iconName="people-circle-outline" title="Student Management" onPress={() => router.push({ pathname: '/(admin)/students' })} />
             <DashboardCard iconName="briefcase-outline" title="Teachers" onPress={() => router.push({ pathname: '/(admin)/teachers' })} />

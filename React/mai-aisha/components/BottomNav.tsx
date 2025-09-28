@@ -4,12 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, usePathname, useSegments } from 'expo-router';
 import { useAuth } from '@/lib/auth';
 import { getUnreadNotificationsCount } from '@/lib/notifications';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function BottomNav() {
   const pathname = usePathname();
   const segments = useSegments();
   const { user, role } = useAuth();
   const [unread, setUnread] = useState(0);
+  const { colors } = useTheme();
 
   const hidden = useMemo(() => {
     // Hide on any auth route. Some environments may provide different path shapes, so cover common patterns.
@@ -58,11 +60,11 @@ export default function BottomNav() {
   };
 
   const goNotifications = () => router.replace('/(main)/announcements');
-  const goProfile = () => router.replace('/(settings)');
+  const goProfile = () => router.replace('/(settings)/profile');
 
   return (
     <View style={styles.container} pointerEvents="box-none">
-      <View style={styles.bar}>
+      <View style={[styles.bar, { backgroundColor: colors.primaryBlue }]}>
         <TouchableOpacity style={styles.item} onPress={goHome}>
           <View>
             <Ionicons name="home" size={26} color="#fff" />
@@ -85,7 +87,7 @@ export default function BottomNav() {
         <TouchableOpacity style={styles.item} onPress={goProfile}>
           <View>
             <Ionicons name="person-circle-outline" size={28} color="#fff" />
-            <View style={styles.presenceDot} />
+            <View style={[styles.presenceDot, { borderColor: colors.primaryBlue }]} />
           </View>
           <Text style={styles.label}>You</Text>
         </TouchableOpacity>

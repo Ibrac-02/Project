@@ -6,6 +6,7 @@ import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, Touc
 // notifications bell removed from header
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/config/firebase';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface DashboardCardProps {
   iconName: keyof typeof Ionicons.glyphMap; // Type for Ionicons
@@ -13,12 +14,16 @@ interface DashboardCardProps {
   onPress: () => void;
 }
 
-const DashboardCard: React.FC<DashboardCardProps> = ({ iconName, title, onPress }) => (
-  <TouchableOpacity style={styles.card} onPress={onPress}>
-    <Ionicons name={iconName} size={32} color="#1E90FF" />
-    <Text style={styles.cardTitle}>{title}</Text>
-  </TouchableOpacity>
-); 
+const DashboardCard: React.FC<DashboardCardProps> = ({ iconName, title, onPress }) => {
+  const { colors } = useTheme();
+  
+  return (
+    <TouchableOpacity style={[styles.card, { backgroundColor: colors.cardBackground }]} onPress={onPress}>
+      <Ionicons name={iconName} size={32} color={colors.primaryBlue} />
+      <Text style={[styles.cardTitle, { color: colors.text }]}>{title}</Text>
+    </TouchableOpacity>
+  );
+}; 
 
 const { width } = Dimensions.get('window');
 
@@ -35,6 +40,7 @@ export default function TeacherDashboardScreen() {
   const [studentsCount, setStudentsCount] = useState(0);
   const [pendingTasks, setPendingTasks] = useState(0);
   const uid = user?.uid;
+  const { colors } = useTheme();
 
   const getInitials = (name: string | null | undefined) => {
     if (!name) return 'U';
@@ -51,15 +57,9 @@ export default function TeacherDashboardScreen() {
       const classesSnap = await getDocs(query(collection(db, 'classes'), where('teacherId', '==', uid)));
       setClassesCount(classesSnap.size);
 
-      // Unique students taught (from grades and attendance)
-      const [gradesSnap, attendanceSnap] = await Promise.all([
-        getDocs(query(collection(db, 'grades'), where('teacherId', '==', uid))),
-        getDocs(query(collection(db, 'attendance'), where('teacherId', '==', uid))),
-      ]);
-      const studentSet = new Set<string>();
-      gradesSnap.forEach(d => { const s = (d.data() as any).studentId; if (s) studentSet.add(String(s)); });
-      attendanceSnap.forEach(d => { const s = (d.data() as any).studentId; if (s) studentSet.add(String(s)); });
-      setStudentsCount(studentSet.size);
+      // Get all students from users collection
+      const studentsSnap = await getDocs(query(collection(db, 'users'), where('role', '==', 'student')));
+      setStudentsCount(studentsSnap.size);
 
       // Pending tasks: pending grades + pending lesson plans for this teacher
       const [pendingGradesSnap, pendingPlansSnap] = await Promise.all([
@@ -87,15 +87,15 @@ export default function TeacherDashboardScreen() {
   };
 
   const SummaryBox = ({ label, value }: { label: string; value: number }) => (
-    <View style={styles.summaryBox}>
-      <Text style={styles.summaryValue}>{value}</Text>
-      <Text style={styles.summaryLabel}>{label}</Text>
+    <View style={[styles.summaryBox, { backgroundColor: colors.cardBackground }]}>
+      <Text style={[styles.summaryValue, { color: colors.primaryBlue }]}>{value}</Text>
+      <Text style={[styles.summaryLabel, { color: colors.text }]}>{label}</Text>
     </View>
   );
 
   return (
     <TouchableWithoutFeedback onPress={() => setShowLogout(false)}>
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -133,11 +133,11 @@ export default function TeacherDashboardScreen() {
         )}
 
         {/* Greeting */}
-        <View style={styles.greetingCard}>
-          <Text style={styles.welcomeMessage}>{greeting()}, {userName || 'Teacher'}</Text>
+        <View style={[styles.greetingCard, { backgroundColor: colors.cardBackground }]}>
+          <Text style={[styles.welcomeMessage, { color: colors.text }]}>{greeting()}, {userName || 'Teacher'}</Text>
         </View>
 
-        <ScrollView contentContainerStyle={styles.contentContainer}>
+        <ScrollView contentContainerStyle={[styles.contentContainer, { backgroundColor: colors.background }]}>
           {/* Summary Boxes */}
           <View style={styles.summaryRow}>
             <SummaryBox label="Classes" value={classesCount} />
@@ -146,13 +146,16 @@ export default function TeacherDashboardScreen() {
           </View>
 
           {/* Quick Actions */}
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Actions</Text>
           <View style={styles.cardGroupContainer}>
             <DashboardCard iconName="checkbox-outline" title="Attendance" onPress={() => router.push('/(teacher)/attendance' as any)} />
             <DashboardCard iconName="create-outline" title="Marks" onPress={() => router.push('/(teacher)/grade-screen' as any)} />
             <DashboardCard iconName="document-text-outline" title="Lesson Plans" onPress={() => router.push('/(teacher)/lesson-plan' as any)} />
             <DashboardCard iconName="bar-chart-outline" title="Reports" onPress={() => router.push('/(teacher)/performance-screen' as any)} />
             <DashboardCard iconName="calendar-outline" title="Calendar" onPress={() => router.push('/(main)/academic-calendar' as any)} />
+            <DashboardCard iconName="megaphone-outline" title="Announcements" onPress={() => router.push('/(main)/announcements' as any)} />
+            <DashboardCard iconName="people-outline" title="Students" onPress={() => router.push('/(teacher)/students' as any)} />
+            <DashboardCard iconName="settings-outline" title="Settings" onPress={() => router.push('/(settings)' as any)} />
           </View>
         </ScrollView>
       </View>
@@ -161,10 +164,9 @@ export default function TeacherDashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f0f2f5' },
+  container: { flex: 1 },
   contentContainer: {
     padding: 20,
-    backgroundColor: '#f0f2f5',
     paddingBottom: 20,
     flexGrow: 1,
   },
@@ -172,7 +174,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#1E90FF',
+    backgroundColor: '#1E90FF', // Keep header blue for branding
     paddingTop: 70,
     paddingHorizontal: 20,
     paddingBottom: 35,
@@ -219,7 +221,6 @@ const styles = StyleSheet.create({
   notificationBadgeText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
   settingsIconContainer: { marginRight: 5, marginLeft: 12, padding: 6 },
   greetingCard: {
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 20,
     marginHorizontal: 20,
@@ -231,7 +232,6 @@ const styles = StyleSheet.create({
   welcomeMessage: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
     textAlign: 'center',
   },
   logoutDropdown: {
@@ -265,7 +265,6 @@ const styles = StyleSheet.create({
   },
   summaryBox: {
     flex: 1,
-    backgroundColor: '#fff',
     marginHorizontal: 8,
     padding: 20,
     borderRadius: 10,
@@ -275,17 +274,14 @@ const styles = StyleSheet.create({
   summaryValue: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1E90FF',
   },
   summaryLabel: {
     marginTop: 4,
     fontSize: 14,
-    color: '#333',
   },
   /** Cards Grid */
   card: {
     width: (width / 4) - 20,
-    backgroundColor: '#fff',
     borderRadius: 12,
     paddingVertical: 20,
     marginBottom: 18,
@@ -301,7 +297,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 13,
     fontWeight: '600',
-    color: '#333',
     textAlign: 'center',
   },
   cardGroupContainer: {
@@ -312,7 +307,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#444',
     marginBottom: 12,
     marginLeft: 5,
   },

@@ -43,7 +43,14 @@ export default function AdminStudentsList() {
   const confirmDelete = (s: UserProfile) => {
     Alert.alert('Delete student', `Delete ${s.name || 'this student'}?`, [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => { await deleteStudent(s.uid); await load(); } }
+      { text: 'Delete', style: 'destructive', onPress: async () => { 
+        try {
+          await deleteStudent(s.uid); 
+          await load(); 
+        } catch (error: any) {
+          Alert.alert('Delete failed', error.message || 'Please try again');
+        }
+      } }
     ]);
   };
 
@@ -109,9 +116,13 @@ export default function AdminStudentsList() {
     Alert.alert('Delete student', `Delete ${editingStudent.name || 'this student'}?`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Delete', style: 'destructive', onPress: async () => { 
-        await deleteStudent(editingStudent.uid); 
-        closeModals();
-        await load(); 
+        try {
+          await deleteStudent(editingStudent.uid); 
+          closeModals();
+          await load(); 
+        } catch (error: any) {
+          Alert.alert('Delete failed', error.message || 'Please try again');
+        }
       }}
     ]);
   };

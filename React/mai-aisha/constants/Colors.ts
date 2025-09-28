@@ -23,13 +23,13 @@ export const Colors = {
   },
   dark: {
     text: '#ECEDEE',
-    background: '#151718',
+    background: '#272a2cff',
     tint: tintColorDark,
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
     primaryBlue: primaryBlue, // Add primaryBlue to dark theme
-    cardBackground: '#1e1e1e',
+    cardBackground: '#373030ff',
     border: '#2c2c2c',
     danger: '#ff6b6b',
     success: '#28a745',
