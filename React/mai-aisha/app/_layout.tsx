@@ -3,6 +3,7 @@ import { AuthProvider } from "@/lib/auth";
 import { StatusBar } from "expo-status-bar"; 
 import BottomNav from "@/components/BottomNav";
 import BottomNavSpacer from "../components/BottomNavSpacer";
+import NetworkStatus from "@/components/NetworkStatus";
 
 export default function RootLayout() {
   return (
@@ -18,6 +19,8 @@ export default function RootLayout() {
       </Stack>
 
       <StatusBar style="auto" />
+      {/* Network status indicator */}
+      <NetworkStatus />
       {/* Conditional spacer so content isn't hidden when nav is visible */}
       <BottomNavSpacer />
       {/* Persistent bottom navigation */}

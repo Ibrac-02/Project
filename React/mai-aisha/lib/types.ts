@@ -1,13 +1,14 @@
 export interface UserProfile {
   uid: string;
-  email: string | null;
+  email: string | null; // Keep for teachers/admins, will be null for students
   name: string | null;
   role: string | null;
   title?: string | null;
   contactNumber?: string | null;
   dateJoined?: string | null;
   status?: string | null;
-  employeeId?: string | null;
+  employeeId?: string | null; // Keep for teachers/staff
+  gender?: 'male' | 'female' | null; // New field for students
   department?: string | null;
   teachersSupervised?: string | null;
   attendanceApprovals?: string | null;
@@ -18,9 +19,6 @@ export interface UserProfile {
   classesHandled?: string | null; // New field
   attendanceSubmitted?: string | null; // New field
   gradesSubmitted?: string | null; // New field
-  parentName?: string | null; // New field for students
-  parentContactNumber?: string | null; // New field for students
-  parentEmail?: string | null; // New field for students
   twoFactorEnabled?: boolean; // ✅ new field for 2FA
 }
 

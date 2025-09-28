@@ -1,25 +1,23 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { listClasses } from '@/lib/classes';
-import { createStudent } from '@/lib/students';
+import { createStudent } from '@/lib/students-offline';
 import type { SchoolClass } from '@/lib/types';
 
 export default function AdminStudentNew() {
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
   const [classId, setClassId] = useState<string | null>(null);
-  const [admissionNo, setAdmissionNo] = useState('');
-  const [parentName, setParentName] = useState('');
-  const [parentEmail, setParentEmail] = useState('');
-  const [parentPhone, setParentPhone] = useState('');
+  const [gender, setGender] = useState<'male' | 'female' | null>(null);
   const [saving, setSaving] = useState(false);
   const [classes, setClasses] = useState<SchoolClass[]>([]);
 
   const load = useCallback(async () => {
     const cls = await listClasses();
-    setClasses(cls);
+    // Sort classes alphabetically by name
+    const sortedClasses = cls.sort((a, b) => a.name.localeCompare(b.name));
+    setClasses(sortedClasses);
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -30,12 +28,8 @@ export default function AdminStudentNew() {
       setSaving(true);
       await createStudent({
         name: name.trim(),
-        email: email.trim() || null,
         classes: classId || null,
-        employeeId: admissionNo.trim() || null,
-        parentName: parentName.trim() || null,
-        parentEmail: parentEmail.trim() || null,
-        parentContactNumber: parentPhone.trim() || null,
+        gender: gender,
         role: 'student',
       });
       router.replace('/(admin)/students');
@@ -47,19 +41,31 @@ export default function AdminStudentNew() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>New Student</Text>
+    <View style={styles.fullScreen}>
+      <StatusBar barStyle="light-content" backgroundColor="rgba(0,0,0,0.8)" />
+      <View style={styles.modalOverlay}>
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.title}>New Student</Text>
+            <TouchableOpacity onPress={() => router.back()} style={styles.closeBtn}>
+              <Ionicons name="close" size={24} color="#64748b" />
+            </TouchableOpacity>
+          </View>
       <View style={styles.formRow}>
         <Text style={styles.label}>Full Name</Text>
         <TextInput value={name} onChangeText={setName} placeholder="Student name" style={styles.input} />
       </View>
       <View style={styles.formRow}>
-        <Text style={styles.label}>Email</Text>
-        <TextInput value={email} onChangeText={setEmail} placeholder="email@example.com" style={styles.input} keyboardType="email-address" />
-      </View>
-      <View style={styles.formRow}>
-        <Text style={styles.label}>Admission No</Text>
-        <TextInput value={admissionNo} onChangeText={setAdmissionNo} placeholder="e.g. A-2025-001" style={styles.input} />
+        <Text style={styles.label}>Gender</Text>
+        <View style={styles.genderButtons}>
+          <TouchableOpacity style={[styles.genderBtn, gender === 'male' && styles.genderBtnActive]} onPress={() => setGender('male')}>
+            <Text style={[styles.genderBtnText, gender === 'male' && styles.genderBtnTextActive]}>Male</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.genderBtn, gender === 'female' && styles.genderBtnActive]} onPress={() => setGender('female')}>
+            <Text style={[styles.genderBtnText, gender === 'female' && styles.genderBtnTextActive]}>Female</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       <View style={styles.formRow}>
         <Text style={styles.label}>Class</Text>
@@ -71,32 +77,39 @@ export default function AdminStudentNew() {
           ))}
         </View>
       </View>
-      <View style={styles.formRow}>
-        <Text style={styles.label}>Parent/Guardian</Text>
-        <TextInput value={parentName} onChangeText={setParentName} placeholder="Parent name" style={styles.input} />
-        <TextInput value={parentEmail} onChangeText={setParentEmail} placeholder="Parent email" style={styles.input} keyboardType="email-address" />
-        <TextInput value={parentPhone} onChangeText={setParentPhone} placeholder="Parent phone" style={styles.input} keyboardType="phone-pad" />
-      </View>
 
-      <TouchableOpacity style={styles.saveBtn} onPress={save} disabled={saving}>
-        <Ionicons name="save-outline" size={20} color="#fff" />
-        <Text style={styles.saveBtnText}>{saving ? 'Saving...' : 'Save Student'}</Text>
-      </TouchableOpacity>
-    </ScrollView>
+          <TouchableOpacity style={styles.saveBtn} onPress={save} disabled={saving}>
+            <Ionicons name="save-outline" size={20} color="#fff" />
+            <Text style={styles.saveBtnText}>{saving ? 'Saving...' : 'Save Student'}</Text>
+          </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, backgroundColor: '#f8fafc' },
-  title: { fontSize: 20, fontWeight: '800', color: '#0f172a', marginBottom: 12 },
-  formRow: { marginBottom: 12 },
-  label: { fontWeight: '700', color: '#334155', marginBottom: 6 },
-  input: { backgroundColor: '#fff', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, borderWidth: StyleSheet.hairlineWidth, borderColor: '#e5e7eb', marginBottom: 8 },
-  classChips: { flexDirection: 'row', flexWrap: 'wrap' },
-  classChip: { borderWidth: 1, borderColor: '#cbd5e1', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20, marginRight: 8, marginBottom: 8 },
+  fullScreen: { flex: 1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000 },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'center', alignItems: 'center', padding: 20 },
+  scrollContent: { width: '100%', maxWidth: 500, justifyContent: 'center', minHeight: '100%' },
+  card: { backgroundColor: '#fff', borderRadius: 16, padding: 24, boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)', elevation: 8 },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, paddingBottom: 16, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#e5e7eb' },
+  title: { fontSize: 22, fontWeight: '800', color: '#0f172a' },
+  closeBtn: { padding: 4 },
+  formRow: { marginBottom: 16 },
+  label: { fontWeight: '700', color: '#334155', marginBottom: 8, fontSize: 16 },
+  input: { backgroundColor: '#f8fafc', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, borderWidth: StyleSheet.hairlineWidth, borderColor: '#e5e7eb', fontSize: 16 },
+  classChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  classChip: { borderWidth: 1.5, borderColor: '#cbd5e1', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 25, backgroundColor: '#f8fafc' },
   classChipActive: { backgroundColor: '#1E90FF', borderColor: '#1E90FF' },
-  classChipText: { color: '#334155', fontWeight: '600' },
+  classChipText: { color: '#334155', fontWeight: '600', fontSize: 14 },
   classChipTextActive: { color: '#fff' },
-  saveBtn: { marginTop: 10, backgroundColor: '#1E90FF', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 12, borderRadius: 10 },
-  saveBtnText: { color: '#fff', marginLeft: 8, fontWeight: '800' },
+  genderButtons: { flexDirection: 'row', gap: 12 },
+  genderBtn: { flex: 1, borderWidth: 1.5, borderColor: '#cbd5e1', paddingVertical: 16, borderRadius: 12, alignItems: 'center', backgroundColor: '#f8fafc' },
+  genderBtnActive: { backgroundColor: '#1E90FF', borderColor: '#1E90FF' },
+  genderBtnText: { color: '#334155', fontWeight: '600', fontSize: 16 },
+  genderBtnTextActive: { color: '#fff' },
+  saveBtn: { marginTop: 24, backgroundColor: '#1E90FF', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 16, borderRadius: 12 },
+  saveBtnText: { color: '#fff', marginLeft: 8, fontWeight: '700', fontSize: 16 },
 });

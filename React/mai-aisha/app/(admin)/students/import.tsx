@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import { Ionicons } from '@expo/vector-icons';
@@ -6,7 +6,7 @@ import Papa from 'papaparse';
 import { createStudent } from '@/lib/students';
 import { listClasses } from '@/lib/classes';
 
-// Simple CSV import skeleton with mapping for: name,email,class,admissionNo,parentName,parentEmail,parentPhone
+// Simple CSV import skeleton with mapping for: name,class,gender
 export default function AdminStudentsImport() {
   const [rows, setRows] = useState<any[]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
@@ -19,9 +19,10 @@ export default function AdminStudentsImport() {
 
   const pickFile = async () => {
     try {
-      const res = await DocumentPicker.getDocumentAsync({ type: 'text/csv' });
-      if (res.type !== 'success') return;
-      const fileUri = res.assets?.[0]?.uri || res.uri;
+      const res = await DocumentPicker.getDocumentAsync({ type: 'text/csv', multiple: false });
+      // Expo SDK 54 result shape: { canceled: boolean; assets?: Array<{ uri: string; ... }> }
+      if (res.canceled) return;
+      const fileUri = res.assets?.[0]?.uri;
       if (!fileUri) return;
 
       setParsing(true);
@@ -35,7 +36,7 @@ export default function AdminStudentsImport() {
           setHeaders(results.meta.fields || []);
           setParsing(false);
         },
-        error: (err) => {
+        error: (err: any) => {
           setParsing(false);
           Alert.alert('Parse error', err.message);
         }
@@ -54,18 +55,17 @@ export default function AdminStudentsImport() {
       try {
         const name = (r.name || r.fullname || r.full_name || '').toString().trim();
         if (!name) { fail++; continue; }
-        const email = (r.email || '').toString().trim();
-        const admissionNo = (r.admissionNo || r.admission_no || '').toString().trim();
         const className = (r.class || r.class_name || '').toString().trim();
+        const gender = (r.gender || '').toString().toLowerCase().trim();
         const cls = classes.find(c => c.name.toLowerCase() === className.toLowerCase());
+        
+        // Validate gender
+        const validGender = gender === 'male' || gender === 'female' ? gender as 'male' | 'female' : null;
+        
         await createStudent({
           name,
-          email: email || null,
-          employeeId: admissionNo || null,
+          gender: validGender,
           classes: cls?.id || null,
-          parentName: (r.parentName || '').toString().trim() || null,
-          parentEmail: (r.parentEmail || '').toString().trim() || null,
-          parentContactNumber: (r.parentPhone || r.parentContact || '').toString().trim() || null,
         });
         success++;
       } catch {
@@ -78,7 +78,7 @@ export default function AdminStudentsImport() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Import Students (CSV)</Text>
-      <Text style={styles.subtitle}>Expected columns: name, email, class, admissionNo, parentName, parentEmail, parentPhone</Text>
+      <Text style={styles.subtitle}>Expected columns: name, class, gender</Text>
 
       <TouchableOpacity onPress={pickFile} style={styles.pickBtn} disabled={parsing}>
         <Ionicons name="document-text-outline" size={20} color="#fff" />

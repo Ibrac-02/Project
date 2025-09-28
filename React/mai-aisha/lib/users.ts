@@ -8,7 +8,6 @@ export type RoleType = 'admin' | 'teacher' | 'headteacher' | 'student';
 
 export async function createUserWithRole(role: RoleType, data: Partial<UserProfile>) {
   const payload: Omit<UserProfile, 'uid'> = {
-    uid: '' as any,
     email: data.email ?? null,
     role,
     name: data.name ?? '',
@@ -17,6 +16,7 @@ export async function createUserWithRole(role: RoleType, data: Partial<UserProfi
     dateJoined: data.dateJoined ?? new Date().toISOString(),
     status: data.status ?? 'active',
     employeeId: data.employeeId ?? null,
+    gender: data.gender ?? null,
     department: data.department ?? null,
     teachersSupervised: data.teachersSupervised ?? null,
     attendanceApprovals: data.attendanceApprovals ?? null,
@@ -27,16 +27,14 @@ export async function createUserWithRole(role: RoleType, data: Partial<UserProfi
     classesHandled: data.classesHandled ?? null,
     attendanceSubmitted: data.attendanceSubmitted ?? null,
     gradesSubmitted: data.gradesSubmitted ?? null,
-    parentName: data.parentName ?? null,
-    parentContactNumber: data.parentContactNumber ?? null,
-    parentEmail: data.parentEmail ?? null,
     twoFactorEnabled: data.twoFactorEnabled ?? false,
   } as any;
 
   Object.keys(payload).forEach((k) => (payload as any)[k] === undefined && delete (payload as any)[k]);
 
   const ref = await addDoc(collection(db, USERS_COLL), payload);
-  return { uid: ref.id, ...(payload as Omit<UserProfile, 'uid'>) };
+  // Place uid at the end to ensure it can't be overwritten
+  return { ...(payload as Omit<UserProfile, 'uid'>), uid: ref.id };
 }
 
 export async function updateUser(uid: string, updates: Partial<UserProfile>) {

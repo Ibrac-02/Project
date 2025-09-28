@@ -55,14 +55,14 @@ export async function createStudent(data: StudentInput) {
   
   // Online operation
   const payload: Omit<UserProfile, 'uid'> = {
-    email: null, // Students don't have email
+    email: null,
     role: 'student',
     name: data.name,
     title: data.title ?? null,
     contactNumber: data.contactNumber ?? null,
     dateJoined: data.dateJoined ?? new Date().toISOString(),
     status: data.status ?? 'active',
-    employeeId: null, // Students don't use employeeId
+    employeeId: null,
     gender: data.gender ?? null,
     department: data.department ?? null,
     teachersSupervised: data.teachersSupervised ?? null,
@@ -81,11 +81,49 @@ export async function createStudent(data: StudentInput) {
   Object.keys(payload).forEach((k) => (payload as any)[k] === undefined && delete (payload as any)[k]);
 
   const ref = await addDoc(collection(db, USERS_COLL), { ...payload, role: 'student' });
-  // Spread payload first, then ensure uid is correctly set from ref
-  return { ...(payload as Omit<UserProfile, 'uid'>), uid: ref.id };
+  const result = { ...(payload as Omit<UserProfile, 'uid'>), uid: ref.id };
+  
+  // Update offline cache
+  const students = await offlineManager.getOfflineStudents();
+  students.push(result as UserProfile);
+  await offlineManager.storeStudents(students);
+  
+  return result;
 }
 
-// This function is replaced by the offline-enabled version below
+export async function updateStudent(uid: string, data: Partial<StudentInput>) {
+  const isOnline = await offlineManager.isConnected();
+  
+  if (!isOnline) {
+    // Store as pending action
+    await offlineManager.addPendingAction({
+      type: 'update',
+      collection: 'students',
+      data: { uid, ...data }
+    });
+    
+    // Update offline storage
+    const students = await offlineManager.getOfflineStudents();
+    const index = students.findIndex(s => s.uid === uid);
+    if (index !== -1) {
+      students[index] = { ...students[index], ...data };
+      await offlineManager.storeStudents(students);
+    }
+    return;
+  }
+  
+  // Online operation
+  const docRef = doc(db, USERS_COLL, uid);
+  await updateDoc(docRef, data as any);
+  
+  // Update offline cache
+  const students = await offlineManager.getOfflineStudents();
+  const index = students.findIndex(s => s.uid === uid);
+  if (index !== -1) {
+    students[index] = { ...students[index], ...data };
+    await offlineManager.storeStudents(students);
+  }
+}
 
 export async function deleteStudent(uid: string) {
   const isOnline = await offlineManager.isConnected();
@@ -157,38 +195,4 @@ export async function listStudents(classId?: string): Promise<UserProfile[]> {
       await offlineManager.storeStudents(students);
     }
   );
-}
-
-export async function updateStudent(uid: string, data: Partial<StudentInput>) {
-  const isOnline = await offlineManager.isConnected();
-  
-  if (!isOnline) {
-    // Store as pending action
-    await offlineManager.addPendingAction({
-      type: 'update',
-      collection: 'students',
-      data: { uid, ...data }
-    });
-    
-    // Update offline storage
-    const students = await offlineManager.getOfflineStudents();
-    const index = students.findIndex(s => s.uid === uid);
-    if (index !== -1) {
-      students[index] = { ...students[index], ...data };
-      await offlineManager.storeStudents(students);
-    }
-    return;
-  }
-  
-  // Online operation
-  const docRef = doc(db, USERS_COLL, uid);
-  await updateDoc(docRef, data as any);
-  
-  // Update offline cache
-  const students = await offlineManager.getOfflineStudents();
-  const index = students.findIndex(s => s.uid === uid);
-  if (index !== -1) {
-    students[index] = { ...students[index], ...data };
-    await offlineManager.storeStudents(students);
-  }
 }
