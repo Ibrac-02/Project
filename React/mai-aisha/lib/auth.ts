@@ -111,8 +111,8 @@ export const deleteUserById = async (uid: string) => {
 
 export const getStudents = async (): Promise<UserProfile[]> => {
   try {
-    const q = query(collection(db, 'users'), where('role', '==', 'student'));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await getDocs(collection(db, 'students'));
+    // Note: No need to filter by role since students collection only contains students
     return querySnapshot.docs.map((doc) => ({
       uid: doc.id,
       ...(doc.data() as Omit<UserProfile, 'uid'>),
