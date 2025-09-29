@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView, ActivityIndicator, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker';
 import { useLocalSearchParams, router } from 'expo-router';
 import { listClasses } from '@/lib/classes';
 import { getStudentById, updateStudent, deleteStudent } from '@/lib/students-offline';
@@ -105,12 +106,18 @@ export default function AdminStudentEdit() {
       </View>
       <View style={styles.formRow}>
         <Text style={styles.label}>Class</Text>
-        <View style={styles.classChips}>
-          {classes.map(c => (
-            <TouchableOpacity key={c.id} style={[styles.classChip, classId === c.id && styles.classChipActive]} onPress={() => setClassId(c.id)}>
-              <Text style={[styles.classChipText, classId === c.id && styles.classChipTextActive]}>{c.name}</Text>
-            </TouchableOpacity>
-          ))}
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={classId}
+            onValueChange={(itemValue) => setClassId(itemValue)}
+            style={styles.picker}
+            itemStyle={styles.pickerItem}
+          >
+            <Picker.Item label="Select a class..." value={null} />
+            {classes.map(c => (
+              <Picker.Item key={c.id} label={c.name} value={c.id} />
+            ))}
+          </Picker>
         </View>
       </View>
 
@@ -142,11 +149,9 @@ const styles = StyleSheet.create({
   formRow: { marginBottom: 16 },
   label: { fontWeight: '700', color: '#334155', marginBottom: 8, fontSize: 16 },
   input: { backgroundColor: '#f8fafc', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, borderWidth: StyleSheet.hairlineWidth, borderColor: '#e5e7eb', fontSize: 16 },
-  classChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  classChip: { borderWidth: 1.5, borderColor: '#cbd5e1', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 25, backgroundColor: '#f8fafc' },
-  classChipActive: { backgroundColor: '#1E90FF', borderColor: '#1E90FF' },
-  classChipText: { color: '#334155', fontWeight: '600', fontSize: 14 },
-  classChipTextActive: { color: '#fff' },
+  pickerContainer: { backgroundColor: '#f8fafc', borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, borderColor: '#e5e7eb', overflow: 'hidden' },
+  picker: { height: 50, width: '100%' },
+  pickerItem: { fontSize: 16, color: '#334155' },
   genderButtons: { flexDirection: 'row', gap: 12 },
   genderBtn: { flex: 1, borderWidth: 1.5, borderColor: '#cbd5e1', paddingVertical: 16, borderRadius: 12, alignItems: 'center', backgroundColor: '#f8fafc' },
   genderBtnActive: { backgroundColor: '#1E90FF', borderColor: '#1E90FF' },

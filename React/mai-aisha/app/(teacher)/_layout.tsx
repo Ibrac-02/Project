@@ -14,16 +14,17 @@ export default function TeacherLayout() {
             fontWeight: '500',
             fontSize: 18, 
           },
-          headerTitleAlign: 'center',
+          headerTitleAlign: 'left',
         }}
       >
         <Stack.Screen name="dashboard" options={{ headerShown: false }} />
-        <Stack.Screen name="lesson-plan" options={{ headerShown: true }} />
-        <Stack.Screen name="grade-screen" options={{ headerShown: true }} />
-        <Stack.Screen name="attendance" options={{ headerShown: true }} />
-        <Stack.Screen name="performance-screen" options={{ headerShown: true }} />
+        <Stack.Screen name="lesson-plan" options={{ headerShown: true , title: 'Lesson Plan' }} />
+        <Stack.Screen name="grade-screen" options={{ headerShown: true , title: 'Grade Screen' }} />
+        <Stack.Screen name="attendance" options={{ headerShown: true , title: 'Attendance' }} />
+        <Stack.Screen name="performance-screen" options={{ headerShown: true , title: 'Performance Screen' }} />
+        <StatusBar style='auto' />
       </Stack>
-      <StatusBar style='auto' />
+      
     </>
   );
 }

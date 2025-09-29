@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native
 import { Ionicons } from '@expo/vector-icons';
 import { router, usePathname, useSegments } from 'expo-router';
 import { useAuth } from '@/lib/auth';
-import { getUnreadNotificationsCount } from '@/lib/notifications';
+import { getUnreadMessageCount } from '@/lib/messages';
 import { useTheme } from '@/contexts/ThemeContext';
 
 export default function BottomNav() {
@@ -37,7 +37,7 @@ export default function BottomNav() {
     (async () => {
       try {
         if (user?.uid) {
-          const c = await getUnreadNotificationsCount(user.uid);
+          const c = await getUnreadMessageCount(user.uid);
           if (mounted) setUnread(c);
         } else {
           if (mounted) setUnread(0);
@@ -56,10 +56,10 @@ export default function BottomNav() {
     if (role === 'admin') router.replace('/(admin)/dashboard');
     else if (role === 'teacher') router.replace('/(teacher)/dashboard');
     else if (role === 'headteacher') router.replace('/(headteacher)/dashboard');
-    else router.replace('/(main)/announcements');
+    else router.replace('/(main)/messages');
   };
 
-  const goNotifications = () => router.replace('/(main)/announcements');
+  const goNotifications = () => router.replace('/(main)/messages');
   const goProfile = () => router.replace('/(settings)/profile');
 
   return (

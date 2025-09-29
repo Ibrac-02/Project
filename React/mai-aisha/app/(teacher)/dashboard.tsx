@@ -4,8 +4,8 @@ import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 // notifications bell removed from header
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '@/config/firebase';
+import { listClasses } from '@/lib/classes';
+import { listStudents } from '@/lib/students';
 import { useTheme } from '@/contexts/ThemeContext';
 
 interface DashboardCardProps {
@@ -29,8 +29,9 @@ const { width } = Dimensions.get('window');
 
 const greeting = () => {
   const hour = new Date().getHours();
+  if (hour < 12) return 'Good Morning';
   if (hour < 17) return 'Good Afternoon';
-  return 'Good evening';
+  return 'Good Evening';
 };
 
 export default function TeacherDashboardScreen() {
@@ -51,24 +52,52 @@ export default function TeacherDashboardScreen() {
 
   const fetchSummaryCounts = useCallback(async () => {
     try {
-      if (!uid) { setClassesCount(0); setStudentsCount(0); setPendingTasks(0); return; }
+      if (!uid) { 
+        setClassesCount(0); 
+        setStudentsCount(0); 
+        setPendingTasks(0); 
+        return; 
+      }
 
-      // Classes assigned to teacher
-      const classesSnap = await getDocs(query(collection(db, 'classes'), where('teacherId', '==', uid)));
-      setClassesCount(classesSnap.size);
+      // Initialize counts
+      setClassesCount(0);
+      setStudentsCount(0);
+      setPendingTasks(0);
 
-      // Get all students from users collection
-      const studentsSnap = await getDocs(query(collection(db, 'users'), where('role', '==', 'student')));
-      setStudentsCount(studentsSnap.size);
+      // Get classes assigned to teacher using proper library function
+      try {
+        const allClasses = await listClasses();
+        const teacherClasses = allClasses.filter(c => c.teacherId === uid);
+        setClassesCount(teacherClasses.length);
 
-      // Pending tasks: pending grades + pending lesson plans for this teacher
-      const [pendingGradesSnap, pendingPlansSnap] = await Promise.all([
-        getDocs(query(collection(db, 'grades'), where('teacherId', '==', uid), where('status', '==', 'pending'))),
-        getDocs(query(collection(db, 'lessonPlans'), where('teacherId', '==', uid), where('status', '==', 'pending'))),
-      ]);
-      setPendingTasks(pendingGradesSnap.size + pendingPlansSnap.size);
-    } catch {
-      setClassesCount(0); setStudentsCount(0); setPendingTasks(0);
+        // Get students from teacher's classes
+        if (teacherClasses.length > 0) {
+          try {
+            const allStudents = await listStudents();
+            const teacherClassIds = teacherClasses.map(c => c.id);
+            const studentsInTeacherClasses = allStudents.filter(student => 
+              student.classes && teacherClassIds.includes(student.classes)
+            );
+            setStudentsCount(studentsInTeacherClasses.length);
+          } catch (error) {
+            console.log('Error fetching students:', error);
+            setStudentsCount(0);
+          }
+        }
+      } catch (error) {
+        console.log('Error fetching classes:', error);
+        setClassesCount(0);
+      }
+
+      // For pending tasks, we'll set to 0 for now since grades/lessonPlans might not exist yet
+      // This avoids collection errors
+      setPendingTasks(0);
+
+    } catch (error) {
+      console.error('Error in fetchSummaryCounts:', error);
+      setClassesCount(0); 
+      setStudentsCount(0); 
+      setPendingTasks(0);
     }
   }, [uid]);
 
@@ -153,9 +182,9 @@ export default function TeacherDashboardScreen() {
             <DashboardCard iconName="document-text-outline" title="Lesson Plans" onPress={() => router.push('/(teacher)/lesson-plan' as any)} />
             <DashboardCard iconName="bar-chart-outline" title="Reports" onPress={() => router.push('/(teacher)/performance-screen' as any)} />
             <DashboardCard iconName="calendar-outline" title="Calendar" onPress={() => router.push('/(main)/academic-calendar' as any)} />
-            <DashboardCard iconName="megaphone-outline" title="Announcements" onPress={() => router.push('/(main)/announcements' as any)} />
+            <DashboardCard iconName="chatbubbles-outline" title="Messages" onPress={() => router.push('/(main)/messages' as any)} />
             <DashboardCard iconName="people-outline" title="Students" onPress={() => router.push('/(teacher)/students' as any)} />
-            <DashboardCard iconName="settings-outline" title="Settings" onPress={() => router.push('/(settings)' as any)} />
+            <DashboardCard iconName="time-outline" title="Term Summary" onPress={() => router.push('/(teacher)/term-summary' as any)} />
           </View>
         </ScrollView>
       </View>
