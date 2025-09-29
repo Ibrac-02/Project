@@ -14,17 +14,17 @@ A comprehensive school management system built with React Native and Expo, desig
 
 ### 👩‍🏫 **Teacher Portal**
 - **Attendance Tracking**: Daily student attendance management
-- **Grade Management**: Record and track student marks
+- **Grade Management**: Record and track student marks 
 - **Lesson Plans**: Create and manage curriculum planning
 - **Student Roster**: View assigned students by class
 - **Reports**: Generate performance analytics
 - **Calendar**: Access academic calendar
 
-### 🎒 **Student Features**
-- **Profile Management**: Personal and parent/guardian information
-- **Attendance Records**: View attendance history
-- **Grade Tracking**: Monitor academic performance
-- **Announcements**: Receive school updates
+### 🎓 **Head Teacher Portal**
+- **Teacher Oversight**: Supervise and manage teaching staff
+- **Advanced Reporting**: School-wide performance analytics
+- **Administrative Functions**: Enhanced management capabilities
+- **Staff Evaluation**: Teacher performance monitoring
 
 ### 🔧 **System Features**
 - **Role-Based Access**: Secure authentication with role permissions
@@ -122,16 +122,16 @@ A comprehensive school management system built with React Native and Expo, desig
 - Student communication
 
 ### **🎓 Head Teacher**
-- Teacher oversight
-- Advanced reporting
-- School-wide management
-- Administrative functions
+- Teacher oversight and supervision
+- Advanced reporting and analytics
+- School-wide management functions
+- Staff evaluation and development
 
-### **🎒 Student**
-- Personal dashboard
-- Grade and attendance viewing
-- Announcement access
-- Profile management
+### **📊 Student Data Management**
+- **Note**: Students don't directly use the system
+- **Data managed by**: Administrators and teachers
+- **Information tracked**: Attendance, grades, profiles, parent contacts
+- **Access provided to**: Parents/guardians through reports and communications
 
 ## 🛠️ **Technical Stack**
 
