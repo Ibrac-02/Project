@@ -3,6 +3,7 @@ import { router, useFocusEffect } from 'expo-router';
 import React, { FC, useCallback, useState } from 'react';
 import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { useAuth, getAllUsers, signOutUser } from '@/lib/auth';
+import TermSummary from '@/components/TermSummary';
 
 interface DashboardCardProps {
   iconName: keyof typeof Ionicons.glyphMap; // Type for Ionicons
@@ -20,7 +21,7 @@ const DashboardCard: FC<DashboardCardProps> = ({ iconName, title, onPress }) => 
 const { width } = Dimensions.get('window');
 
 export default function HeadteacherDashboardScreen() {
-  const { userName } = useAuth();
+  const { userName, userProfile } = useAuth();
   const [showLogout, setShowLogout] = useState(false);
   // removed unread notifications bell and count from header
   const [teachersCount, setTeachersCount] = useState(0);
@@ -113,7 +114,9 @@ export default function HeadteacherDashboardScreen() {
 
         {/* Greeting */}
         <View style={styles.greetingCard}>
-          <Text style={styles.welcomeMessage}>{greeting()}, {userName || 'Headteacher'}</Text>
+          <Text style={styles.welcomeMessage}>
+            {greeting()}, {userProfile?.title ? `${userProfile.title} ` : ''}{userName || 'Headteacher'}
+          </Text>
         </View>
 
         {showLogout && (
@@ -141,8 +144,10 @@ export default function HeadteacherDashboardScreen() {
             <DashboardCard iconName="calendar-outline" title="Calendar" onPress={() => router.push('/(main)/academic-calendar')} />
             <DashboardCard iconName="time-outline" title="Exam Schedules" onPress={() => router.push('/(headteacher)/exams')} />
             <DashboardCard iconName="megaphone-outline" title="Announcements" onPress={() => router.push('/(headteacher)/announcements')} />
-
           </View>
+
+          {/* Term Summary Card */}
+          <TermSummary />
         </ScrollView>
       </View>
     </TouchableWithoutFeedback>

@@ -3,8 +3,10 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { updateUserProfile, useAuth } from '../../lib/auth';
 import { UserProfile } from '../../lib/types';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function ProfileScreen() {
+  const { colors } = useTheme();
   const { user, userProfile: authUserProfile, loading: authLoading, refreshUserProfile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -113,14 +115,14 @@ export default function ProfileScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.headerCard}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.contentContainer}>
+      <View style={[styles.headerCard, { backgroundColor: colors.cardBackground }]}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{initials}</Text>
         </View>
         <View style={styles.headerInfo}>
-          <Text style={styles.headerName}>{name || 'Your Name'}</Text>
-          <Text style={styles.headerEmail}>{email}</Text>
+          <Text style={[styles.headerName, { color: colors.text }]}>{name || 'Your Name'}</Text>
+          <Text style={[styles.headerEmail, { color: colors.text }]}>{email}</Text>
           <View style={styles.roleChip}><Text style={styles.roleChipText}>{roleLabel}</Text></View>
         </View>
       </View>

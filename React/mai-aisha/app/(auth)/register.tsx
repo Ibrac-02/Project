@@ -3,8 +3,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function SignUpScreen() {
+  const { colors } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -74,33 +76,33 @@ export default function SignUpScreen() {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-    <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps='handled'>
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.background }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+    <ScrollView contentContainerStyle={[styles.scrollContainer, { backgroundColor: colors.background }]} keyboardShouldPersistTaps='handled'>
       <Image source={require('../../assets/images/maa.png')} style={styles.logo} />
-      <Text style={styles.schoolName}>Mai Aisha Academy</Text>
-      <Text style={styles.welcomeText}>Create your account to get started.</Text>
+      <Text style={[styles.schoolName, { color: colors.text }]}>Mai Aisha Academy</Text>
+      <Text style={[styles.welcomeText, { color: colors.text }]}>Create your account to get started.</Text>
       <TextInput
-        style={styles.input}
+        style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.text + '30' }]}
         placeholder="Full Name"
-        placeholderTextColor="#666"
+        placeholderTextColor={colors.text + '70'}
         autoCapitalize="words"
         value={name}
         onChangeText={setName}
       />
       <TextInput
-        style={styles.input}
+        style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.text + '30' }]}
         placeholder="username@example.com"
-        placeholderTextColor="#666"
+        placeholderTextColor={colors.text + '70'}
         keyboardType="email-address"
         autoCapitalize="none"
         value={email}
         onChangeText={setEmail}
       />
-      <View style={styles.passwordContainer}>
+      <View style={[styles.passwordContainer, { backgroundColor: colors.cardBackground, borderColor: colors.text + '30' }]}>
         <TextInput
-          style={styles.passwordInput}
+          style={[styles.passwordInput, { color: colors.text }]}
           placeholder="Password"
-          placeholderTextColor="#666"
+          placeholderTextColor={colors.text + '70'}
           secureTextEntry={!showPassword}
           value={password}
           onChangeText={setPassword}
@@ -109,7 +111,7 @@ export default function SignUpScreen() {
           style={styles.eyeIcon}
           onPress={() => setShowPassword(!showPassword)}
         >
-          <Ionicons name={showPassword ? "eye-off" : "eye"} size={24} color="gray" />
+          <Ionicons name={showPassword ? "eye-off" : "eye"} size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
       <View style={styles.passwordContainer}>

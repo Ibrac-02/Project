@@ -17,7 +17,8 @@ export default function MainLayout() {
       <Stack.Screen name="announcements" options={{ title: 'Announcements' }} />
       <Stack.Screen name="attendance" options={{ title: 'Attendance' }} />
       <Stack.Screen name="academic-calendar" options={{ title: 'Calendar', headerShown: true}} />
+      <Stack.Screen name="messages" options={{ title: 'My Messages' }} />
       <StatusBar style="auto" />
     </Stack>
-  ); 
+  );  
 }

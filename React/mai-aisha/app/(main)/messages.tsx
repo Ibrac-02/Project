@@ -5,9 +5,11 @@ import { MessageCard } from '@/components/MessageCard';
 import { Message, createMessage, deleteMessage, getMessagesForUser, updateMessage, markMessageAsRead, getUnreadMessageCount } from '@/lib/messages';
 import { useAuth, getAllUsers } from '@/lib/auth';
 import { Picker } from '@react-native-picker/picker';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function MessagesScreen() {
   const { user, role: userRole, loading: authLoading, userName } = useAuth();
+  const { colors } = useTheme();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -216,18 +218,18 @@ export default function MessagesScreen() {
 
   if (loading || authLoading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#1E90FF" />
-        <Text>Loading messages...</Text>
+      <View style={[styles.centered, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primaryBlue} />
+        <Text style={{ color: colors.text }}>Loading messages...</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Messages</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Messages</Text>
         {unreadCount > 0 && (
           <View style={styles.unreadBadge}>
             <Text style={styles.unreadBadgeText}>{unreadCount}</Text>
@@ -235,7 +237,7 @@ export default function MessagesScreen() {
         )}
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, { backgroundColor: colors.background }]}>
         {canManageMessages && (
           <>
             <TouchableOpacity style={styles.createButton} onPress={() => {
@@ -266,7 +268,7 @@ export default function MessagesScreen() {
         )}
 
         {messages.length === 0 ? (
-          <Text style={styles.noMessagesText}>No messages available.</Text>
+          <Text style={[styles.noMessagesText, { color: colors.text }]}>No messages available.</Text>
         ) : (
           messages.map((message) => (
             <MessageCard
@@ -291,28 +293,30 @@ export default function MessagesScreen() {
         onRequestClose={() => setIsModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>
+          <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
               {editingMessage ? 'Edit Message' : 'Send New Message'}
             </Text>
 
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.text + '30' }]}
               placeholder="Message Title"
+              placeholderTextColor={colors.text + '70'}
               value={title}
               onChangeText={setTitle}
             />
             
             <TextInput
-              style={[styles.input, styles.textArea]}
+              style={[styles.input, styles.textArea, { backgroundColor: colors.background, color: colors.text, borderColor: colors.text + '30' }]}
               placeholder="Message Content"
+              placeholderTextColor={colors.text + '70'}
               multiline
               value={content}
               onChangeText={setContent}
             />
 
-            <Text style={styles.label}>Message Type</Text>
-            <View style={styles.pickerContainer}>
+            <Text style={[styles.label, { color: colors.text }]}>Message Type</Text>
+            <View style={[styles.pickerContainer, { backgroundColor: colors.background }]}>
               <Picker
                 selectedValue={messageType}
                 onValueChange={(itemValue) => setMessageType(itemValue)}
@@ -343,22 +347,21 @@ export default function MessagesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f2f5',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
+    paddingVertical: 15,
     paddingHorizontal: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#1E90FF',
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#fff',
   },
   unreadBadge: {
     backgroundColor: '#FF3B30',

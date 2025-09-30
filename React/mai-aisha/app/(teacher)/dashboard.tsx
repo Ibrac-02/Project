@@ -7,6 +7,8 @@ import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, Touc
 import { listClasses } from '@/lib/classes';
 import { listStudents } from '@/lib/students';
 import { useTheme } from '@/contexts/ThemeContext';
+import TermSummary from '@/components/TermSummary';
+import { getUnreadMessageCount } from '@/lib/messages';
 
 interface DashboardCardProps {
   iconName: keyof typeof Ionicons.glyphMap; // Type for Ionicons
@@ -35,7 +37,7 @@ const greeting = () => {
 };
 
 export default function TeacherDashboardScreen() {
-  const { userName, user } = useAuth();
+  const { userName, user, userProfile } = useAuth();
   const [showLogout, setShowLogout] = useState(false);
   const [classesCount, setClassesCount] = useState(0);
   const [studentsCount, setStudentsCount] = useState(0);
@@ -163,7 +165,9 @@ export default function TeacherDashboardScreen() {
 
         {/* Greeting */}
         <View style={[styles.greetingCard, { backgroundColor: colors.cardBackground }]}>
-          <Text style={[styles.welcomeMessage, { color: colors.text }]}>{greeting()}, {userName || 'Teacher'}</Text>
+          <Text style={[styles.welcomeMessage, { color: colors.text }]}>
+            {greeting()}, {userProfile?.title ? `${userProfile.title} ` : ''}{userName || 'Teacher'}
+          </Text>
         </View>
 
         <ScrollView contentContainerStyle={[styles.contentContainer, { backgroundColor: colors.background }]}>
@@ -177,15 +181,17 @@ export default function TeacherDashboardScreen() {
           {/* Quick Actions */}
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Actions</Text>
           <View style={styles.cardGroupContainer}>
-            <DashboardCard iconName="checkbox-outline" title="Attendance" onPress={() => router.push('/(teacher)/attendance' as any)} />
-            <DashboardCard iconName="create-outline" title="Marks" onPress={() => router.push('/(teacher)/grade-screen' as any)} />
-            <DashboardCard iconName="document-text-outline" title="Lesson Plans" onPress={() => router.push('/(teacher)/lesson-plan' as any)} />
-            <DashboardCard iconName="bar-chart-outline" title="Reports" onPress={() => router.push('/(teacher)/performance-screen' as any)} />
-            <DashboardCard iconName="calendar-outline" title="Calendar" onPress={() => router.push('/(main)/academic-calendar' as any)} />
-            <DashboardCard iconName="chatbubbles-outline" title="Messages" onPress={() => router.push('/(main)/messages' as any)} />
-            <DashboardCard iconName="people-outline" title="Students" onPress={() => router.push('/(teacher)/students' as any)} />
-            <DashboardCard iconName="time-outline" title="Term Summary" onPress={() => router.push('/(teacher)/term-summary' as any)} />
+            <DashboardCard iconName="checkbox-outline" title="Attendance" onPress={() => router.push('/(teacher)/attendance' )} />
+            <DashboardCard iconName="create-outline" title="Marks" onPress={() => router.push('/(teacher)/grade-screen' )} />
+            <DashboardCard iconName="document-text-outline" title="Lesson Plans" onPress={() => router.push('/(teacher)/lesson-plan' )} />
+            <DashboardCard iconName="bar-chart-outline" title="Reports" onPress={() => router.push('/(teacher)/performance-screen' )} />
+            <DashboardCard iconName="calendar-outline" title="Calendar" onPress={() => router.push('/(main)/academic-calendar' )} />
+            <DashboardCard iconName="chatbubbles-outline" title="Messages" onPress={() => router.push('/(main)/messages' )} />
+            <DashboardCard iconName="people-outline" title="My Students" onPress={() => router.push('/(teacher)/students' )} />
           </View>
+
+          {/* Term Summary Card */}
+          <TermSummary />
         </ScrollView>
       </View>
     </TouchableWithoutFeedback>

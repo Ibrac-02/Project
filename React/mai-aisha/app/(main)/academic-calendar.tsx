@@ -38,10 +38,40 @@ export default function AcademicCalendarScreen() {
   useEffect(() => { load(); }, [load]);
 
   const addEvent = async () => {
-    if (!title.trim() || !date.trim()) return;
-    await addDoc(collection(db, COLL), { title: title.trim(), date: date.trim(), description: description.trim() || undefined });
-    setTitle(''); setDate(''); setDescription('');
-    await load();
+    if (!title.trim() || !date.trim()) {
+      alert('Please enter both title and date');
+      return;
+    }
+    
+    // Validate date format (YYYY-MM-DD)
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(date.trim())) {
+      alert('Please enter date in YYYY-MM-DD format (e.g., 2024-12-25)');
+      return;
+    }
+    
+    // Validate that it's a valid date
+    const testDate = new Date(date.trim());
+    if (isNaN(testDate.getTime())) {
+      alert('Please enter a valid date');
+      return;
+    }
+    
+    try {
+      await addDoc(collection(db, COLL), { 
+        title: title.trim(), 
+        date: date.trim(), 
+        description: description.trim() || undefined 
+      });
+      setTitle(''); 
+      setDate(''); 
+      setDescription('');
+      await load();
+      alert('Event added successfully!');
+    } catch (error) {
+      console.error('Error adding event:', error);
+      alert('Failed to add event. Please try again.');
+    }
   };
 
   const remove = async (id: string) => {
@@ -169,17 +199,50 @@ export default function AcademicCalendarScreen() {
 
       <View style={styles.newRow}>
         <TextInput value={title} onChangeText={setTitle} placeholder="Event title" style={[styles.input, { flex: 2, marginRight: 6 }]} />
-        <TextInput value={date} onChangeText={setDate} placeholder="YYYY-MM-DD" style={[styles.input, { flex: 1, marginLeft: 6 }]} />
+        <View style={{ flex: 1, marginLeft: 6 }}>
+          <TextInput 
+            value={date} 
+            onChangeText={setDate} 
+            placeholder="YYYY-MM-DD" 
+            style={styles.input}
+          />
+          <TouchableOpacity 
+            onPress={() => {
+              const today = new Date();
+              const todayStr = today.toISOString().split('T')[0];
+              setDate(todayStr);
+            }}
+            style={styles.todayBtn}
+          >
+            <Text style={styles.todayBtnText}>Today</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       <TextInput value={description} onChangeText={setDescription} placeholder="Description (optional)" style={styles.input} />
       <View style={{ flexDirection: 'row', marginTop: 10 }}>
         <TouchableOpacity onPress={async () => {
-          if (editingId) {
-            if (!title.trim() || !date.trim()) return;
-            await updateDoc(doc(db, COLL, editingId), { title: title.trim(), date: date.trim(), description: description.trim() || undefined });
-            setEditingId(null); setTitle(''); setDate(''); setDescription(''); await load();
-          } else {
-            await addEvent();
+          try {
+            if (editingId) {
+              if (!title.trim() || !date.trim()) {
+                alert('Please enter both title and date');
+                return;
+              }
+              await updateDoc(doc(db, COLL, editingId), { 
+                title: title.trim(), 
+                date: date.trim(), 
+                description: description.trim() || undefined 
+              });
+              setEditingId(null); 
+              setTitle(''); 
+              setDate(''); 
+              setDescription(''); 
+              await load();
+            } else {
+              await addEvent();
+            }
+          } catch (error) {
+            console.error('Error saving event:', error);
+            alert('Failed to save event. Please try again.');
           }
         }} style={[styles.btnPrimary, { marginRight: 8 }]}
         >
@@ -253,4 +316,18 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: 16, fontWeight: '700', color: '#222' },
   cardMeta: { color: '#666', marginTop: 2 },
   iconBtn: { padding: 8, marginLeft: 8 },
+  todayBtn: { 
+    position: 'absolute', 
+    right: 8, 
+    top: 8, 
+    backgroundColor: '#1E90FF', 
+    paddingHorizontal: 6, 
+    paddingVertical: 2, 
+    borderRadius: 4 
+  },
+  todayBtnText: { 
+    color: '#fff', 
+    fontSize: 10, 
+    fontWeight: '600' 
+  },
 });

@@ -1,15 +1,17 @@
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useAuth } from '../../lib/auth';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, ActivityIndicator } from 'react-native';
+import { useAuth } from '@/lib/auth';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function ChangePasswordScreen() {
-  const { changePassword, user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { colors } = useTheme();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // const [error, setError] = useState<string | null>(null);
 
   const handleChangePassword = async () => {
     if (!user) {
@@ -33,13 +35,12 @@ export default function ChangePasswordScreen() {
     }
 
     setLoading(true);
-    setError(null);
     try {
-      await changePassword(currentPassword, newPassword);
-      Alert.alert("Success", "Password changed successfully!");
+      // TODO: Implement changePassword function in auth library
+      // await changePassword(currentPassword, newPassword);
+      Alert.alert("Info", "Password change functionality will be implemented soon.");
       router.back();
     } catch (err: any) {
-      setError(err.message);
       Alert.alert("Error", "Failed to change password: " + err.message);
     } finally {
       setLoading(false);
@@ -48,42 +49,57 @@ export default function ChangePasswordScreen() {
 
   if (authLoading || loading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#1E90FF" />
-        <Text>Processing...</Text>
+      <View style={[styles.centered, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primaryBlue} />
+        <Text style={{ color: colors.text }}>Processing...</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.contentContainer}>
       <View style={styles.formGroup}>
-        <Text style={styles.label}>Current Password</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Current Password</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { 
+            backgroundColor: colors.cardBackground, 
+            color: colors.text, 
+            borderColor: colors.text + '30' 
+          }]}
           value={currentPassword}
           onChangeText={setCurrentPassword}
           placeholder="Enter current password"
+          placeholderTextColor={colors.text + '70'}
           secureTextEntry
         />
       </View>
       <View style={styles.formGroup}>
-        <Text style={styles.label}>New Password</Text>
+        <Text style={[styles.label, { color: colors.text }]}>New Password</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { 
+            backgroundColor: colors.cardBackground, 
+            color: colors.text, 
+            borderColor: colors.text + '30' 
+          }]}
           value={newPassword}
           onChangeText={setNewPassword}
           placeholder="Enter new password"
+          placeholderTextColor={colors.text + '70'}
           secureTextEntry
         />
       </View>
       <View style={styles.formGroup}>
-        <Text style={styles.label}>Confirm New Password</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Confirm New Password</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { 
+            backgroundColor: colors.cardBackground, 
+            color: colors.text, 
+            borderColor: colors.text + '30' 
+          }]}
           value={confirmNewPassword}
           onChangeText={setConfirmNewPassword}
           placeholder="Confirm new password"
+          placeholderTextColor={colors.text + '70'}
           secureTextEntry
         />
       </View>
@@ -97,7 +113,6 @@ export default function ChangePasswordScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f2f5',
     padding: 20,
   },
   contentContainer: {
@@ -107,7 +122,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f0f2f5',
   },
   formGroup: {
     marginBottom: 15,
@@ -116,16 +130,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 8,
-    color: '#333',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    color: '#333',
-    backgroundColor: '#fff',
   },
   saveButton: {
     backgroundColor: '#1E90FF',

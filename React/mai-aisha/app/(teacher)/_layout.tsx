@@ -18,10 +18,11 @@ export default function TeacherLayout() {
         }}
       >
         <Stack.Screen name="dashboard" options={{ headerShown: false }} />
-        <Stack.Screen name="lesson-plan" options={{ headerShown: true , title: 'Lesson Plan' }} />
-        <Stack.Screen name="grade-screen" options={{ headerShown: true , title: 'Grade Screen' }} />
-        <Stack.Screen name="attendance" options={{ headerShown: true , title: 'Attendance' }} />
-        <Stack.Screen name="performance-screen" options={{ headerShown: true , title: 'Performance Screen' }} />
+        <Stack.Screen name="lesson-plan" options={{ headerShown: true , title: 'My Lesson Plan' }} />
+        <Stack.Screen name="grade-screen" options={{ headerShown: true , title: 'My Grade Screen' }} />
+        <Stack.Screen name="attendance" options={{ headerShown: true , title: 'My Attendance' }} />
+        <Stack.Screen name="performance-screen" options={{ headerShown: true , title: 'My Performance' }} />
+        <Stack.Screen name="students" options={{ headerShown: true , title: 'My Students' }} />
         <StatusBar style='auto' />
       </Stack>
       

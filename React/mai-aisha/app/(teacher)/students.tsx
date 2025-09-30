@@ -95,10 +95,10 @@ export default function TeacherStudentsScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <Text style={styles.title}>My Students</Text>
         <Text style={styles.subtitle}>Students in your classes</Text>
-      </View>
+      </View> */}
 
       {/* Class Filter */}
       <View style={styles.filterSection}>

@@ -2,6 +2,7 @@ import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Message } from '@/lib/messages';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export function MessageCard({
   message,
@@ -20,6 +21,7 @@ export function MessageCard({
   onSelect?: (id: string) => void;
   showActions?: boolean;
 }) {
+  const { colors } = useTheme();
   const isUnread = !message.isRead[currentUserId];
   const timeAgo = getTimeAgo(message.createdAt.toDate());
   
@@ -27,6 +29,7 @@ export function MessageCard({
     <TouchableOpacity
       style={[
         styles.messageCard,
+        { backgroundColor: colors.cardBackground, borderColor: colors.text + '20' },
         isSelected && styles.messageCardSelected,
         isUnread && styles.messageCardUnread
       ]}

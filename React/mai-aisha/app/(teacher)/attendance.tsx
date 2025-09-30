@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, FlatList, Modal, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { createAttendance, deleteAttendance, listAttendanceForTeacher, updateAttendance, type AttendanceRecord, type AttendanceStatus } from '@/lib/attendance';
 import { useAuth } from '@/lib/auth';
 import { useRequireRole } from '@/lib/access';
 import { listClasses } from '@/lib/classes';
+import { listStudents } from '@/lib/students';
 import AutoComplete from '@/components/AutoComplete';
 
 export default function TeacherAttendanceScreen() {
@@ -16,6 +18,7 @@ export default function TeacherAttendanceScreen() {
   const [loading, setLoading] = useState(true);
 
   const [classes, setClasses] = useState<{ id: string; name: string }[]>([]);
+  const [students, setStudents] = useState<{ id: string; name: string }[]>([]);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<AttendanceRecord | null>(null);
@@ -24,15 +27,32 @@ export default function TeacherAttendanceScreen() {
   const [studentId, setStudentId] = useState('');
   const [status, setStatus] = useState<AttendanceStatus>('present');
 
+  // Format today's date as default
+  const todayDate = useMemo(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  }, []);
+
   const load = useCallback(async () => {
     if (!teacherId) return;
     setLoading(true);
-    const [att, cls] = await Promise.all([
-      listAttendanceForTeacher(teacherId),
-      listClasses(),
-    ]);
-    setItems(att);
-    setClasses(cls.map(c => ({ id: c.id, name: c.name })));
+    try {
+      const [att, cls, studs] = await Promise.all([
+        listAttendanceForTeacher(teacherId),
+        listClasses(),
+        listStudents(),
+      ]);
+      setItems(att);
+      // Filter classes to only show teacher's assigned classes, or show all if no teacher-specific classes
+      const teacherClasses = cls.filter(c => c.teacherId === teacherId);
+      // If no teacher-specific classes, show all classes (fallback)
+      const classesToShow = teacherClasses.length > 0 ? teacherClasses : cls;
+      setClasses(classesToShow.map(c => ({ id: c.id, name: c.name })));
+      setStudents(studs.map(s => ({ id: s.uid, name: s.name || 'Unknown Student' })));
+    } catch (error) {
+      console.error('Error loading attendance data:', error);
+      Alert.alert('Error', 'Failed to load attendance data');
+    }
     setLoading(false);
   }, [teacherId]);
 
@@ -40,7 +60,7 @@ export default function TeacherAttendanceScreen() {
 
   const openNew = () => {
     setEditing(null);
-    setDate('');
+    setDate(todayDate); // Set today's date as default
     setClassId('');
     setStudentId('');
     setStatus('present');
@@ -58,7 +78,15 @@ export default function TeacherAttendanceScreen() {
 
   const save = async () => {
     if (!teacherId) { Alert.alert('Not allowed'); return; }
-    if (!date.trim() || !studentId.trim()) { Alert.alert('Validation', 'Date and student ID are required.'); return; }
+    if (!date.trim() || !studentId.trim()) { Alert.alert('Validation', 'Date and student are required.'); return; }
+    
+    // Validate date format
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(date.trim())) {
+      Alert.alert('Invalid Date', 'Please enter date in YYYY-MM-DD format');
+      return;
+    }
+    
     const payload = {
       date: date.trim(),
       classId: classId || undefined,
@@ -77,25 +105,29 @@ export default function TeacherAttendanceScreen() {
   };
 
   const remove = (rec: AttendanceRecord) => {
-    Alert.alert('Delete record', `Delete attendance for ${rec.studentId} on ${rec.date}?`, [
+    const studentName = students.find(s => s.id === rec.studentId)?.name || rec.studentId;
+    Alert.alert('Delete record', `Delete attendance for ${studentName} on ${rec.date}?`, [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => { await deleteAttendance(rec.id); await load(); } }
+      { text: 'Delete', style: 'destructive', onPress: async () => {
+        try {
+          await deleteAttendance(rec.id);
+          await load();
+        } catch (error) {
+          Alert.alert('Error', 'Failed to delete attendance record');
+        }
+      }}
     ]);
   };
 
   const className = useMemo(() => new Map(classes.map(c => [c.id, c.name])), [classes]);
+  const studentName = useMemo(() => new Map(students.map(s => [s.id, s.name])), [students]);
   const classOptions = useMemo(() => classes.map(c => ({ id: c.id, name: c.name })), [classes]);
   const studentOptions = useMemo(() => {
-    const set = new Set<string>();
-    for (const it of items) { if (it.studentId) set.add(it.studentId); }
-    // Also include current input if typed
-    if (studentId && !set.has(studentId)) set.add(studentId);
-    return Array.from(set).map(s => ({ id: s, name: s }));
-  }, [items, studentId]);
+    return students;
+  }, [students]);
   const statusOptions = useMemo(() => (['present', 'absent', 'late'] as AttendanceStatus[]).map(s => ({ id: s, name: s })), []);
 
-  return (
-    !allowed || roleLoading ? null : (
+  return !allowed || roleLoading ? null : (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Student Attendance</Text>
       <Text style={styles.subtitle}>Mark, edit and view attendance</Text>
@@ -114,7 +146,9 @@ export default function TeacherAttendanceScreen() {
         renderItem={({ item }) => (
           <View style={styles.card}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.cardTitle}>{item.studentId}</Text>
+              <Text style={styles.cardTitle}>
+                {studentName.get(item.studentId) || item.studentId}
+              </Text>
               <Text style={styles.cardMeta}>Date: {item.date} • Status: {item.status}</Text>
               {!!item.classId && <Text style={styles.cardMeta}>Class: {className.get(item.classId) || item.classId}</Text>}
             </View>
@@ -122,15 +156,20 @@ export default function TeacherAttendanceScreen() {
             <TouchableOpacity onPress={() => remove(item)} style={styles.iconBtn}><Ionicons name="trash-outline" size={20} color="#D11A2A" /></TouchableOpacity>
           </View>
         )}
-        ListEmptyComponent={!loading ? (<Text style={{ color: '#666' }}>No attendance yet.</Text>) : null}
+        ListEmptyComponent={!loading ? (<Text style={{ color: '#666' }}>No attendance records yet.</Text>) : null}
       />
 
       <Modal visible={modalOpen} animationType="slide" transparent>
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
             <Text style={styles.modalTitle}>{editing ? 'Edit Attendance' : 'New Attendance'}</Text>
-            <TextInput value={date} onChangeText={setDate} placeholder="Date (YYYY-MM-DD)" style={styles.input} />
-            <Text style={styles.label}>Class</Text>
+            <TextInput 
+              value={date} 
+              onChangeText={setDate} 
+              placeholder={`Date (YYYY-MM-DD) - Today: ${todayDate}`}
+              style={styles.input} 
+            />
+            <Text style={styles.label}>Class (Optional)</Text>
             <AutoComplete
               value={className.get(classId) || ''}
               placeholder="Search class..."
@@ -139,16 +178,21 @@ export default function TeacherAttendanceScreen() {
               onChangeText={() => { /* display-only input for search; selection sets id */ }}
               onSelectItem={(it) => setClassId(it.id)}
             />
-            <Text style={styles.label}>Student</Text>
+            <Text style={styles.label}>Student *</Text>
             <AutoComplete
-              value={studentId}
-              placeholder="Type or select student ID..."
+              value={studentName.get(studentId) || studentId}
+              placeholder="Search student..."
               data={studentOptions}
               labelExtractor={(i) => i.name}
-              onChangeText={setStudentId}
+              onChangeText={(text) => {
+                // Allow searching by name, but if no exact match, keep the text
+                const student = students.find(s => s.name.toLowerCase().includes(text.toLowerCase()));
+                if (student) setStudentId(student.id);
+                else setStudentId(text);
+              }}
               onSelectItem={(it) => setStudentId(it.id)}
             />
-            <Text style={styles.label}>Status</Text>
+            <Text style={styles.label}>Status *</Text>
             <AutoComplete
               value={status}
               placeholder="Select status..."
@@ -169,7 +213,7 @@ export default function TeacherAttendanceScreen() {
         </View>
       </Modal>
     </SafeAreaView>
-  ));
+  );
 }
 
 const styles = StyleSheet.create({
@@ -184,7 +228,7 @@ const styles = StyleSheet.create({
   iconBtn: { padding: 8, marginLeft: 8 },
   modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: 16 },
   modalCard: { backgroundColor: '#fff', borderRadius: 12, padding: 16 },
-  modalTitle: { fontSize: 18, fontWeight: '700', marginBottom: 8 },
+  modalTitle: { fontSize: 18, fontWeight: '700', marginBottom: 8, color: '#222' },
   input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#e5e5e5', borderRadius: 8, paddingHorizontal: 10, height: 42, marginTop: 8 },
   label: { marginTop: 12, marginBottom: 4, fontWeight: '600', color: '#555' },
   chipsRow: { flexDirection: 'row', flexWrap: 'wrap' },

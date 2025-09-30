@@ -5,8 +5,10 @@ import { useFocusEffect } from 'expo-router';
 import { listStudents, deleteStudent, updateStudent, createStudent } from '@/lib/students-offline';
 import { listClasses } from '@/lib/classes';
 import type { UserProfile, SchoolClass } from '@/lib/types';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function AdminStudentsList() {
+  const { colors } = useTheme();
   const [students, setStudents] = useState<UserProfile[]>([]);
   const [classes, setClasses] = useState<SchoolClass[]>([]);
   const [loading, setLoading] = useState(true);
@@ -292,9 +294,9 @@ export default function AdminStudentsList() {
   });
 
   return (
-    <View style={styles.container}>
-      <View style={styles.topBar}>
-        <Text style={styles.title}>Students</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.topBar, { backgroundColor: colors.cardBackground }]}>
+        <Text style={[styles.title, { color: colors.text }]}>Students</Text>
         <TouchableOpacity style={styles.addBtn} onPress={() => openNewModal()}>
           <Ionicons name="add-circle" size={24} color="#fff" />
           <Text style={styles.addBtnText}>New</Text>

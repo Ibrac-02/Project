@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, FlatList, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Timestamp } from 'firebase/firestore';
+// import { Timestamp } from 'firebase/firestore';
 import { createAnnouncement, getAnnouncements, type Announcement } from '@/lib/announcements';
 import { useAuth } from '@/lib/auth';
 
@@ -14,19 +14,21 @@ export default function AdminAnnouncementsScreen() {
   const [items, setItems] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
 
-  async function load() {
+  const load = useCallback(async (): Promise<void> => {
     setLoading(true);
     try {
       const list = await getAnnouncements(role || 'admin', user?.uid || undefined);
       setItems(list);
-    } catch (e) {
-      // ignore for now
+    } catch (error) {
+      console.error('Error loading announcements:', error);
     } finally {
       setLoading(false);
     }
-  }
+  }, [role, user?.uid]);
 
-  useEffect(() => { load(); }, [user?.uid, role]);
+  useEffect(() => { 
+    load(); 
+  }, [load]);
 
   const submit = async () => {
     if (!user?.uid || !role) { Alert.alert('Not allowed', 'You must be logged in.'); return; }
@@ -39,7 +41,7 @@ export default function AdminAnnouncementsScreen() {
         createdByUserId: user.uid,
         createdByUserRole: role,
         scope,
-        expiresAt: undefined as unknown as Timestamp | undefined,
+        expiresAt: undefined,
       });
       setTitle('');
       setContent('');

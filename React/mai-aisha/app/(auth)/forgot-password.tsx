@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, StyleSheet,Image, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Image, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
-import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '@/config/firebase';
+import { sendPasswordReset } from '@/lib/auth';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function ForgotPasswordScreen() {
+  const { colors } = useTheme();
   const [email, setEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -20,7 +22,7 @@ export default function ForgotPasswordScreen() {
     }
     try {
       setSubmitting(true);
-      await sendPasswordResetEmail(auth, email);
+      await sendPasswordReset(email);
       Alert.alert('Email sent', 'check your inbox or spam folder for password reset instructions.', [
         { text: 'OK', onPress: () => router.replace('/(auth)/login') },
       ]);

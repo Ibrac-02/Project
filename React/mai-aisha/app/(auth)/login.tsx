@@ -5,10 +5,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, Image, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const REMEMBER_ME_KEY = 'remember_me_email'; 
 
 export default function SignInScreen() {
+  const { colors } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -86,24 +88,24 @@ export default function SignInScreen() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 4 }}  behavior={Platform.OS === "ios" ? "padding" : "height"}>
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <Image source={require('../../assets/images/maa.png')} style={styles.logo} />
-        <Text style={styles.schoolName}>Mai Aisha Academy</Text>
-        <Text style={styles.welcomeText}>Welcome back! Please sign in to continue.</Text>
+        <Text style={[styles.schoolName, { color: colors.text }]}>Mai Aisha Academy</Text>
+        <Text style={[styles.welcomeText, { color: colors.text }]}>Welcome back! Please sign in to continue.</Text>
         <TextInput
-        style={styles.input}
+        style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.text + '30' }]}
         placeholder="username@example.com"
-        placeholderTextColor="#666"
+        placeholderTextColor={colors.text + '70'}
         keyboardType="email-address"
         autoCapitalize="none"
         value={email}
         onChangeText={setEmail}
       />
-      <View style={styles.passwordContainer}>
+      <View style={[styles.passwordContainer, { backgroundColor: colors.cardBackground, borderColor: colors.text + '30' }]}>
         <TextInput
-          style={styles.passwordInput}
+          style={[styles.passwordInput, { color: colors.text }]}
           placeholder="Password"
-          placeholderTextColor="#666"
+          placeholderTextColor={colors.text + '70'}
           secureTextEntry={!showPassword}
           value={password}
           onChangeText={setPassword}
@@ -112,7 +114,7 @@ export default function SignInScreen() {
           style={styles.eyeIcon}
           onPress={() => setShowPassword(!showPassword)}
         >
-          <Ionicons name={showPassword ? "eye-off" : "eye"} size={24} color="gray" />
+          <Ionicons name={showPassword ? "eye-off" : "eye"} size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
 
@@ -122,20 +124,20 @@ export default function SignInScreen() {
           <Ionicons
             name={rememberMe ? "checkbox-outline" : "square-outline"}
             size={20} // Reduced size
-            color="#1E90FF"
+            color={colors.primaryBlue}
           />
-          <Text style={styles.rememberMeText}>Remember me</Text>
+          <Text style={[styles.rememberMeText, { color: colors.text }]}>Remember me</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.push('/(auth)/forgot-password')} style={styles.forgotPasswordButton}>
-          <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+          <Text style={[styles.forgotPasswordText, { color: colors.primaryBlue }]}>Forgot password?</Text>
         </TouchableOpacity>
       </View>
 
       <TouchableOpacity style={styles.signInButton} onPress={handleSignIn}>
         <Text style={styles.buttonText}>Sign In</Text>
       </TouchableOpacity>
-      <Text style={styles.signUpText}>
-        Don&apos;t have an account? <Text style={styles.signUpLink} onPress={() => router.push('/(auth)/register')}>Sign Up</Text>
+      <Text style={[styles.signUpText, { color: colors.text }]}>
+        Don&apos;t have an account? <Text style={[styles.signUpLink, { color: colors.primaryBlue }]} onPress={() => router.push('/(auth)/register')}>Sign Up</Text>
       </Text>
     </View>
     </KeyboardAvoidingView> 

@@ -4,6 +4,7 @@ import React, { useCallback, useState } from 'react';
 import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { getAllUsers, getStudents, useAuth, signOutUser } from '@/lib/auth';
 import { useTheme } from '@/contexts/ThemeContext';
+import TermSummary from '@/components/TermSummary';
 // removed unread notifications badge from header
 
 const { width } = Dimensions.get('window');
@@ -179,7 +180,11 @@ export default function AdminDashboardScreen() {
             <DashboardCard iconName="checkmark-done-outline" title="Attendance Overview" onPress={() => router.push('/(main)/attendance')} />
             <DashboardCard iconName="analytics-outline" title="Performance Reports" onPress={() => router.push('/(admin)/grade-report')} />
             <DashboardCard iconName="notifications-outline" title="Announcements" onPress={() => router.push('/(admin)/announcements')} />
+            <DashboardCard iconName="time-outline" title="Term Management" onPress={() => router.push('/(admin)/terms')} />
           </View>
+
+          {/* Term Summary Card */}
+          <TermSummary />
         </ScrollView>
       </View>
     </TouchableWithoutFeedback>
