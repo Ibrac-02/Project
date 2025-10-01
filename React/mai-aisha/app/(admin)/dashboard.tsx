@@ -5,6 +5,7 @@ import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, Touc
 import { getAllUsers, getStudents, useAuth, signOutUser } from '@/lib/auth';
 import { useTheme } from '@/contexts/ThemeContext';
 import TermSummary from '@/components/TermSummary';
+import { getUnreadMessageCount } from '@/lib/messages';
 // removed unread notifications badge from header
 
 const { width } = Dimensions.get('window');
@@ -18,7 +19,7 @@ export default function AdminDashboardScreen() {
   // Summary values
   const [teachersCount, setTeachersCount] = useState(0);
   const [studentsCount, setStudentsCount] = useState(0);
-  const [reportsCount, setReportsCount] = useState(0);
+  const [unreadMessages, setUnreadMessages] = useState(0);
 
   // Unread count removed with bell icon
 
@@ -39,14 +40,21 @@ export default function AdminDashboardScreen() {
       const students = await getStudents();
       setStudentsCount(students.length);
 
-      // Set reports count to 0 for now to avoid collection errors
-      // In the future, you can add proper library functions for these collections
-      setReportsCount(0);
+      // Removed reports count - replaced with unread messages functionality
+
+      // Get unread message count
+      try {
+        const unreadCount = await getUnreadMessageCount(user.uid);
+        setUnreadMessages(unreadCount);
+      } catch (error) {
+        console.log('Error fetching unread messages:', error);
+        setUnreadMessages(0);
+      }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       setTeachersCount(0);
       setStudentsCount(0);
-      setReportsCount(0);
+      setUnreadMessages(0);
     }
   }, [user]);
 
@@ -167,7 +175,7 @@ export default function AdminDashboardScreen() {
           <View style={styles.summaryRow}>
             <SummaryBox label="Teachers" value={teachersCount} />
             <SummaryBox label="Students" value={studentsCount} />
-            <SummaryBox label="Reports" value={reportsCount} />
+            <SummaryBox label="Active Terms" value={1} />
           </View>
 
           {/* Quick Actions */}
@@ -196,7 +204,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 20,
     backgroundColor: '#f0f2f5',
-    paddingBottom: 20,
+    paddingBottom: 100, // Account for bottom navigation
     flexGrow: 1,
   }, 
   header: {
@@ -204,7 +212,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: '#1E90FF',
-    paddingTop: 70,
+    paddingTop: 40,
     paddingHorizontal: 20,
     paddingBottom: 35,
     elevation: 3,

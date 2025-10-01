@@ -41,7 +41,7 @@ export default function TeacherDashboardScreen() {
   const [showLogout, setShowLogout] = useState(false);
   const [classesCount, setClassesCount] = useState(0);
   const [studentsCount, setStudentsCount] = useState(0);
-  const [pendingTasks, setPendingTasks] = useState(0);
+  const [unreadMessages, setUnreadMessages] = useState(0);
   const uid = user?.uid;
   const { colors } = useTheme();
 
@@ -57,14 +57,14 @@ export default function TeacherDashboardScreen() {
       if (!uid) { 
         setClassesCount(0); 
         setStudentsCount(0); 
-        setPendingTasks(0); 
+        setUnreadMessages(0); 
         return; 
       }
 
       // Initialize counts
       setClassesCount(0);
       setStudentsCount(0);
-      setPendingTasks(0);
+      setUnreadMessages(0);
 
       // Get classes assigned to teacher using proper library function
       try {
@@ -91,15 +91,22 @@ export default function TeacherDashboardScreen() {
         setClassesCount(0);
       }
 
-      // For pending tasks, we'll set to 0 for now since grades/lessonPlans might not exist yet
-      // This avoids collection errors
-      setPendingTasks(0);
+      // Removed pending tasks - replaced with unread messages functionality
+
+      // Get unread message count
+      try {
+        const unreadCount = await getUnreadMessageCount(uid);
+        setUnreadMessages(unreadCount);
+      } catch (error) {
+        console.log('Error fetching unread messages:', error);
+        setUnreadMessages(0);
+      }
 
     } catch (error) {
       console.error('Error in fetchSummaryCounts:', error);
       setClassesCount(0); 
       setStudentsCount(0); 
-      setPendingTasks(0);
+      setUnreadMessages(0);
     }
   }, [uid]);
 
@@ -175,7 +182,7 @@ export default function TeacherDashboardScreen() {
           <View style={styles.summaryRow}>
             <SummaryBox label="Classes" value={classesCount} />
             <SummaryBox label="Students" value={studentsCount} />
-            <SummaryBox label="Pending Tasks" value={pendingTasks} />
+            <SummaryBox label="Pending Tasks" value={0} />
           </View>
 
           {/* Quick Actions */}
@@ -186,7 +193,7 @@ export default function TeacherDashboardScreen() {
             <DashboardCard iconName="document-text-outline" title="Lesson Plans" onPress={() => router.push('/(teacher)/lesson-plan' )} />
             <DashboardCard iconName="bar-chart-outline" title="Reports" onPress={() => router.push('/(teacher)/performance-screen' )} />
             <DashboardCard iconName="calendar-outline" title="Calendar" onPress={() => router.push('/(main)/academic-calendar' )} />
-            <DashboardCard iconName="chatbubbles-outline" title="Messages" onPress={() => router.push('/(main)/messages' )} />
+            <DashboardCard iconName="chatbubbles-outline" title={unreadMessages > 0 ? `Messages (${unreadMessages})` : "Messages"} onPress={() => router.push('/(main)/messages' )} />
             <DashboardCard iconName="people-outline" title="My Students" onPress={() => router.push('/(teacher)/students' )} />
           </View>
 
@@ -202,7 +209,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   contentContainer: {
     padding: 20,
-    paddingBottom: 20,
+    paddingBottom: 100, // Account for bottom navigation
     flexGrow: 1,
   },
   header: {
@@ -210,7 +217,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: '#1E90FF', // Keep header blue for branding
-    paddingTop: 70,
+    paddingTop: 40,
     paddingHorizontal: 20,
     paddingBottom: 35,
     elevation: 3,

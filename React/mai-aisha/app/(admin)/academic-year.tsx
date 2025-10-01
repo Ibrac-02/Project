@@ -47,8 +47,8 @@ export default function AcademicYearScreen() {
   const openNewYear = () => {
     setEditingYear(null);
     setYearName('');
-    setYearStart('');
-    setYearEnd('');
+    setYearStart(new Date().toISOString().split('T')[0]);
+    setYearEnd(new Date().toISOString().split('T')[0]);
     setYearActive(false);
     setYearModalOpen(true);
   };
@@ -86,8 +86,8 @@ export default function AcademicYearScreen() {
     if (!activeYearId) { Alert.alert('Select a year first'); return; }
     setEditingTerm(null);
     setTermName('');
-    setTermStart('');
-    setTermEnd('');
+    setTermStart(new Date().toISOString().split('T')[0]);
+    setTermEnd(new Date().toISOString().split('T')[0]);
     setTermModalOpen(true);
   };
 

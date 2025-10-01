@@ -43,9 +43,9 @@ export default function TermManagementScreen() {
     setName('');
     setAcademicYear(new Date().getFullYear() + '/' + (new Date().getFullYear() + 1));
     setTermNumber('1');
-    setOpeningDate('');
-    setExamStartDate('');
-    setClosingDate('');
+    setOpeningDate(new Date().toISOString().split('T')[0]); // Current date
+    setExamStartDate(new Date().toISOString().split('T')[0]); // Current date
+    setClosingDate(new Date().toISOString().split('T')[0]); // Current date
     setHolidays([]);
     setModalOpen(true);
   };

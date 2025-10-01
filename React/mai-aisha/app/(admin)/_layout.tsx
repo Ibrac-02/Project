@@ -1,7 +1,13 @@
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function AdminLayout() {
+  const goBackToDashboard = () => {
+    router.replace('/(admin)/dashboard');
+  };
+
   return (
     <Stack screenOptions={{
         headerStyle: {
@@ -13,6 +19,12 @@ export default function AdminLayout() {
           fontSize: 20,
         }, 
         headerTitleAlign: 'left',
+        headerLeft: ({ canGoBack }) => 
+          canGoBack ? (
+            <TouchableOpacity onPress={goBackToDashboard} style={{ marginLeft: 10 }}>
+              <Ionicons name="arrow-back" size={24} color="#fff" />
+            </TouchableOpacity>
+          ) : null,
          }}>
       <Stack.Screen name="dashboard" options={{ headerShown: false, title: 'Admin Dashboard' }} />
       <Stack.Screen name="manage-user" options={{ headerShown: true, title: 'Manage Users' }} />

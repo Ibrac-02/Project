@@ -114,7 +114,7 @@ export default function SignUpScreen() {
           <Ionicons name={showPassword ? "eye-off" : "eye"} size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
-      <View style={styles.passwordContainer}>
+      <View style={[styles.passwordContainer, { backgroundColor: colors.cardBackground, borderColor: colors.text + '30' }]}>
         <TextInput
           style={styles.passwordInput}
           placeholder="Confirm Password"
@@ -127,7 +127,7 @@ export default function SignUpScreen() {
           style={styles.eyeIcon}
           onPress={() => setShowConfirmPassword(!showConfirmPassword)}
         >
-          <Ionicons name={showConfirmPassword ? "eye-off" : "eye"} size={24} color="gray" />
+          <Ionicons name={showConfirmPassword ? "eye-off" : "eye"} size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
 

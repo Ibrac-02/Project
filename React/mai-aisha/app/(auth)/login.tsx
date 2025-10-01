@@ -84,7 +84,7 @@ export default function SignInScreen() {
       }
       Alert.alert("Login Failed", errorMessage);
     }
-  };
+  }; 
 
   return (
     <KeyboardAvoidingView style={{ flex: 4 }}  behavior={Platform.OS === "ios" ? "padding" : "height"}>

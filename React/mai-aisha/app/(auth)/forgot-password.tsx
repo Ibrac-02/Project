@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Image, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { sendPasswordReset } from '@/lib/auth';
-import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/contexts/ThemeContext';
 
 export default function ForgotPasswordScreen() {
@@ -54,10 +53,10 @@ export default function ForgotPasswordScreen() {
       <View style={styles.container}>
       <Image source={require('../../assets/images/maa.png')} style={styles.headerLogo} />
       <Text style={styles.schoolName}>MAI AISHA ACADEMY</Text>
-        <Text style={styles.title}>Reset your password</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Enter your email to reset your password</Text>
         <TextInput
-          style={styles.input}
-          placeholder="Email"
+          style={[styles.input, { backgroundColor: colors.cardBackground, borderColor: colors.text + '30' }]}
+          placeholder="username@example.com"
           autoCapitalize="none"
           keyboardType="email-address"
           value={email}
@@ -87,10 +86,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   title: {
-    fontSize: 24,
-    fontWeight: '500',
+    fontSize: 18,
+    fontWeight: '400',
     marginBottom: 20,
-    color: '#4e4343ff',
+
   },
   input: {
     width: '100%',

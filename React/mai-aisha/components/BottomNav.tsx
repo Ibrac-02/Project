@@ -59,7 +59,7 @@ export default function BottomNav() {
     else router.replace('/(main)/messages');
   };
 
-  const goNotifications = () => router.replace('/(main)/messages');
+  const goMessages = () => router.replace('/(main)/messages');
   const goProfile = () => router.replace('/(settings)/profile');
 
   return (
@@ -72,16 +72,16 @@ export default function BottomNav() {
           <Text style={styles.label}>Home</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.item} onPress={goNotifications}>
+        <TouchableOpacity style={styles.item} onPress={goMessages}>
           <View>
-            <Ionicons name="notifications-outline" size={26} color="#fff" />
+            <Ionicons name="chatbubbles-outline" size={26} color="#fff" />
             {unread > 0 && (
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>{unread > 9 ? '9+' : unread}</Text>
               </View>
             )}
           </View>
-          <Text style={styles.label}>Notifications</Text>
+          <Text style={styles.label}>Messages</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.item} onPress={goProfile}>

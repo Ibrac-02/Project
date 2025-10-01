@@ -1,8 +1,14 @@
 
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function HeadteacherLayout() {
+  const goBackToDashboard = () => {
+    router.replace('/(headteacher)/dashboard');
+  };
+
   return (
     <Stack
       screenOptions={{
@@ -15,6 +21,12 @@ export default function HeadteacherLayout() {
           fontSize: 20,
         },
         headerTitleAlign: 'left',
+        headerLeft: ({ canGoBack }) => 
+          canGoBack ? (
+            <TouchableOpacity onPress={goBackToDashboard} style={{ marginLeft: 10 }}>
+              <Ionicons name="arrow-back" size={24} color="#fff" />
+            </TouchableOpacity>
+          ) : null,
       }}
     >
       <Stack.Screen name="dashboard" options={{ headerShown: false }} />
