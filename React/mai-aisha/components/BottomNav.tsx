@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router, usePathname, useSegments } from 'expo-router';
 import { useAuth } from '@/lib/auth';
 import { getUnreadMessageCount } from '@/lib/messages';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function BottomNav() {
   const pathname = usePathname();
@@ -12,6 +13,7 @@ export default function BottomNav() {
   const { user, role } = useAuth();
   const [unread, setUnread] = useState(0);
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
 
   const hidden = useMemo(() => {
     // Hide on any auth route. Some environments may provide different path shapes, so cover common patterns.
@@ -63,8 +65,8 @@ export default function BottomNav() {
   const goProfile = () => router.replace('/(settings)/profile');
 
   return (
-    <View style={styles.container} pointerEvents="box-none">
-      <View style={[styles.bar, { backgroundColor: colors.primaryBlue }]}>
+    <View style={[styles.container, { bottom: insets.bottom }]} pointerEvents="box-none">
+      <View style={[styles.bar, { backgroundColor: colors.primaryBlue, paddingBottom: Math.max(insets.bottom, 10) }]}>
         <TouchableOpacity style={styles.item} onPress={goHome}>
           <View>
             <Ionicons name="home" size={26} color="#fff" />
@@ -107,14 +109,13 @@ const styles = StyleSheet.create({
     // allow touches to pass above except on the bar
   },
   bar: {
-    height: HEIGHT,
-    backgroundColor: '#1E90FF',
+    minHeight: HEIGHT,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#e5e7eb',
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingBottom: Platform.OS === 'ios' ? 14 : 10,
+    paddingTop: 10,
   },
   item: {
     alignItems: 'center',

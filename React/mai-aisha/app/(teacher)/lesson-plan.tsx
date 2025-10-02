@@ -72,7 +72,7 @@ export default function TeacherLessonPlanScreen() {
       teacherId,
       date: date.trim(),
       status: 'pending' as const,
-      notes: notes.trim() || undefined,
+      notes: notes.trim() || '',
     } as Omit<LessonPlanRecord, 'id'>;
     try {
       if (editing) await updateLessonPlan(editing.id, payload);

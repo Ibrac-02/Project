@@ -6,7 +6,7 @@ import BottomNavSpacer from "../components/BottomNavSpacer";
 import NetworkStatus from "@/components/NetworkStatus";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { useEffect } from "react";
-import { pushNotificationService } from "@/lib/pushNotifications.stub";
+import { pushNotificationService } from "@/lib/pushNotifications";
 
 function AppContent() {
   useEffect(() => {

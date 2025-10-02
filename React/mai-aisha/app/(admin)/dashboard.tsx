@@ -5,7 +5,6 @@ import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, Touc
 import { getAllUsers, getStudents, useAuth, signOutUser } from '@/lib/auth';
 import { useTheme } from '@/contexts/ThemeContext';
 import TermSummary from '@/components/TermSummary';
-import { getUnreadMessageCount } from '@/lib/messages';
 // removed unread notifications badge from header
 
 const { width } = Dimensions.get('window');
@@ -19,7 +18,6 @@ export default function AdminDashboardScreen() {
   // Summary values
   const [teachersCount, setTeachersCount] = useState(0);
   const [studentsCount, setStudentsCount] = useState(0);
-  const [unreadMessages, setUnreadMessages] = useState(0);
 
   // Unread count removed with bell icon
 
@@ -40,21 +38,11 @@ export default function AdminDashboardScreen() {
       const students = await getStudents();
       setStudentsCount(students.length);
 
-      // Removed reports count - replaced with unread messages functionality
-
-      // Get unread message count
-      try {
-        const unreadCount = await getUnreadMessageCount(user.uid);
-        setUnreadMessages(unreadCount);
-      } catch (error) {
-        console.log('Error fetching unread messages:', error);
-        setUnreadMessages(0);
-      }
+      // Removed reports count and unread messages functionality
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       setTeachersCount(0);
       setStudentsCount(0);
-      setUnreadMessages(0);
     }
   }, [user]);
 
@@ -200,10 +188,9 @@ export default function AdminDashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f0f2f5' },
+  container: { flex: 1 },
   contentContainer: {
     padding: 20,
-    backgroundColor: '#f0f2f5',
     paddingBottom: 100, // Account for bottom navigation
     flexGrow: 1,
   }, 
@@ -254,7 +241,6 @@ const styles = StyleSheet.create({
   dropdownItem: { paddingVertical: 12, paddingHorizontal: 15 },
   dropdownItemText: { fontSize: 16, color: '#333' },
   greetingCard: {
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 20,
     marginHorizontal: 20,
@@ -266,7 +252,6 @@ const styles = StyleSheet.create({
   welcomeMessage: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
     textAlign: 'center',
   },
   /** Summary Boxes */
@@ -277,7 +262,6 @@ const styles = StyleSheet.create({
   },
   summaryBox: {
     flex: 1,
-    backgroundColor: '#fff',
     marginHorizontal: 8,
     padding: 20,
     borderRadius: 10, 
@@ -287,17 +271,14 @@ const styles = StyleSheet.create({
   summaryValue: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1E90FF',
   },
   summaryLabel: {
     marginTop: 4,
     fontSize: 14,
-    color: '#333',
   },
   /** Cards Grid */
   card: {
     width: (width / 4) - 20,
-    backgroundColor: '#fff',
     borderRadius: 12,
     paddingVertical: 20,
     marginBottom: 18,
@@ -313,7 +294,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 13,
     fontWeight: '600',
-    color: '#333',
     textAlign: 'center',
   },
   cardGroupContainer: {
@@ -324,24 +304,9 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#444',
     marginBottom: 12,
     marginLeft: 5,
   },
   headerRight: { flexDirection: 'row', alignItems: 'center' },
-  notificationIconContainer: { position: 'relative', marginRight: 15 },
-  notificationBadge: {
-    position: 'absolute',
-    right: -5,
-    top: -5,
-    backgroundColor: 'red',
-    borderRadius: 7,
-    width: 14,
-    height: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1,
-  },
-  notificationBadgeText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
   settingsIconContainer: { marginRight: 5, marginLeft: 12 },
 });

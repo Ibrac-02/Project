@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { offlineManager } from '@/lib/offline';
 
 export default function NetworkStatus() {
   const [isOnline, setIsOnline] = useState(true);
   const [pendingActions, setPendingActions] = useState(0);
+  const [showNotification, setShowNotification] = useState(false);
+  const [lastStatus, setLastStatus] = useState(true);
+  const fadeAnim = useState(new Animated.Value(0))[0];
 
   useEffect(() => {
     // Check initial status
@@ -21,25 +24,54 @@ export default function NetworkStatus() {
 
     // Listen for network changes
     const unsubscribe = offlineManager.addNetworkListener((online) => {
-      setIsOnline(online);
-      if (online) {
-        // When back online, check pending actions
-        setTimeout(async () => {
-          const pending = await offlineManager.getPendingActions();
-          setPendingActions(pending.length);
-        }, 1000);
+      // Only show notification if status actually changed
+      if (online !== lastStatus) {
+        setIsOnline(online);
+        setLastStatus(online);
+        setShowNotification(true);
+        
+        // Fade in animation
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
+        
+        // Auto-hide notification after 3 seconds with fade out
+        setTimeout(() => {
+          Animated.timing(fadeAnim, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+          }).start(() => {
+            setShowNotification(false);
+          });
+        }, 3000);
+        
+        if (online) {
+          // When back online, check pending actions
+          setTimeout(async () => {
+            const pending = await offlineManager.getPendingActions();
+            setPendingActions(pending.length);
+          }, 1000);
+        }
       }
     });
 
     return unsubscribe;
-  }, []);
+  }, [lastStatus, fadeAnim]);
 
-  if (isOnline && pendingActions === 0) {
-    return null; // Don't show anything when online and no pending actions
+  // Only show notification when there's a status change or pending actions
+  if (!showNotification && (isOnline && pendingActions === 0)) {
+    return null;
   }
 
   return (
-    <View style={[styles.container, isOnline ? styles.syncing : styles.offline]}>
+    <Animated.View style={[
+      styles.container, 
+      isOnline ? styles.syncing : styles.offline,
+      { opacity: fadeAnim }
+    ]}>
       <Ionicons 
         name={isOnline ? "sync" : "cloud-offline"} 
         size={16} 
@@ -50,11 +82,11 @@ export default function NetworkStatus() {
         {isOnline 
           ? pendingActions > 0 
             ? `Syncing ${pendingActions} changes...`
-            : 'Online'
+            : 'Back Online'
           : 'Offline Mode'
         }
       </Text>
-    </View>
+    </Animated.View>
   );
 }
 

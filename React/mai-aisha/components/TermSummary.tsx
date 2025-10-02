@@ -1,21 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getCurrentTerm, getDaysUntilExams, getDaysUntilClosing, getUpcomingHolidays, createTerm, setActiveTerm, type AcademicTerm } from '@/lib/terms';
 
 interface TermSummaryProps {
-  style?: any;
+  style?: object;
 }
 
 export default function TermSummary({ style }: TermSummaryProps) {
   const [currentTerm, setCurrentTerm] = useState<AcademicTerm | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadCurrentTerm();
-  }, []);
-
-  const loadCurrentTerm = async () => {
+  const loadCurrentTerm = useCallback(async () => {
     try {
       const term = await getCurrentTerm();
       console.log('Current term loaded:', term);
@@ -25,7 +21,11 @@ export default function TermSummary({ style }: TermSummaryProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadCurrentTerm();
+  }, [loadCurrentTerm]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -223,6 +223,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   loadingText: {
+    fontSize: 14,
     color: '#666',
     textAlign: 'center',
     fontStyle: 'italic',

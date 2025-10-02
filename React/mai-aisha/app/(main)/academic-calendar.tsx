@@ -61,7 +61,7 @@ export default function AcademicCalendarScreen() {
       await addDoc(collection(db, COLL), { 
         title: title.trim(), 
         date: date.trim(), 
-        description: description.trim() || undefined 
+        description: description.trim() || '' 
       });
       setTitle(''); 
       setDate(''); 
@@ -230,7 +230,7 @@ export default function AcademicCalendarScreen() {
               await updateDoc(doc(db, COLL, editingId), { 
                 title: title.trim(), 
                 date: date.trim(), 
-                description: description.trim() || undefined 
+                description: description.trim() || '' 
               });
               setEditingId(null); 
               setTitle(''); 

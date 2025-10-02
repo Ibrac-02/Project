@@ -89,7 +89,7 @@ export default function TeacherAttendanceScreen() {
     
     const payload = {
       date: date.trim(),
-      classId: classId || undefined,
+      classId: classId || '',
       studentId: studentId.trim(),
       status,
       teacherId,

@@ -163,9 +163,9 @@ export default function TeacherDashboardScreen() {
         </View>
 
         {showLogout && (
-          <View style={styles.logoutDropdown}>
+          <View style={[styles.logoutDropdown, { backgroundColor: colors.cardBackground }]}>
             <TouchableOpacity onPress={handleLogout} style={styles.dropdownItem}>
-              <Text style={styles.dropdownItemText}>Sign out</Text>
+              <Text style={[styles.dropdownItemText, { color: colors.text }]}>Sign out</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -193,7 +193,6 @@ export default function TeacherDashboardScreen() {
             <DashboardCard iconName="document-text-outline" title="Lesson Plans" onPress={() => router.push('/(teacher)/lesson-plan' )} />
             <DashboardCard iconName="bar-chart-outline" title="Reports" onPress={() => router.push('/(teacher)/performance-screen' )} />
             <DashboardCard iconName="calendar-outline" title="Calendar" onPress={() => router.push('/(main)/academic-calendar' )} />
-            <DashboardCard iconName="chatbubbles-outline" title={unreadMessages > 0 ? `Messages (${unreadMessages})` : "Messages"} onPress={() => router.push('/(main)/messages' )} />
             <DashboardCard iconName="people-outline" title="My Students" onPress={() => router.push('/(teacher)/students' )} />
           </View>
 
@@ -247,20 +246,6 @@ const styles = StyleSheet.create({
     borderColor: 'whitesmoke',
   },
   profileText: { color: '#1E90FF', fontSize: 14, fontWeight: 'bold' },
-  notificationIconContainer: { position: 'relative', marginRight: 15 },
-  notificationBadge: {
-    position: 'absolute',
-    right: -5,
-    top: -5,
-    backgroundColor: 'red',
-    borderRadius: 7,
-    width: 14,
-    height: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1,
-  },
-  notificationBadgeText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
   settingsIconContainer: { marginRight: 5, marginLeft: 12, padding: 6 },
   greetingCard: {
     borderRadius: 12,
@@ -280,25 +265,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 115, // show below header under profile icon
     right: 20,
-    backgroundColor: '#fff',
     borderRadius: 8,
     elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
     zIndex: 999,
     width: 120,
   },
   dropdownItem: { paddingVertical: 12, paddingHorizontal: 15 },
-  dropdownItemText: { fontSize: 16, color: '#333' },
-  welcomeText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '500',
-    marginTop: 5,
-  },
-  roleText: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 14,
-    marginTop: 2,
-  },
+  dropdownItemText: { fontSize: 16 },
   /** Summary Boxes */
   summaryRow: {
     flexDirection: 'row',

@@ -69,7 +69,7 @@ export default function TeacherMarksScreen() {
     const mo = Number(marksObtained); const tm = Number(totalMarks);
     if (Number.isNaN(mo) || Number.isNaN(tm) || tm <= 0) { Alert.alert('Validation', 'Marks must be valid numbers and total > 0'); return; }
     const payload = {
-      classId: classId || undefined,
+      classId: classId || '',
       subjectId,
       studentId: studentId.trim(),
       teacherId,

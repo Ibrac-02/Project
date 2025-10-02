@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet, Switch, Text, View, Alert, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-// Using stub until expo-notifications is installed
-import { pushNotificationService, sendSchoolNotification, NotificationTypes } from '@/lib/pushNotifications.stub';
+import { pushNotificationService, sendSchoolNotification, NotificationTypes } from '@/lib/pushNotifications';
 import { useTheme } from '@/contexts/ThemeContext';
 
 export default function NotificationsSettingsScreen() {

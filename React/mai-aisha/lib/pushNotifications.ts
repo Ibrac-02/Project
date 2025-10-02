@@ -9,6 +9,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -182,15 +184,25 @@ class PushNotificationService {
     }
 
     try {
-      await Notifications.scheduleNotificationAsync({
+      const notificationId = await Notifications.scheduleNotificationAsync({
         content: {
           title,
           body,
           data,
           sound: this.settings.soundEnabled ? 'default' : undefined,
+          autoDismiss: true, // Auto dismiss after few seconds
         },
         trigger: null, // Send immediately
       });
+
+      // Auto-dismiss notification after 5 seconds
+      setTimeout(async () => {
+        try {
+          await Notifications.dismissNotificationAsync(notificationId);
+        } catch {
+          console.log('Notification already dismissed or expired');
+        }
+      }, 5000); // 5 seconds
     } catch (error) {
       console.error('Failed to send local notification:', error);
     }
@@ -207,15 +219,42 @@ class PushNotificationService {
     }
 
     try {
+      let notificationTrigger: Notifications.NotificationTriggerInput;
+      if (typeof trigger === 'number') {
+        notificationTrigger = { 
+          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+          seconds: trigger 
+        };
+      } else {
+        // Convert Date to seconds from now
+        const now = new Date().getTime();
+        const triggerTime = trigger.getTime();
+        const secondsFromNow = Math.max(1, Math.floor((triggerTime - now) / 1000));
+        notificationTrigger = { 
+          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+          seconds: secondsFromNow 
+        };
+      }
+
       const notificationId = await Notifications.scheduleNotificationAsync({
         content: {
           title,
           body,
           data,
           sound: this.settings.soundEnabled ? 'default' : undefined,
+          autoDismiss: true, // Auto dismiss after few seconds
         },
-        trigger: typeof trigger === 'number' ? { seconds: trigger } : trigger,
+        trigger: notificationTrigger,
       });
+
+      // Auto-dismiss scheduled notification after 5 seconds once it appears
+      setTimeout(async () => {
+        try {
+          await Notifications.dismissNotificationAsync(notificationId);
+        } catch {
+          console.log('Scheduled notification already dismissed or expired');
+        }
+      }, (typeof trigger === 'number' ? trigger : Math.max(1, Math.floor((trigger.getTime() - new Date().getTime()) / 1000))) * 1000 + 5000);
       
       return notificationId;
     } catch (error) {

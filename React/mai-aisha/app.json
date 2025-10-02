@@ -40,6 +40,14 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/maa.png",
+          "color": "#1E90FF",
+          "defaultChannel": "default"
+        }
       ]
     ],
     "experiments": {

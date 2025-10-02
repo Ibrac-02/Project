@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { MessageCard } from '@/components/MessageCard';
-import { Message, createMessage, deleteMessage, getMessagesForUser, updateMessage, markMessageAsRead, getUnreadMessageCount } from '@/lib/messages';
+import { Message, createMessage, deleteMessage, getMessagesForUser, updateMessage, markMessageAsRead } from '@/lib/messages';
 import { useAuth, getAllUsers } from '@/lib/auth';
 import { Picker } from '@react-native-picker/picker';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -18,7 +18,8 @@ export default function MessagesScreen() {
   const [content, setContent] = useState('');
   const [messageType, setMessageType] = useState<'announcement' | 'personal' | 'class' | 'staff'>('announcement');
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
 
   const fetchMessages = useCallback(async () => {
     if (authLoading || !user || !userRole) {
@@ -29,9 +30,9 @@ export default function MessagesScreen() {
       const fetchedMessages = await getMessagesForUser(user.uid);
       setMessages(fetchedMessages);
       
-      // Get unread count
-      const count = await getUnreadMessageCount(user.uid);
-      setUnreadCount(count);
+      // Load all users for recipient selection
+      const users = await getAllUsers();
+      setAllUsers(users.filter(u => u.uid !== user.uid)); // Exclude current user
     } catch (error: any) {
       console.error("Error fetching messages:", error);
       Alert.alert("Error", "Failed to fetch messages: " + error.message);
@@ -50,9 +51,9 @@ export default function MessagesScreen() {
       return;
     }
 
-    // Role guard: only admin/headteacher can create messages
-    if (!(userRole === 'admin' || userRole === 'headteacher')) {
-      Alert.alert("Permission Denied", "Only administrators or headteachers can send messages.");
+    // Check if personal message has recipients selected
+    if (messageType === 'personal' && selectedRecipients.length === 0) {
+      Alert.alert("Error", "Please select at least one recipient for direct messages.");
       return;
     }
 
@@ -72,8 +73,8 @@ export default function MessagesScreen() {
           recipientIds = allUsers.filter(u => u.role === 'teacher').map(u => u.uid);
           break;
         case 'personal':
-          // For now, send to all - in real app, you'd have recipient selection
-          recipientIds = allUsers.map(u => u.uid);
+          // Use selected recipients for direct messages
+          recipientIds = selectedRecipients;
           break;
       }
 
@@ -100,6 +101,8 @@ export default function MessagesScreen() {
       setTitle('');
       setContent('');
       setEditingMessage(null);
+      setSelectedRecipients([]);
+      setMessageType('announcement');
       fetchMessages();
     } catch (error: any) {
       Alert.alert("Error", "Failed to send message: " + error.message);
@@ -227,16 +230,6 @@ export default function MessagesScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>Messages</Text>
-        {unreadCount > 0 && (
-          <View style={styles.unreadBadge}>
-            <Text style={styles.unreadBadgeText}>{unreadCount}</Text>
-          </View>
-        )}
-      </View>
-
       <ScrollView contentContainerStyle={[styles.scrollContent, { backgroundColor: colors.background }]}>
         {canManageMessages && (
           <>
@@ -319,18 +312,67 @@ export default function MessagesScreen() {
             <View style={[styles.pickerContainer, { backgroundColor: colors.background }]}>
               <Picker
                 selectedValue={messageType}
-                onValueChange={(itemValue) => setMessageType(itemValue)}
+                onValueChange={(itemValue) => {
+                  setMessageType(itemValue);
+                  if (itemValue !== 'personal') {
+                    setSelectedRecipients([]); // Clear recipients for broadcast messages
+                  }
+                }}
                 style={styles.picker}
               >
                 <Picker.Item label="Announcement (Everyone)" value="announcement" />
                 <Picker.Item label="Staff Only" value="staff" />
                 <Picker.Item label="Teachers Only" value="class" />
-                <Picker.Item label="Personal" value="personal" />
+                <Picker.Item label="Direct Message" value="personal" />
               </Picker>
             </View>
 
+            {messageType === 'personal' && (
+              <>
+                <Text style={[styles.label, { color: colors.text }]}>Select Recipients</Text>
+                <ScrollView style={styles.recipientsList} showsVerticalScrollIndicator={false}>
+                  {allUsers.map((user) => (
+                    <TouchableOpacity
+                      key={user.uid}
+                      style={[
+                        styles.recipientItem,
+                        { backgroundColor: colors.background },
+                        selectedRecipients.includes(user.uid) && { backgroundColor: colors.primaryBlue + '20' }
+                      ]}
+                      onPress={() => {
+                        setSelectedRecipients(prev => 
+                          prev.includes(user.uid) 
+                            ? prev.filter(id => id !== user.uid)
+                            : [...prev, user.uid]
+                        );
+                      }}
+                    >
+                      <View style={styles.recipientInfo}>
+                        <Text style={[styles.recipientName, { color: colors.text }]}>
+                          {user.name || user.email}
+                        </Text>
+                        <Text style={[styles.recipientRole, { color: colors.text + '70' }]}>
+                          {user.role}
+                        </Text>
+                      </View>
+                      {selectedRecipients.includes(user.uid) && (
+                        <Ionicons name="checkmark-circle" size={20} color={colors.primaryBlue} />
+                      )}
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </>
+            )}
+
             <View style={styles.modalActions}>
-              <TouchableOpacity style={styles.cancelButton} onPress={() => setIsModalVisible(false)}>
+              <TouchableOpacity style={styles.cancelButton} onPress={() => {
+                setIsModalVisible(false);
+                setTitle('');
+                setContent('');
+                setSelectedRecipients([]);
+                setMessageType('announcement');
+                setEditingMessage(null);
+              }}>
                 <Text style={styles.buttonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.saveButton} onPress={handleCreateOrUpdateMessage}>
@@ -343,37 +385,9 @@ export default function MessagesScreen() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    backgroundColor: '#1E90FF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  unreadBadge: {
-    backgroundColor: '#FF3B30',
-    borderRadius: 10,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    marginLeft: 8,
-  },
-  unreadBadgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
   },
   scrollContent: {
     padding: 16,
@@ -502,6 +516,32 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
+  },
+  recipientsList: {
+    maxHeight: 200,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    marginBottom: 15,
+  },
+  recipientItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  recipientInfo: {
+    flex: 1,
+  },
+  recipientName: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  recipientRole: {
+    fontSize: 14,
+    marginTop: 2,
+    textTransform: 'capitalize',
   },
 });
