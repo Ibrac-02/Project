@@ -1,6 +1,6 @@
 import { createUserWithEmailAndPassword, EmailAuthProvider, onAuthStateChanged, reauthenticateWithCredential, sendPasswordResetEmail, signInWithEmailAndPassword, signOut, updatePassword, User, } from 'firebase/auth';
 import { collection, deleteDoc, doc, getDoc, getDocs, setDoc, updateDoc } from 'firebase/firestore';
-import { useEffect, useState, type ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { auth, db } from '@/config/firebase';
 import { UserProfile } from './types';
 
@@ -12,77 +12,20 @@ interface AuthState {
   userName: string | null;
   role: string | null;
   userProfile: UserProfile | null;
+  refreshUserProfile: () => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
+  enable2FA: () => Promise<void>;
+  disable2FA: () => Promise<void>;
 }
- 
+
+const AuthContext = createContext<AuthState | null>(null);
+
 export const useAuth = () => {
-  const [authState, setAuthState] = useState<AuthState>({
-    user: null,
-    loading: true,
-    userName: null,
-    role: null,
-    userProfile: null,
-  }); 
-
-  // 🔹 Fetch user data and update state
-  const fetchAndUpdateUserProfile = async (user: User | null) => {
-    if (user) {
-      const userProfile = await getUserProfile(user.uid);
-      const userName = userProfile?.name || null;
-      const role = userProfile?.role || null;
-
-      setAuthState({ user, loading: false, userName, role, userProfile });
-    } else {
-      setAuthState({
-        user: null,
-        loading: false,
-        userName: null,
-        role: null,
-        userProfile: null,
-      });
-    }
-  };
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setAuthState((prev) => ({ ...prev, loading: true }));
-      await fetchAndUpdateUserProfile(user);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const refreshUserProfile = async () => {
-    if (authState.user) {
-      setAuthState((prev) => ({ ...prev, loading: true }));
-      await fetchAndUpdateUserProfile(authState.user);
-    }
-  };
-
-  const changePassword = async (currentPassword: string, newPassword: string) => {
-    if (!authState.user || !authState.user.email) throw new Error('No logged in user');
-    const credential = EmailAuthProvider.credential(authState.user.email, currentPassword);
-    await reauthenticateWithCredential(authState.user, credential);
-    await updatePassword(authState.user, newPassword);
-  };
-
-  const enable2FA = async () => {
-    if (!authState.user) throw new Error('No logged in user');
-    await updateUserProfile(authState.user.uid, { twoFactorEnabled: true });
-    await refreshUserProfile();
-  };
-
-  const disable2FA = async () => {
-    if (!authState.user) throw new Error('No logged in user');
-    await updateUserProfile(authState.user.uid, { twoFactorEnabled: false });
-    await refreshUserProfile();
-  };
-
-  return {
-    ...authState,
-    refreshUserProfile,
-    changePassword,
-    enable2FA,
-    disable2FA,
-  };
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };
 
 // 🔹 Admin/User management helpers
@@ -205,7 +148,80 @@ export const signOutUser = async () => {
   }
 };
 
-// Minimal provider to maintain compatibility with existing app/_layout.tsx
+// AuthProvider component
 export function AuthProvider({ children }: { children: ReactNode }) {
-  return children as any;
+  const [authState, setAuthState] = useState<Omit<AuthState, 'refreshUserProfile' | 'changePassword' | 'enable2FA' | 'disable2FA'>>({
+    user: null,
+    loading: true,
+    userName: null,
+    role: null,
+    userProfile: null,
+  }); 
+
+  // 🔹 Fetch user data and update state
+  const fetchAndUpdateUserProfile = async (user: User | null) => {
+    if (user) {
+      try {
+        const userProfile = await getUserProfile(user.uid);
+        const userName = userProfile?.name || null;
+        const role = userProfile?.role || null;
+
+        setAuthState({ user, loading: false, userName, role, userProfile });
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        setAuthState({ user, loading: false, userName: null, role: null, userProfile: null });
+      }
+    } else {
+      setAuthState({
+        user: null,
+        loading: false,
+        userName: null,
+        role: null,
+        userProfile: null,
+      });
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      await fetchAndUpdateUserProfile(user);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const refreshUserProfile = async () => {
+    if (authState.user) {
+      setAuthState((prev) => ({ ...prev, loading: true }));
+      await fetchAndUpdateUserProfile(authState.user);
+    }
+  };
+
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    if (!authState.user || !authState.user.email) throw new Error('No logged in user');
+    const credential = EmailAuthProvider.credential(authState.user.email, currentPassword);
+    await reauthenticateWithCredential(authState.user, credential);
+    await updatePassword(authState.user, newPassword);
+  };
+
+  const enable2FA = async () => {
+    if (!authState.user) throw new Error('No logged in user');
+    await updateUserProfile(authState.user.uid, { twoFactorEnabled: true });
+    await refreshUserProfile();
+  };
+
+  const disable2FA = async () => {
+    if (!authState.user) throw new Error('No logged in user');
+    await updateUserProfile(authState.user.uid, { twoFactorEnabled: false });
+    await refreshUserProfile();
+  };
+
+  const contextValue: AuthState = {
+    ...authState,
+    refreshUserProfile,
+    changePassword,
+    enable2FA,
+    disable2FA,
+  };
+
+  return React.createElement(AuthContext.Provider, { value: contextValue }, children);
 }

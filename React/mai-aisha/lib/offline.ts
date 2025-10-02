@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
+import { Platform } from 'react-native';
 import { UserProfile, SchoolClass } from './types';
 
 // Storage keys
@@ -32,28 +33,37 @@ export interface OfflineData {
 class OfflineManager {
   private isOnline: boolean = true;
   private listeners: ((isOnline: boolean) => void)[] = [];
+  private initialized: boolean = false;
 
-  constructor() {
-    this.initNetworkListener();
-  }
-
-  // Initialize network listener
+  // Initialize network listener (lazy initialization)
   private initNetworkListener() {
-    NetInfo.addEventListener(state => {
-      const wasOffline = !this.isOnline;
-      this.isOnline = state.isConnected ?? false;
-      
-      // Store offline status
-      AsyncStorage.setItem(STORAGE_KEYS.IS_OFFLINE, JSON.stringify(!this.isOnline));
-      
-      // Notify listeners
-      this.listeners.forEach(listener => listener(this.isOnline));
-      
-      // If we just came back online, sync pending actions
-      if (wasOffline && this.isOnline) {
-        this.syncPendingActions();
-      }
-    });
+    if (this.initialized || Platform.OS === 'web') {
+      return;
+    }
+    
+    this.initialized = true;
+    
+    try {
+      NetInfo.addEventListener(state => {
+        const wasOffline = !this.isOnline;
+        this.isOnline = state.isConnected ?? false;
+        
+        // Store offline status (only on native platforms)
+        if (Platform.OS !== 'web') {
+          AsyncStorage.setItem(STORAGE_KEYS.IS_OFFLINE, JSON.stringify(!this.isOnline)).catch(console.error);
+        }
+        
+        // Notify listeners
+        this.listeners.forEach(listener => listener(this.isOnline));
+        
+        // If we just came back online, sync pending actions
+        if (wasOffline && this.isOnline) {
+          this.syncPendingActions();
+        }
+      });
+    } catch (error) {
+      console.warn('Failed to initialize network listener:', error);
+    }
   }
 
   // Add network status listener
@@ -66,12 +76,32 @@ class OfflineManager {
 
   // Check if currently online
   async isConnected(): Promise<boolean> {
-    const state = await NetInfo.fetch();
-    return state.isConnected ?? false;
+    if (Platform.OS === 'web') {
+      return navigator?.onLine ?? true;
+    }
+    
+    this.initNetworkListener(); // Initialize on first use
+    
+    try {
+      const state = await NetInfo.fetch();
+      return state.isConnected ?? false;
+    } catch (error) {
+      console.warn('Failed to fetch network state:', error);
+      return true; // Assume online on error
+    }
   }
 
   // Store data offline
   async storeOfflineData(key: keyof typeof STORAGE_KEYS, data: any): Promise<void> {
+    if (Platform.OS === 'web') {
+      try {
+        localStorage.setItem(STORAGE_KEYS[key], JSON.stringify(data));
+      } catch (error) {
+        console.error('Error storing offline data on web:', error);
+      }
+      return;
+    }
+    
     try {
       await AsyncStorage.setItem(STORAGE_KEYS[key], JSON.stringify(data));
     } catch (error) {
@@ -81,6 +111,16 @@ class OfflineManager {
 
   // Get offline data
   async getOfflineData<T>(key: keyof typeof STORAGE_KEYS): Promise<T | null> {
+    if (Platform.OS === 'web') {
+      try {
+        const data = localStorage.getItem(STORAGE_KEYS[key]);
+        return data ? JSON.parse(data) : null;
+      } catch (error) {
+        console.error('Error getting offline data on web:', error);
+        return null;
+      }
+    }
+    
     try {
       const data = await AsyncStorage.getItem(STORAGE_KEYS[key]);
       return data ? JSON.parse(data) : null;
@@ -184,7 +224,19 @@ class OfflineManager {
   // Clear all offline data
   async clearOfflineData(): Promise<void> {
     const keys = Object.values(STORAGE_KEYS);
-    await Promise.all(keys.map(key => AsyncStorage.removeItem(key)));
+    
+    if (Platform.OS === 'web') {
+      keys.forEach(key => {
+        try {
+          localStorage.removeItem(key);
+        } catch (error) {
+          console.error('Error removing offline data on web:', error);
+        }
+      });
+      return;
+    }
+    
+    await Promise.all(keys.map(key => AsyncStorage.removeItem(key).catch(console.error)));
   }
 
   // Get offline status

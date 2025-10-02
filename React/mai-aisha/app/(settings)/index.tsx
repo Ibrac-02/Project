@@ -2,46 +2,19 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/contexts/ThemeContext';
+import { smoothNavigate } from '@/utils/navigation';
+import AnimatedBackButton from '@/components/AnimatedBackButton';
 
 export default function SettingsIndexScreen() {
-  const { role } = useAuth();
-  const navigate = (path: Parameters<typeof router.push>[0]) => router.push(path);
+  const navigate = (path: Parameters<typeof router.push>[0]) => smoothNavigate(path as string);
   const { colors } = useTheme();
-
-  const goBack = () => {
-    console.log('Back button pressed, role:', role);
-    // Try to go back first for smooth transition
-    try {
-      router.back();
-    } catch (error) {
-      // Fallback if back doesn't work
-      console.log('Router.back() failed, using fallback navigation', error);
-      if (role === 'admin') {
-        router.replace('/(admin)/dashboard');
-      } else if (role === 'teacher') {
-        router.replace('/(teacher)/dashboard');
-      } else if (role === 'headteacher') {
-        router.replace('/(headteacher)/dashboard');
-      } else {
-        router.replace('/(main)/announcements');
-      }
-    }
-  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Custom Header with Back Button */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton} 
-          onPress={goBack}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
+        <AnimatedBackButton useRoleBasedNavigation={true} />
         <Text style={styles.headerTitle}>Settings</Text>
         <View style={styles.headerRight} />
       </View>
@@ -128,10 +101,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-  },
-  backButton: {
-    padding: 8,
-    borderRadius: 20,
   },
   headerTitle: {
     fontSize: 20,

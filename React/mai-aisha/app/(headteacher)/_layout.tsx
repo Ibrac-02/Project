@@ -1,13 +1,9 @@
 
-import { Stack, router } from 'expo-router';
+import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import AnimatedBackButton from '@/components/AnimatedBackButton';
 
 export default function HeadteacherLayout() {
-  const goBackToDashboard = () => {
-    router.replace('/(headteacher)/dashboard');
-  };
 
   return (
     <Stack
@@ -23,9 +19,10 @@ export default function HeadteacherLayout() {
         headerTitleAlign: 'left',
         headerLeft: ({ canGoBack }) => 
           canGoBack ? (
-            <TouchableOpacity onPress={goBackToDashboard} style={{ marginLeft: 10 }}>
-              <Ionicons name="arrow-back" size={24} color="#fff" />
-            </TouchableOpacity>
+            <AnimatedBackButton 
+              fallbackRoute="/(headteacher)/dashboard" 
+              style={{ marginLeft: 10 }}
+            />
           ) : null,
       }}
     >

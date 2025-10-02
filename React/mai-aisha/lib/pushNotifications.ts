@@ -2,6 +2,7 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 // Configure notification behavior
 Notifications.setNotificationHandler({
@@ -86,7 +87,11 @@ class PushNotificationService {
       this.expoPushToken = token.data;
       
       // Store token locally
-      await AsyncStorage.setItem(TOKEN_KEY, token.data);
+      if (Platform.OS === 'web') {
+        localStorage.setItem(TOKEN_KEY, token.data);
+      } else {
+        await AsyncStorage.setItem(TOKEN_KEY, token.data);
+      }
       
       console.log('Expo push token:', token.data);
       return token.data;
@@ -142,7 +147,14 @@ class PushNotificationService {
 
   private async loadSettings(): Promise<void> {
     try {
-      const savedSettings = await AsyncStorage.getItem(SETTINGS_KEY);
+      let savedSettings: string | null = null;
+      
+      if (Platform.OS === 'web') {
+        savedSettings = localStorage.getItem(SETTINGS_KEY);
+      } else {
+        savedSettings = await AsyncStorage.getItem(SETTINGS_KEY);
+      }
+      
       if (savedSettings) {
         this.settings = { ...this.settings, ...JSON.parse(savedSettings) };
       }
@@ -153,7 +165,11 @@ class PushNotificationService {
 
   private async saveSettings(): Promise<void> {
     try {
-      await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(this.settings));
+      if (Platform.OS === 'web') {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(this.settings));
+      } else {
+        await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(this.settings));
+      }
     } catch (error) {
       console.error('Failed to save notification settings:', error);
     }
@@ -166,7 +182,14 @@ class PushNotificationService {
     
     // Try to load from storage
     try {
-      const token = await AsyncStorage.getItem(TOKEN_KEY);
+      let token: string | null = null;
+      
+      if (Platform.OS === 'web') {
+        token = localStorage.getItem(TOKEN_KEY);
+      } else {
+        token = await AsyncStorage.getItem(TOKEN_KEY);
+      }
+      
       if (token) {
         this.expoPushToken = token;
         return token;
