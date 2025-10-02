@@ -1,11 +1,10 @@
-
+import { useTheme } from '@/contexts/ThemeContext';
 import { signIn } from '@/lib/auth';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Image, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useTheme } from '@/contexts/ThemeContext';
 
 const REMEMBER_ME_KEY = 'remember_me_email'; 
 
@@ -87,7 +86,7 @@ export default function SignInScreen() {
   }; 
 
   return (
-    <KeyboardAvoidingView style={{ flex: 4 }}  behavior={Platform.OS === "ios" ? "padding" : "height"}>
+    <KeyboardAvoidingView style={{ flex: 1 }}  behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <Image source={require('../../assets/images/maa.png')} style={styles.logo} />
         <Text style={[styles.schoolName, { color: colors.text }]}>Mai Aisha Academy</Text>
@@ -153,16 +152,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   logo: {
-    width: 100,
-    height: 100,
-    resizeMode: 'contain',
-    marginBottom: 10,
+    width: 120,
+    height: 120,
+    resizeMode: 'cover',
+    borderRadius: 60, // Make it circular (half of width/height)
+    borderWidth: 2,
+    borderColor: '#1E90FF',
+    marginBottom: 30,
   },
   schoolName: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 5,
-    color: '#1E90FF', // Changed color to match sign-in button
   },
   welcomeText: {
     fontSize: 16,

@@ -147,7 +147,10 @@ const styles = StyleSheet.create({
   logo: {
     width: 100,
     height: 100,
-    resizeMode: 'contain',
+    resizeMode: 'cover',
+    borderRadius: 50, // Make it circular (half of width/height)
+    borderWidth: 2,
+    borderColor: '#1E90FF',
     marginBottom: 10,
   },
   schoolName: {

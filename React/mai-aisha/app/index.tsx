@@ -37,13 +37,15 @@ const styles = StyleSheet.create({
   logo: {
     width: 150,
     height: 150,
-    resizeMode: 'contain',
+    resizeMode: 'cover',
+    borderRadius: 75, // Make it circular (half of width/height)
+    borderWidth: 3,
+    borderColor: '#fff',
     marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    borderRadius: 75,
     overflow: 'hidden',
   },
   schoolName: {

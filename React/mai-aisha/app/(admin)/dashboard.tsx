@@ -175,7 +175,6 @@ export default function AdminDashboardScreen() {
             <DashboardCard iconName="bar-chart-outline" title="Reports & Analytics" onPress={() => router.push('/(main)/reports')} />
             <DashboardCard iconName="checkmark-done-outline" title="Attendance Overview" onPress={() => router.push('/(main)/attendance')} />
             <DashboardCard iconName="analytics-outline" title="Performance Reports" onPress={() => router.push('/(main)/reports')} />
-            <DashboardCard iconName="notifications-outline" title="Announcements" onPress={() => router.push('/(admin)/announcements')} />
             <DashboardCard iconName="time-outline" title="Term Management" onPress={() => router.push('/(admin)/terms')} />
           </View>
 
@@ -208,11 +207,11 @@ const styles = StyleSheet.create({
   headerLogo: {
     width: 40,
     height: 40,
-    resizeMode: 'contain',
-    marginRight: 10,
-    borderRadius: 20,
+    resizeMode: 'cover',
+    borderRadius: 20, // Make it circular (half of width/height)
     borderWidth: 1,
-    borderColor: 'whitesmoke',
+    borderColor: '#fff',
+    marginRight: 10,
   },
   schoolName: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
   headerDashboardTitle: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
