@@ -14,7 +14,6 @@ export default function ProfileScreen() {
   const [email, setEmail] = useState('');
   const [contactNumber, setContactNumber] = useState('');
   const [title, setTitle] = useState('');
-  const [department, setDepartment] = useState('');
   const [qualifications, setQualifications] = useState('');
   const [parentName, setParentName] = useState('');
   const [parentContactNumber, setParentContactNumber] = useState('');
@@ -30,7 +29,6 @@ export default function ProfileScreen() {
     setEmail(authUserProfile.email || '');
     setContactNumber(authUserProfile.contactNumber || '');
     setTitle(authUserProfile.title || '');
-    setDepartment(authUserProfile.department || '');
     setQualifications(authUserProfile.qualifications || '');
     setParentName(authUserProfile.parentName || '');
     setParentContactNumber(authUserProfile.parentContactNumber || '');
@@ -79,7 +77,6 @@ export default function ProfileScreen() {
         email,
         contactNumber,
         title,
-        department,
         qualifications,
         parentName,
         parentContactNumber,
@@ -116,7 +113,7 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.contentContainer}>
-      <View style={[styles.headerCard, { backgroundColor: colors.cardBackground }]}>
+      <View style={[styles.headerCard, { backgroundColor: colors.cardBackground, borderColor: colors.text + '10', borderWidth: 1 }]}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{initials}</Text>
         </View>
@@ -127,67 +124,61 @@ export default function ProfileScreen() {
         </View>
       </View>
       <View style={styles.formGroup}>
-        <Text style={styles.label}>Name</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Name</Text>
         <TextInput
-          style={[styles.input, formErrors.name && styles.inputError]}
+          style={[styles.input, { backgroundColor: colors.cardBackground, borderColor: colors.text + '20', color: colors.text }, formErrors.name && styles.inputError]}
           value={name}
           onChangeText={setName}
           placeholder="Enter your name"
+          placeholderTextColor={colors.text + '50'}
         />
         {formErrors.name && <Text style={styles.errorInline}>{formErrors.name}</Text>}
       </View>
       <View style={styles.formGroup}>
-        <Text style={styles.label}>Email</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Email</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.cardBackground, borderColor: colors.text + '20', color: colors.text, opacity: 0.7 }]}
           value={email}
           onChangeText={setEmail}
           placeholder="Enter your email"
+          placeholderTextColor={colors.text + '50'}
           keyboardType="email-address"
           editable={false} // Email typically not editable
         />
       </View>
       <View style={styles.formGroup}>
-        <Text style={styles.label}>Contact Number</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Contact Number</Text>
         <TextInput
-          style={[styles.input, formErrors.contactNumber && styles.inputError]}
+          style={[styles.input, { backgroundColor: colors.cardBackground, borderColor: colors.text + '20', color: colors.text }, formErrors.contactNumber && styles.inputError]}
           value={contactNumber}
           onChangeText={setContactNumber}
           placeholder="Enter contact number"
+          placeholderTextColor={colors.text + '50'}
           keyboardType="phone-pad"
         />
         {formErrors.contactNumber && <Text style={styles.errorInline}>{formErrors.contactNumber}</Text>}
       </View>
       {(authUserProfile?.role === 'teacher' || authUserProfile?.role === 'headteacher' || authUserProfile?.role === 'admin') && (
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Title</Text>
+          <Text style={[styles.label, { color: colors.text }]}>Title</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.cardBackground, borderColor: colors.text + '20', color: colors.text }]}
             value={title}
             onChangeText={setTitle}
             placeholder="Enter your title (e.g., Mr., Ms., Dr.)"
+            placeholderTextColor={colors.text + '50'}
           />
         </View>
       )}
       {(authUserProfile?.role === 'teacher' || authUserProfile?.role === 'headteacher' || authUserProfile?.role === 'admin') && (
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Department</Text>
+          <Text style={[styles.label, { color: colors.text }]}>Qualifications</Text>
           <TextInput
-            style={styles.input}
-            value={department}
-            onChangeText={setDepartment}
-            placeholder="Enter your department"
-          />
-        </View>
-      )}
-      {(authUserProfile?.role === 'teacher' || authUserProfile?.role === 'headteacher' || authUserProfile?.role === 'admin') && (
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>Qualifications</Text>
-          <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.cardBackground, borderColor: colors.text + '20', color: colors.text }]}
             value={qualifications}
             onChangeText={setQualifications}
             placeholder="Enter your qualifications"
+            placeholderTextColor={colors.text + '50'}
           />
         </View>
       )}
@@ -196,32 +187,35 @@ export default function ProfileScreen() {
       {authUserProfile?.role === 'student' && (
         <>
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Parent/Guardian Name</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Parent/Guardian Name</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.cardBackground, borderColor: colors.text + '20', color: colors.text }]}
               value={parentName}
               onChangeText={setParentName}
               placeholder="Enter parent/guardian name"
+              placeholderTextColor={colors.text + '50'}
             />
           </View>
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Parent/Guardian Contact Number</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Parent/Guardian Contact Number</Text>
             <TextInput
-              style={[styles.input, formErrors.parentContactNumber && styles.inputError]}
+              style={[styles.input, { backgroundColor: colors.cardBackground, borderColor: colors.text + '20', color: colors.text }, formErrors.parentContactNumber && styles.inputError]}
               value={parentContactNumber}
               onChangeText={setParentContactNumber}
               placeholder="Enter parent/guardian contact number"
+              placeholderTextColor={colors.text + '50'}
               keyboardType="phone-pad"
             />
             {formErrors.parentContactNumber && <Text style={styles.errorInline}>{formErrors.parentContactNumber}</Text>}
           </View>
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Parent/Guardian Email</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Parent/Guardian Email</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.cardBackground, borderColor: colors.text + '20', color: colors.text }]}
               value={parentEmail}
               onChangeText={setParentEmail}
               placeholder="Enter parent/guardian email"
+              placeholderTextColor={colors.text + '50'}
               keyboardType="email-address"
             />
           </View>
@@ -238,118 +232,131 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f2f5',
     padding: 20,
   },
   contentContainer: {
-    paddingBottom: 20,
+    paddingBottom: 40,
   },
   headerCard: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 16,
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 24,
     flexDirection: 'row',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 8,
   },
   avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     backgroundColor: '#1E90FF',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: 16,
+    shadowColor: '#1E90FF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   avatarText: {
     color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 24,
+    fontWeight: '800',
   },
   headerInfo: {
     flex: 1,
   },
   headerName: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
+    fontSize: 20,
+    fontWeight: '800',
+    marginBottom: 4,
   },
   headerEmail: {
-    fontSize: 13,
-    color: '#666',
-    marginTop: 2,
+    fontSize: 15,
+    opacity: 0.7,
+    marginBottom: 8,
   },
   roleChip: {
     alignSelf: 'flex-start',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    backgroundColor: '#f0f7ff',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#1E90FF15',
     borderColor: '#1E90FF',
-    borderWidth: 1,
-    borderRadius: 12,
-    marginTop: 6,
+    borderWidth: 1.5,
+    borderRadius: 16,
   },
   roleChipText: {
     color: '#1E90FF',
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '700',
+    textTransform: 'uppercase',
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f0f2f5',
   },
   errorText: {
-    color: 'red',
+    color: '#dc3545',
     fontSize: 16,
+    fontWeight: '600',
   },
   formGroup: {
-    marginBottom: 15,
+    marginBottom: 20,
   },
   label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#333',
+    fontSize: 17,
+    fontWeight: '700',
+    marginBottom: 10,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
+    borderWidth: 1.5,
+    borderRadius: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
     fontSize: 16,
-    color: '#333',
-    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   inputError: {
     borderColor: '#dc3545',
-    backgroundColor: '#fff5f5',
+    backgroundColor: '#dc354510',
   },
   errorInline: {
-    marginTop: 6,
+    marginTop: 8,
     color: '#dc3545',
-    fontSize: 12,
+    fontSize: 13,
+    fontWeight: '600',
   },
   saveButton: {
     backgroundColor: '#1E90FF',
-    padding: 15,
-    borderRadius: 8,
+    paddingVertical: 18,
+    paddingHorizontal: 32,
+    borderRadius: 16,
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 32,
+    shadowColor: '#1E90FF',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
   },
   saveButtonDisabled: {
-    backgroundColor: '#9cc9ff',
+    backgroundColor: '#94a3b8',
+    shadowOpacity: 0.1,
   },
   saveButtonText: {
     color: '#fff',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
 });
 

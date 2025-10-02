@@ -30,8 +30,23 @@ export default function AdminStudentsList() {
     setLoading(true);
     try {
       const cls = await listClasses();
-      // Sort classes alphabetically
-      const sortedClasses = cls.sort((a, b) => a.name.localeCompare(b.name));
+      // Sort classes with Form 1 first, then Form 2, etc.
+      const sortedClasses = cls.sort((a, b) => {
+        // Extract form numbers for proper sorting
+        const getFormNumber = (name: string) => {
+          const match = name.match(/Form\s*(\d+)/i);
+          return match ? parseInt(match[1]) : 999; // Put non-form classes at end
+        };
+        
+        const aForm = getFormNumber(a.name);
+        const bForm = getFormNumber(b.name);
+        
+        if (aForm !== bForm) {
+          return aForm - bForm; // Form 1, Form 2, Form 3, etc.
+        }
+        
+        return a.name.localeCompare(b.name); // Alphabetical for same form level
+      });
       setClasses(sortedClasses);
       const data = await listStudents(selectedClass || undefined);
       setStudents(data);
@@ -306,17 +321,18 @@ export default function AdminStudentsList() {
       <View style={styles.filters}>
         <TextInput
           placeholder="Search by name"
-          style={styles.search}
+          placeholderTextColor={colors.text + '80'}
+          style={[styles.search, { backgroundColor: colors.cardBackground, borderColor: colors.border, color: colors.text }]}
           value={q}
           onChangeText={setQ}
         />
         <View style={styles.classFilter}>
-          <TouchableOpacity onPress={() => setSelectedClass(null)} style={[styles.classChip, !selectedClass && styles.classChipActive]}>
-            <Text style={[styles.classChipText, !selectedClass && styles.classChipTextActive]}>All</Text>
+          <TouchableOpacity onPress={() => setSelectedClass(null)} style={[styles.classChip, { borderColor: colors.border }, !selectedClass && styles.classChipActive]}>
+            <Text style={[styles.classChipText, { color: colors.text }, !selectedClass && styles.classChipTextActive]}>All</Text>
           </TouchableOpacity>
           {classes.map(c => (
-            <TouchableOpacity key={c.id} onPress={() => setSelectedClass(c.id)} style={[styles.classChip, selectedClass === c.id && styles.classChipActive]}>
-              <Text style={[styles.classChipText, selectedClass === c.id && styles.classChipTextActive]}>{c.name}</Text>
+            <TouchableOpacity key={c.id} onPress={() => setSelectedClass(c.id)} style={[styles.classChip, { borderColor: colors.border }, selectedClass === c.id && styles.classChipActive]}>
+              <Text style={[styles.classChipText, { color: colors.text }, selectedClass === c.id && styles.classChipTextActive]}>{c.name}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -330,24 +346,24 @@ export default function AdminStudentsList() {
           keyExtractor={(item) => item.classId}
           contentContainerStyle={{ paddingBottom: 20 }}
           renderItem={({ item: classGroup }) => (
-            <View style={styles.classCard}>
-              <View style={styles.classHeader}>
-                <Text style={styles.className}>{classGroup.className}</Text>
-                <Text style={styles.classCount}>({classGroup.students.length} students)</Text>
+            <View style={[styles.classCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+              <View style={[styles.classHeader, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+                <Text style={[styles.className, { color: colors.text }]}>{classGroup.className}</Text>
+                <Text style={[styles.classCount, { color: colors.text }]}>({classGroup.students.length} students)</Text>
               </View>
               {classGroup.students.map((student) => (
-                <View key={student.uid} style={styles.studentRow}>
+                <View key={student.uid} style={[styles.studentRow, { borderBottomColor: colors.border }]}>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.studentName}>{student.name || 'Unnamed'}</Text>
-                    <Text style={styles.studentMeta}>
+                    <Text style={[styles.studentName, { color: colors.text }]}>{student.name || 'Unnamed'}</Text>
+                    <Text style={[styles.studentMeta, { color: colors.text }]}>
                       {student.gender ? `Gender: ${student.gender}` : 'No gender specified'}
                     </Text>
                   </View>
                   <TouchableOpacity onPress={() => openEditModal(student)} style={styles.rowBtn}>
-                    <Ionicons name="create-outline" size={20} color="#1E90FF" />
+                    <Ionicons name="create-outline" size={20} color={colors.primaryBlue} />
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => confirmDelete(student)} style={styles.rowBtn}>
-                    <Ionicons name="trash-outline" size={20} color="#ef4444" />
+                    <Ionicons name="trash-outline" size={20} color={colors.danger} />
                   </TouchableOpacity>
                 </View>
               ))}
@@ -362,25 +378,25 @@ export default function AdminStudentsList() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8fafc', padding: 16 },
+  container: { flex: 1, padding: 16 },
   topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  title: { fontSize: 20, fontWeight: '700', color: '#0f172a' },
+  title: { fontSize: 20, fontWeight: '700' },
   addBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1E90FF', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
   addBtnText: { color: '#fff', marginLeft: 6, fontWeight: '700' },
   filters: { marginBottom: 12 },
-  search: { backgroundColor: '#fff', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, borderWidth: StyleSheet.hairlineWidth, borderColor: '#e5e7eb' },
+  search: { borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, borderWidth: StyleSheet.hairlineWidth },
   classFilter: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 8 },
-  classChip: { borderWidth: 1, borderColor: '#cbd5e1', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20, marginRight: 8, marginBottom: 8 },
+  classChip: { borderWidth: 1, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20, marginRight: 8, marginBottom: 8 },
   classChipActive: { backgroundColor: '#1E90FF', borderColor: '#1E90FF' },
-  classChipText: { color: '#334155', fontWeight: '600' },
+  classChipText: { fontWeight: '600' },
   classChipTextActive: { color: '#fff' },
-  classCard: { backgroundColor: '#fff', borderRadius: 12, marginBottom: 16, borderWidth: StyleSheet.hairlineWidth, borderColor: '#e5e7eb', overflow: 'hidden' },
-  classHeader: { backgroundColor: '#f8fafc', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#e5e7eb', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  className: { fontSize: 18, fontWeight: '700', color: '#0f172a' },
-  classCount: { fontSize: 14, color: '#64748b', fontWeight: '600' },
-  studentRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#f1f5f9' },
-  studentName: { fontSize: 16, fontWeight: '600', color: '#0f172a' },
-  studentMeta: { color: '#64748b', marginTop: 2, fontSize: 14 },
+  classCard: { borderRadius: 12, marginBottom: 16, borderWidth: StyleSheet.hairlineWidth, overflow: 'hidden' },
+  classHeader: { paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  className: { fontSize: 18, fontWeight: '700' },
+  classCount: { fontSize: 14, fontWeight: '600' },
+  studentRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth },
+  studentName: { fontSize: 16, fontWeight: '600' },
+  studentMeta: { marginTop: 2, fontSize: 14 },
   rowBtn: { padding: 8, marginLeft: 6 },
   
   // Modal styles

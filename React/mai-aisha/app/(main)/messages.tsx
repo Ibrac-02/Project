@@ -20,6 +20,7 @@ export default function MessagesScreen() {
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
+  const [messageUnreadCounts, setMessageUnreadCounts] = useState<{[messageId: string]: number}>({});
 
   const fetchMessages = useCallback(async () => {
     if (authLoading || !user || !userRole) {
@@ -28,11 +29,43 @@ export default function MessagesScreen() {
     setLoading(true);
     try {
       const fetchedMessages = await getMessagesForUser(user.uid);
-      setMessages(fetchedMessages);
       
       // Load all users for recipient selection
       const users = await getAllUsers();
       setAllUsers(users.filter(u => u.uid !== user.uid)); // Exclude current user
+      
+      // Group messages by sender and get latest message from each
+      const groupedBySender = new Map<string, Message[]>();
+      fetchedMessages.forEach(message => {
+        const senderId = message.senderId;
+        if (!groupedBySender.has(senderId)) {
+          groupedBySender.set(senderId, []);
+        }
+        groupedBySender.get(senderId)!.push(message);
+      });
+      
+      // Get latest message from each sender and calculate unread counts
+      const latestMessages: Message[] = [];
+      const unreadCounts: {[messageId: string]: number} = {};
+      
+      groupedBySender.forEach((messages, senderId) => {
+        // Sort messages by date and get the latest one
+        const sortedMessages = messages.sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
+        const latestMessage = sortedMessages[0];
+        latestMessages.push(latestMessage);
+        
+        // Count unread messages from this sender
+        if (senderId !== user.uid) {
+          const unreadFromSender = messages.filter(m => !m.isRead[user.uid]).length;
+          unreadCounts[latestMessage.id] = unreadFromSender;
+        }
+      });
+      
+      // Sort latest messages by date (newest first)
+      latestMessages.sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
+      setMessages(latestMessages);
+      setMessageUnreadCounts(unreadCounts);
+      
     } catch (error: any) {
       console.error("Error fetching messages:", error);
       Alert.alert("Error", "Failed to fetch messages: " + error.message);
@@ -119,17 +152,65 @@ export default function MessagesScreen() {
 
   const handleDelete = async (id: string) => {
     Alert.alert(
-      "Confirm Delete",
-      "Are you sure you want to delete this message?",
+      "Delete Message",
+      "Are you sure you want to delete this message? This action cannot be undone.",
       [
         { text: "Cancel", style: "cancel" },
-        { text: "Delete", onPress: async () => {
+        { text: "Delete", style: "destructive", onPress: async () => {
             try {
               await deleteMessage(id);
               Alert.alert("Success", "Message deleted successfully!");
               fetchMessages();
             } catch (error: any) {
               Alert.alert("Error", "Failed to delete message: " + error.message);
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedMessages.length === 0) {
+      Alert.alert("No Messages Selected", "Please select messages to delete.");
+      return;
+    }
+
+    Alert.alert(
+      "Delete Messages",
+      `Are you sure you want to delete ${selectedMessages.length} message(s)? This action cannot be undone.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete All", style: "destructive", onPress: async () => {
+            try {
+              await Promise.all(selectedMessages.map(id => deleteMessage(id)));
+              Alert.alert("Success", `${selectedMessages.length} message(s) deleted successfully!`);
+              setSelectedMessages([]);
+              fetchMessages();
+            } catch (error: any) {
+              Alert.alert("Error", "Failed to delete selected messages: " + error.message);
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const handleDeleteAllMessages = async () => {
+    Alert.alert(
+      "Delete All Messages",
+      "Are you sure you want to delete ALL your messages? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete All", style: "destructive", onPress: async () => {
+            try {
+              const userMessages = messages.filter(m => m.senderId === user?.uid || m.recipientIds.includes(user?.uid || ''));
+              await Promise.all(userMessages.map(m => deleteMessage(m.id)));
+              Alert.alert("Success", "All messages deleted successfully!");
+              setSelectedMessages([]);
+              fetchMessages();
+            } catch (error: any) {
+              Alert.alert("Error", "Failed to delete all messages: " + error.message);
             }
           }
         }
@@ -148,76 +229,10 @@ export default function MessagesScreen() {
     );
   };
 
-  const handleDeleteSelected = async () => {
-    if (selectedMessages.length === 0) {
-      Alert.alert("No Messages Selected", "Please select messages to delete.");
-      return;
-    }
-
-    Alert.alert(
-      "Confirm Deletion",
-      `Are you sure you want to delete ${selectedMessages.length} selected message(s)?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "Delete", onPress: async () => {
-            try {
-              await Promise.all(selectedMessages.map(id => deleteMessage(id)));
-              Alert.alert("Success", `${selectedMessages.length} message(s) deleted successfully!`);
-              setSelectedMessages([]);
-              fetchMessages();
-            } catch (error: any) {
-              Alert.alert("Error", "Failed to delete selected messages: " + error.message);
-            }
-          }
-        }
-      ]
-    );
-  };
 
   const canManageMessages = userRole === 'admin' || userRole === 'headteacher';
+  const canDeleteOwnMessages = true; // All users can delete their own messages
   const showDeleteSelectedButton = selectedMessages.length > 0;
-
-  // Add sample messages for testing (remove this in production)
-  const addSampleMessages = async () => {
-    if (!user || !userName) return;
-    
-    try {
-      const allUsers = await getAllUsers();
-      const recipientIds = allUsers.map(u => u.uid);
-      
-      const sampleMessages = [
-        {
-          title: "Welcome to Mai Aisha Academy",
-          content: "Welcome to our new messaging system! You can now receive important updates and announcements here.",
-          senderId: user.uid,
-          senderName: userName || 'Admin',
-          senderRole: userRole || 'admin',
-          recipientIds,
-          isRead: {},
-          messageType: 'announcement' as const,
-        },
-        {
-          title: "System Update",
-          content: "The school management system has been updated with new features including improved messaging and student management.",
-          senderId: user.uid,
-          senderName: userName || 'Admin',
-          senderRole: userRole || 'admin',
-          recipientIds,
-          isRead: {},
-          messageType: 'announcement' as const,
-        }
-      ];
-
-      for (const msg of sampleMessages) {
-        await createMessage(msg);
-      }
-      
-      Alert.alert("Success", "Sample messages added!");
-      fetchMessages();
-    } catch (error: any) {
-      Alert.alert("Error", "Failed to add sample messages: " + error.message);
-    }
-  };
 
   if (loading || authLoading) {
     return (
@@ -231,52 +246,85 @@ export default function MessagesScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={[styles.scrollContent, { backgroundColor: colors.background }]}>
-        {canManageMessages && (
-          <>
-            <TouchableOpacity style={styles.createButton} onPress={() => {
-              setEditingMessage(null);
-              setTitle('');
-              setContent('');
-              setMessageType('announcement');
-              setIsModalVisible(true);
-            }}>
-              <Ionicons name="add-circle-outline" size={24} color="#fff" />
-              <Text style={styles.createButtonText}>Send New Message</Text>
+
+        {/* Selection Mode Header */}
+        {selectedMessages.length > 0 && (
+          <View style={[styles.selectionHeader, { backgroundColor: colors.primaryBlue + '15', borderColor: colors.primaryBlue + '30' }]}>
+            <Text style={[styles.selectionText, { color: colors.primaryBlue }]}>
+              {selectedMessages.length} message(s) selected
+            </Text>
+            <TouchableOpacity onPress={() => setSelectedMessages([])} style={styles.clearSelection}>
+              <Text style={[styles.clearSelectionText, { color: colors.primaryBlue }]}>Clear</Text>
             </TouchableOpacity>
-            
-            {messages.length === 0 && (
-              <TouchableOpacity style={[styles.createButton, { backgroundColor: '#28a745' }]} onPress={addSampleMessages}>
-                <Ionicons name="bulb-outline" size={24} color="#fff" />
-                <Text style={styles.createButtonText}>Add Sample Messages</Text>
-              </TouchableOpacity>
-            )}
-          </>
+          </View>
         )}
-
-        {showDeleteSelectedButton && (
-          <TouchableOpacity style={styles.deleteSelectedButton} onPress={handleDeleteSelected}>
-            <Ionicons name="trash-outline" size={24} color="#fff" />
-            <Text style={styles.createButtonText}>Delete Selected ({selectedMessages.length})</Text>
-          </TouchableOpacity>
-        )}
-
+        
         {messages.length === 0 ? (
-          <Text style={[styles.noMessagesText, { color: colors.text }]}>No messages available.</Text>
+          <View style={styles.emptyState}>
+            <Ionicons name="chatbubbles-outline" size={64} color={colors.text + '30'} />
+            <Text style={[styles.noMessagesText, { color: colors.text }]}>No messages yet</Text>
+            <Text style={[styles.emptySubtext, { color: colors.text + '60' }]}>Messages will appear here when you receive them</Text>
+          </View>
         ) : (
-          messages.map((message) => (
-            <MessageCard
-              key={message.id}
-              message={message}
-              currentUserId={user?.uid || ''}
-              onEdit={canManageMessages ? handleEdit : undefined}
-              onDelete={canManageMessages ? handleDelete : undefined}
-              showActions={canManageMessages}
-              isSelected={selectedMessages.includes(message.id)}
-              onSelect={toggleSelectMessage}
-            />
-          ))
+          <View style={styles.messagesList}>
+            {messages.map((message) => {
+              const isOwnMessage = message.senderId === user?.uid;
+              const canDelete = canManageMessages || isOwnMessage;
+              
+              return (
+                <MessageCard
+                  key={message.id}
+                  message={message}
+                  currentUserId={user?.uid || ''}
+                  onEdit={canManageMessages ? handleEdit : undefined}
+                  onDelete={canDelete ? handleDelete : undefined}
+                  showActions={canDelete}
+                  isSelected={selectedMessages.includes(message.id)}
+                  onSelect={toggleSelectMessage}
+                  unreadCount={messageUnreadCounts[message.id] || 0}
+                />
+              );
+            })}
+          </View>
         )}
       </ScrollView>
+      
+      {/* Message Management Buttons */}
+      {showDeleteSelectedButton && (
+        <TouchableOpacity 
+          style={[styles.deleteSelectedFab, { backgroundColor: '#dc3545' }]} 
+          onPress={handleDeleteSelected}
+        >
+          <Ionicons name="trash" size={20} color="#fff" />
+          <Text style={styles.fabText}>{selectedMessages.length}</Text>
+        </TouchableOpacity>
+      )}
+      
+      {/* Floating Action Button for new message */}
+      {canManageMessages && (
+        <TouchableOpacity 
+          style={[styles.fab, { backgroundColor: colors.primaryBlue }]} 
+          onPress={() => {
+            setEditingMessage(null);
+            setTitle('');
+            setContent('');
+            setMessageType('announcement');
+            setIsModalVisible(true);
+          }}
+        >
+          <Ionicons name="add" size={24} color="#fff" />
+        </TouchableOpacity>
+      )}
+      
+      {/* Delete All Messages Button */}
+      {messages.length > 0 && (
+        <TouchableOpacity 
+          style={[styles.deleteAllFab, { backgroundColor: '#6c757d' }]} 
+          onPress={handleDeleteAllMessages}
+        >
+          <Ionicons name="trash-outline" size={20} color="#fff" />
+        </TouchableOpacity>
+      )}
 
       {/* Create/Edit Message Modal */}
       <Modal
@@ -390,145 +438,198 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
-    paddingBottom: 80,
+    flexGrow: 1,
+  },
+  messagesList: {
+    flex: 1,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 40,
+    paddingTop: 100,
+  },
+  emptySubtext: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 8,
+    lineHeight: 22,
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f0f2f5',
   },
-  createButton: {
-    backgroundColor: '#1E90FF',
-    flexDirection: 'row',
-    alignItems: 'center',
+  fab: {
+    position: 'absolute',
+    bottom: 100, // Above bottom navigation
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginBottom: 16,
+    alignItems: 'center',
+    elevation: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  deleteSelectedFab: {
+    position: 'absolute',
+    bottom: 100,
+    right: 90, // Next to main FAB
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: '#dc3545',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    flexDirection: 'row',
+  },
+  deleteAllFab: {
+    position: 'absolute',
+    bottom: 170, // Above other FABs
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+  },
+  fabText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '700',
+    marginLeft: 4,
   },
   createButtonText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 8,
+    fontSize: 17,
+    fontWeight: '700',
+    marginLeft: 10,
   },
-  deleteSelectedButton: {
-    backgroundColor: '#dc3545',
+  selectionHeader: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    borderRadius: 8,
+    padding: 16,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 3,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  selectionText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  clearSelection: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  clearSelectionText: {
+    fontSize: 14,
+    fontWeight: '600',
   },
   noMessagesText: {
+    fontSize: 20,
+    fontWeight: '600',
     textAlign: 'center',
-    marginTop: 30,
-    fontSize: 16,
-    color: '#666',
+    marginTop: 16,
   },
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
   },
   modalContent: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 25,
-    width: '90%',
-    maxHeight: '80%',
+    borderRadius: 20,
+    padding: 28,
+    width: '92%',
+    maxHeight: '85%',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 10,
   },
   modalTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    fontSize: 26,
+    fontWeight: '800',
+    marginBottom: 24,
     textAlign: 'center',
-    color: '#333',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 15,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 18,
     fontSize: 16,
-    color: '#333',
   },
   textArea: {
-    height: 100,
+    height: 120,
     textAlignVertical: 'top',
   },
   label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
+    fontSize: 17,
+    fontWeight: '700',
+    marginBottom: 10,
   },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    marginBottom: 20,
+    borderRadius: 12,
+    marginBottom: 24,
   },
   picker: {
-    height: 50,
+    height: 54,
   },
   modalActions: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 20,
+    justifyContent: 'space-between',
+    marginTop: 28,
+    gap: 16,
   },
   cancelButton: {
-    backgroundColor: '#999',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 8,
-    width: '45%',
+    backgroundColor: '#6c757d',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    flex: 1,
     alignItems: 'center',
   },
   saveButton: {
     backgroundColor: '#28a745',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 8,
-    width: '45%',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    flex: 1,
     alignItems: 'center',
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 17,
+    fontWeight: '700',
   },
   recipientsList: {
-    maxHeight: 200,
+    maxHeight: 220,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    marginBottom: 15,
+    borderRadius: 12,
+    marginBottom: 20,
   },
   recipientItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
+    padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
@@ -536,12 +637,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   recipientName: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 17,
+    fontWeight: '700',
   },
   recipientRole: {
-    fontSize: 14,
-    marginTop: 2,
+    fontSize: 15,
+    marginTop: 4,
     textTransform: 'capitalize',
+    opacity: 0.7,
   },
 });

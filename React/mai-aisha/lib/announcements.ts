@@ -1,7 +1,7 @@
 import { addDoc, collection, deleteDoc, doc, getDocs, query, Timestamp, updateDoc, where } from 'firebase/firestore';
 import { getAllUsers } from './auth'; // Import getAllUsers and UserProfile
 import { db } from './firebase'; // Assuming firebase.ts exports 'db'
-import { createNotification } from './notifications'; // Import createNotification
+import { createNotification } from './messages'; // Import createNotification from consolidated messages file
 
 export interface AnnouncementData {
   title: string;

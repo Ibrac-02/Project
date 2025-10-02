@@ -191,7 +191,7 @@ export default function TeacherDashboardScreen() {
             <DashboardCard iconName="checkbox-outline" title="Attendance" onPress={() => router.push('/(teacher)/attendance' )} />
             <DashboardCard iconName="create-outline" title="Marks" onPress={() => router.push('/(teacher)/grade-screen' )} />
             <DashboardCard iconName="document-text-outline" title="Lesson Plans" onPress={() => router.push('/(teacher)/lesson-plan' )} />
-            <DashboardCard iconName="bar-chart-outline" title="Reports" onPress={() => router.push('/(teacher)/performance-screen' )} />
+            <DashboardCard iconName="bar-chart-outline" title="Reports" onPress={() => router.push('/(main)/reports' )} />
             <DashboardCard iconName="calendar-outline" title="Calendar" onPress={() => router.push('/(main)/academic-calendar' )} />
             <DashboardCard iconName="people-outline" title="My Students" onPress={() => router.push('/(teacher)/students' )} />
           </View>

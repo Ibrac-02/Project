@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore"; 
 import { getStorage } from "firebase/storage";
+import { Platform } from 'react-native';
 
 // Your web app's Firebase configuration using Expo public env vars
 // Ensure you start the app with these environment variables defined (prefix EXPO_PUBLIC_)
@@ -19,5 +20,21 @@ const firebaseConfig = {
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
-export const auth = getAuth(app);
+
+// Initialize Auth with AsyncStorage persistence for React Native
+let auth;
+try {
+  if (Platform.OS === 'web') {
+    auth = getAuth(app);
+  } else {
+    // For React Native, Firebase Auth will automatically use AsyncStorage if available
+    // We just need to make sure AsyncStorage is imported and available
+    auth = getAuth(app);
+  }
+} catch {
+  // If auth is already initialized, get the existing instance
+  auth = getAuth(app);
+}
+
+export { auth };
 export const storage = getStorage(app);

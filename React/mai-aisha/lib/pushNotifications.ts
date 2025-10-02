@@ -53,7 +53,7 @@ class PushNotificationService {
 
   async registerForPushNotifications(): Promise<string | null> {
     if (!Device.isDevice) {
-      console.warn('Push notifications only work on physical devices');
+      // Silently return null for simulators/emulators without warning
       return null;
     }
 

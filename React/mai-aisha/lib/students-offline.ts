@@ -12,83 +12,39 @@ export type StudentInput = Partial<UserProfile> & {
 };
 
 export async function createStudent(data: StudentInput) {
-  const isOnline = await offlineManager.isConnected();
-  
-  if (!isOnline) {
-    // Store as pending action for sync later
-    await offlineManager.addPendingAction({
-      type: 'create',
-      collection: 'students',
-      data
-    });
-    
-    // Add to offline storage with temporary ID
-    const students = await offlineManager.getOfflineStudents();
-    const tempStudent: UserProfile = {
-      uid: `temp_${Date.now()}`,
-      email: null,
-      role: 'student',
-      name: data.name,
-      title: data.title ?? null,
-      contactNumber: data.contactNumber ?? null,
-      dateJoined: data.dateJoined ?? new Date().toISOString(),
-      status: data.status ?? 'active',
-      employeeId: null,
-      gender: data.gender ?? null,
-      department: data.department ?? null,
-      teachersSupervised: data.teachersSupervised ?? null,
-      attendanceApprovals: data.attendanceApprovals ?? null,
-      gradeApprovals: data.gradeApprovals ?? null,
-      subjects: data.subjects ?? null,
-      classes: data.classes ?? null,
-      qualifications: data.qualifications ?? null,
-      classesHandled: data.classesHandled ?? null,
-      attendanceSubmitted: data.attendanceSubmitted ?? null,
-      gradesSubmitted: data.gradesSubmitted ?? null,
-      twoFactorEnabled: data.twoFactorEnabled ?? false,
-    };
-    
-    students.push(tempStudent);
-    await offlineManager.storeStudents(students);
-    return;
-  }
-  
-  // Online operation
-  const payload: Omit<UserProfile, 'uid'> = {
+  // Simplified payload with only essential fields for students
+  const payload = {
     email: null,
     role: 'student',
     name: data.name,
-    title: data.title ?? null,
-    contactNumber: data.contactNumber ?? null,
-    dateJoined: data.dateJoined ?? new Date().toISOString(),
-    status: data.status ?? 'active',
-    employeeId: null,
     gender: data.gender ?? null,
-    department: data.department ?? null,
-    teachersSupervised: data.teachersSupervised ?? null,
-    attendanceApprovals: data.attendanceApprovals ?? null,
-    gradeApprovals: data.gradeApprovals ?? null,
-    subjects: data.subjects ?? null,
     classes: data.classes ?? null,
-    qualifications: data.qualifications ?? null,
-    classesHandled: data.classesHandled ?? null,
-    attendanceSubmitted: data.attendanceSubmitted ?? null,
-    gradesSubmitted: data.gradesSubmitted ?? null,
-    twoFactorEnabled: data.twoFactorEnabled ?? false,
-  } as any;
+    dateJoined: new Date().toISOString(),
+    status: 'active',
+    // Set other fields to null for students
+    title: null,
+    contactNumber: null,
+    employeeId: null,
+    department: null,
+    teachersSupervised: null,
+    attendanceApprovals: null,
+    gradeApprovals: null,
+    subjects: null,
+    qualifications: null,
+    classesHandled: null,
+    attendanceSubmitted: null,
+    gradesSubmitted: null,
+    twoFactorEnabled: false,
+  };
 
-  // Clean undefined fields
-  Object.keys(payload).forEach((k) => (payload as any)[k] === undefined && delete (payload as any)[k]);
-
-  const ref = await addDoc(collection(db, STUDENTS_COLL), { ...payload, role: 'student' });
-  const result = { ...(payload as Omit<UserProfile, 'uid'>), uid: ref.id };
-  
-  // Update offline cache
-  const students = await offlineManager.getOfflineStudents();
-  students.push(result as UserProfile);
-  await offlineManager.storeStudents(students);
-  
-  return result;
+  try {
+    // Direct Firebase operation - much faster
+    const ref = await addDoc(collection(db, STUDENTS_COLL), payload);
+    return { ...payload, uid: ref.id };
+  } catch (error) {
+    console.error('Error creating student:', error);
+    throw new Error('Failed to create student. Please try again.');
+  }
 }
 
 export async function updateStudent(uid: string, data: Partial<StudentInput>) {

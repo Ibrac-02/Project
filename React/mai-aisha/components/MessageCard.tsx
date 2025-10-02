@@ -1,6 +1,6 @@
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
 import { Message } from '@/lib/messages';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -12,6 +12,7 @@ export function MessageCard({
   isSelected,
   onSelect,
   showActions = true,
+  unreadCount = 0,
 }: {
   message: Message;
   currentUserId: string;
@@ -20,70 +21,108 @@ export function MessageCard({
   isSelected?: boolean;
   onSelect?: (id: string) => void;
   showActions?: boolean;
+  unreadCount?: number;
 }) {
   const { colors } = useTheme();
   const isUnread = !message.isRead[currentUserId];
   const timeAgo = getTimeAgo(message.createdAt.toDate());
+  const isFromCurrentUser = message.senderId === currentUserId;
+  
+  const handleLongPress = () => {
+    if (onSelect) {
+      onSelect(message.id);
+    }
+  };
+  
+  const handleQuickDelete = () => {
+    if (onDelete && (isFromCurrentUser || showActions)) {
+      Alert.alert(
+        "Delete Message",
+        "Delete this message?",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Delete", style: "destructive", onPress: () => onDelete(message.id) }
+        ]
+      );
+    }
+  };
   
   return (
     <TouchableOpacity
       style={[
-        styles.messageCard,
-        { backgroundColor: colors.cardBackground, borderColor: colors.text + '20' },
-        isSelected && styles.messageCardSelected,
-        isUnread && styles.messageCardUnread
+        styles.chatItem,
+        { backgroundColor: colors.cardBackground },
+        isSelected && { backgroundColor: colors.primaryBlue + '15', borderColor: colors.primaryBlue, borderWidth: 2 }
       ]}
       onPress={() => onSelect?.(message.id)}
-      activeOpacity={0.8}
+      onLongPress={handleLongPress}
+      activeOpacity={0.7}
     >
-      {/* Sender Info */}
-      <View style={styles.messageHeader}>
-        <View style={styles.senderInfo}>
-          <View style={[styles.senderAvatar, getAvatarColor(message.senderRole)]}>
-            <Text style={styles.senderInitials}>
-              {getInitials(message.senderName)}
-            </Text>
-          </View>
-          <View style={styles.senderDetails}>
-            <View style={styles.senderRow}>
-              <Text style={[styles.senderName, isUnread && styles.unreadText]}>
-                {message.senderName}
-              </Text>
-              <Text style={styles.messageTime}>{timeAgo}</Text>
-            </View>
-            <Text style={styles.senderRole}>{formatRole(message.senderRole)}</Text>
-          </View>
+      {/* Avatar */}
+      <View style={[styles.avatar, getAvatarColor(message.senderRole)]}>
+        <Text style={styles.avatarText}>
+          {getInitials(message.senderName)}
+        </Text>
+        {/* Online indicator for active users */}
+        <View style={styles.onlineIndicator} />
+      </View>
+
+      {/* Chat Content */}
+      <View style={styles.chatContent}>
+        <View style={styles.chatHeader}>
+          <Text style={[styles.chatName, { color: colors.text }]} numberOfLines={1}>
+            {message.senderName}
+          </Text>
+          <Text style={[styles.chatTime, { color: colors.text + '60' }]}>
+            {timeAgo}
+          </Text>
         </View>
         
-        {isUnread && <View style={styles.unreadDot} />}
+        <View style={styles.messageRow}>
+          {/* Message preview with status icons */}
+          <View style={styles.messagePreviewContainer}>
+            {isFromCurrentUser && (
+              <Ionicons 
+                name="checkmark-done" 
+                size={16} 
+                color={isUnread ? colors.text + '60' : '#4FC3F7'} 
+                style={styles.statusIcon}
+              />
+            )}
+            <Text 
+              style={[
+                styles.messagePreview, 
+                { color: colors.text + '80' },
+                isUnread && !isFromCurrentUser && { color: colors.text, fontWeight: '600' }
+              ]} 
+              numberOfLines={1}
+            >
+              {message.content}
+            </Text>
+          </View>
+          
+          {/* Unread count badge */}
+          {unreadCount > 0 && !isFromCurrentUser && (
+            <View style={styles.unreadBadge}>
+              <Text style={styles.unreadCount}>
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </Text>
+            </View>
+          )}
+        </View>
       </View>
 
-      {/* Message Content */}
-      <View style={styles.messageContent}>
-        <Text style={[styles.messageTitle, isUnread && styles.unreadText]} numberOfLines={1}>
-          {message.title}
-        </Text>
-        <Text style={styles.messagePreview} numberOfLines={2}>
-          {message.content}
-        </Text>
-      </View>
-
-      {/* Message Type Badge */}
-      <View style={[styles.typeBadge, getTypeBadgeColor(message.messageType)]}>
-        <Text style={styles.typeBadgeText}>{formatMessageType(message.messageType)}</Text>
-      </View>
-
-      {/* Actions */}
-      {showActions && (
-        <View style={styles.messageActions}>
-          {onEdit && (
-            <TouchableOpacity onPress={() => onEdit(message)} style={styles.actionButton}>
-              <Ionicons name="pencil-outline" size={18} color="#1E90FF" />
+      {/* Actions for message management */}
+      {(showActions || isFromCurrentUser) && (
+        <View style={styles.actionMenu}>
+          {onDelete && (
+            <TouchableOpacity onPress={handleQuickDelete} style={styles.deleteButton}>
+              <Ionicons name="trash-outline" size={16} color="#dc3545" />
             </TouchableOpacity>
           )}
-          {onDelete && (
-            <TouchableOpacity onPress={() => onDelete(message.id)} style={styles.actionButton}>
-              <Ionicons name="trash-outline" size={18} color="#FF3B30" />
+          {onEdit && (
+            <TouchableOpacity onPress={() => onEdit(message)} style={styles.editButton}>
+              <Ionicons name="pencil-outline" size={16} color={colors.primaryBlue} />
             </TouchableOpacity>
           )}
         </View>
@@ -125,57 +164,121 @@ function getAvatarColor(role: string) {
   }
 }
 
-function getTypeBadgeColor(type: string) {
-  switch (type) {
-    case 'announcement': return { backgroundColor: '#1E90FF' };
-    case 'personal': return { backgroundColor: '#28a745' };
-    case 'class': return { backgroundColor: '#ffc107' };
-    case 'staff': return { backgroundColor: '#6f42c1' };
-    default: return { backgroundColor: '#6c757d' };
-  }
-}
-
-function formatRole(role: string): string {
-  switch (role) {
-    case 'admin': return 'Administrator';
-    case 'headteacher': return 'Head Teacher';
-    case 'teacher': return 'Teacher';
-    default: return role;
-  }
-}
-
-function formatMessageType(type: string): string {
-  switch (type) {
-    case 'announcement': return 'All';
-    case 'personal': return 'Personal';
-    case 'class': return 'Class';
-    case 'staff': return 'Staff';
-    default: return type;
-  }
-}
+// Removed unused helper functions to fix lint warnings
 
 const styles = StyleSheet.create({
+  chatItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#E5E5E7',
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    position: 'relative',
+  },
+  avatarText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  onlineIndicator: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#4CAF50',
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  chatContent: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  chatHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  chatName: {
+    fontSize: 17,
+    fontWeight: '600',
+    flex: 1,
+  },
+  chatTime: {
+    fontSize: 13,
+    marginLeft: 8,
+  },
+  messageRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  messagePreviewContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  statusIcon: {
+    marginRight: 4,
+  },
+  messagePreview: {
+    fontSize: 15,
+    lineHeight: 20,
+    flex: 1,
+  },
+  unreadBadge: {
+    backgroundColor: '#25D366',
+    borderRadius: 12,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 6,
+    marginLeft: 8,
+  },
+  unreadCount: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  actionMenu: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  deleteButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#dc354510',
+  },
+  editButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#1E90FF10',
+  },
+  // Legacy styles for compatibility
   messageCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
     marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-    borderLeftWidth: 3,
-    borderLeftColor: 'transparent',
   },
   messageCardSelected: {
-    borderWidth: 1,
-    borderColor: '#1E90FF',
     backgroundColor: '#f8f9ff',
   },
   messageCardUnread: {
     backgroundColor: '#f8f9ff',
-    borderLeftColor: '#1E90FF',
   },
   messageHeader: {
     flexDirection: 'row',
@@ -238,11 +341,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
     marginBottom: 4,
-  },
-  messagePreview: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
   },
   unreadText: {
     color: '#1E90FF',

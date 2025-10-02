@@ -172,9 +172,9 @@ export default function AdminDashboardScreen() {
             <DashboardCard iconName="people-circle-outline" title="Student Management" onPress={() => router.push({ pathname: '/(admin)/students' })} />
             <DashboardCard iconName="people-outline" title="Staff Management" onPress={() => router.push('/(admin)/manage-user')} />
             <DashboardCard iconName="school-outline" title="School Setup" onPress={() => router.push('/(admin)/school-data')} />
-            <DashboardCard iconName="bar-chart-outline" title="Reports & Analytics" onPress={() => router.push('/(admin)/grade-report')} />
+            <DashboardCard iconName="bar-chart-outline" title="Reports & Analytics" onPress={() => router.push('/(main)/reports')} />
             <DashboardCard iconName="checkmark-done-outline" title="Attendance Overview" onPress={() => router.push('/(main)/attendance')} />
-            <DashboardCard iconName="analytics-outline" title="Performance Reports" onPress={() => router.push('/(admin)/grade-report')} />
+            <DashboardCard iconName="analytics-outline" title="Performance Reports" onPress={() => router.push('/(main)/reports')} />
             <DashboardCard iconName="notifications-outline" title="Announcements" onPress={() => router.push('/(admin)/announcements')} />
             <DashboardCard iconName="time-outline" title="Term Management" onPress={() => router.push('/(admin)/terms')} />
           </View>

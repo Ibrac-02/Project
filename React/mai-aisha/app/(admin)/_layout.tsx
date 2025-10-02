@@ -29,20 +29,17 @@ export default function AdminLayout() {
       <Stack.Screen name="grade-report" options={{ headerShown: true, title: 'Grade Report' }} />
       
       {/* Student Pages */}
-      <Stack.Screen name="students" options={{ headerShown: true, title: 'Students' }} />
       <Stack.Screen name="students/index" options={{ headerShown: true, title: 'Students' }} />
       <Stack.Screen name="students/new" options={{ headerShown: false }} />
       <Stack.Screen name="students/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="students/import" options={{ headerShown: true, title: 'Import Students' }} />
       
       {/* Teachers Pages */}
-      <Stack.Screen name="teachers" options={{ headerShown: true, title: 'Teachers' }} />
       <Stack.Screen name="teachers/index" options={{ headerShown: true, title: 'Teachers' }} />
       <Stack.Screen name="teachers/new" options={{ headerShown: false }} />
       <Stack.Screen name="teachers/[id]" options={{ headerShown: false }} />
       
       {/* Headteachers Pages */}
-      <Stack.Screen name="headteachers" options={{ headerShown: true, title: 'Headteachers' }} />
       <Stack.Screen name="headteachers/index" options={{ headerShown: true, title: 'Headteachers' }} />
       <Stack.Screen name="headteachers/new" options={{ headerShown: false }} />
       <Stack.Screen name="headteachers/[id]" options={{ headerShown: false }} />

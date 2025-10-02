@@ -43,6 +43,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
+    borderRadius: 75,
+    overflow: 'hidden',
   },
   schoolName: {
     color: '#1E90FF',

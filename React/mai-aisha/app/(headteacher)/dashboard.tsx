@@ -140,6 +140,7 @@ export default function HeadteacherDashboardScreen() {
           <View style={styles.cardGroupContainer}>
             <DashboardCard iconName="people-outline" title="Manage Teachers" onPress={() => router.push('/(headteacher)/teacher-supervision' )} />
             <DashboardCard iconName="document-text-outline" title="Approve Reports" onPress={() => router.push('/(headteacher)/reports-approvals')} />
+            <DashboardCard iconName="bar-chart-outline" title="Reports & Analytics" onPress={() => router.push('/(main)/reports')} />
             <DashboardCard iconName="reader-outline" title="View Lesson Plans" onPress={() => router.push('/(headteacher)/view-lesson-plans')} />
             <DashboardCard iconName="calendar-outline" title="Calendar" onPress={() => router.push('/(main)/academic-calendar')} />
             <DashboardCard iconName="time-outline" title="Exam Schedules" onPress={() => router.push('/(headteacher)/exams')} />

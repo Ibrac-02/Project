@@ -7,11 +7,15 @@ import NetworkStatus from "@/components/NetworkStatus";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { useEffect } from "react";
 import { pushNotificationService } from "@/lib/pushNotifications";
+import { UpdateService } from "@/lib/updateService";
 
 function AppContent() {
   useEffect(() => {
     // Initialize push notifications when app starts
     pushNotificationService.initialize().catch(console.error);
+    
+    // Check for updates when app starts
+    UpdateService.checkForUpdates().catch(console.error);
   }, []);
 
   return (

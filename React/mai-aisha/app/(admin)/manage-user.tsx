@@ -97,11 +97,12 @@ export default function ManageUserScreen() {
       <Text style={[styles.subtitle, { color: colors.text }]}>Manage Administrative and Teaching Staff</Text>
 
       <View style={styles.searchRow}>
-        <View style={styles.searchBox}>
-          <Ionicons name="search" size={18} color="#888" />
+        <View style={[styles.searchBox, { backgroundColor: colors.cardBackground, borderColor: colors.text + '20' }]}>
+          <Ionicons name="search" size={20} color={colors.text + '60'} />
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: colors.text }]}
             placeholder="Search by name or email"
+            placeholderTextColor={colors.text + '50'}
             value={query}
             onChangeText={setQuery}
           />
@@ -112,8 +113,8 @@ export default function ManageUserScreen() {
             { key: 'teachers', label: 'Teachers' },
             { key: 'admin', label: 'Administrators' }
           ] as const).map(({ key, label }) => (
-            <Pressable key={key} onPress={() => setFilter(key)} style={[styles.filterChip, filter === key && styles.filterChipActive]}>
-              <Text style={[styles.filterText, filter === key && styles.filterTextActive]}>
+            <Pressable key={key} onPress={() => setFilter(key)} style={[styles.filterChip, { backgroundColor: colors.cardBackground, borderColor: colors.text + '20' }, filter === key && styles.filterChipActive]}>
+              <Text style={[styles.filterText, { color: colors.text }, filter === key && styles.filterTextActive]}>
                 {label}
               </Text>
             </Pressable>
@@ -128,24 +129,25 @@ export default function ManageUserScreen() {
         onRefresh={load}
         ItemSeparatorComponent={() => <View style={styles.sep} />}
         renderItem={({ item }) => (
-          <View style={styles.row}>
+          <View style={[styles.row, { backgroundColor: colors.cardBackground, borderColor: colors.text + '10' }]}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.name}>{item.name || 'Unnamed'}</Text>
-              <Text style={styles.email}>{item.email}</Text>
-              <Text style={styles.meta}>Role: {item.role || '-' } {item.title ? ` • ${item.title}` : ''}</Text>
+              <Text style={[styles.name, { color: colors.text }]}>{item.name || 'Unnamed'}</Text>
+              <Text style={[styles.email, { color: colors.text }]}>{item.email}</Text>
+              <Text style={[styles.meta, { color: colors.text }]}>Role: {item.role || '-' } {item.title ? ` • ${item.title}` : ''}</Text>
             </View>
-            <TouchableOpacity onPress={() => onEdit(item)} style={styles.iconBtn}>
+            <TouchableOpacity onPress={() => onEdit(item)} style={[styles.iconBtn, { backgroundColor: colors.background }]}>
               <Ionicons name="create-outline" size={20} color="#1E90FF" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => onDelete(item)} style={styles.iconBtn}>
+            <TouchableOpacity onPress={() => onDelete(item)} style={[styles.iconBtn, { backgroundColor: colors.background }]}>
               <Ionicons name="trash-outline" size={20} color="#D11A2A" />
             </TouchableOpacity>
           </View>
         )}
         ListEmptyComponent={!loading ? (
           <View style={styles.emptyBox}>
-            <Text>No staff members found.</Text>
-            <Text style={styles.helper}>Note: This manages administrative and teaching staff only. Students are managed separately in Student Management.</Text>
+            <Ionicons name="people-outline" size={64} color={colors.text + '30'} style={{ marginBottom: 16 }} />
+            <Text style={[{ fontSize: 18, fontWeight: '600', marginBottom: 8 }, { color: colors.text }]}>No staff members found</Text>
+            <Text style={[styles.helper, { color: colors.text }]}>Note: This manages administrative and teaching staff only. Students are managed separately in Student Management.</Text>
           </View>
         ) : null}
       />
@@ -153,20 +155,20 @@ export default function ManageUserScreen() {
       {/* Edit Modal */}
       <Modal visible={editModalVisible} animationType="slide" transparent>
         <View style={styles.modalBackdrop}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Edit User</Text>
-            <TextInput value={editName} onChangeText={setEditName} placeholder="Full name" style={styles.input} />
-            <TextInput value={editTitle} onChangeText={setEditTitle} placeholder="Title (e.g. Mr, Ms)" style={styles.input} />
+          <View style={[styles.modalCard, { backgroundColor: colors.cardBackground }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Edit User</Text>
+            <TextInput value={editName} onChangeText={setEditName} placeholder="Full name" placeholderTextColor={colors.text + '50'} style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.text + '20' }]} />
+            <TextInput value={editTitle} onChangeText={setEditTitle} placeholder="Title (e.g. Mr, Ms)" placeholderTextColor={colors.text + '50'} style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.text + '20' }]} />
             <View style={styles.roleRow}>
               {(['teacher', 'headteacher', 'admin'] as const).map(r => (
-                <Pressable key={r} onPress={() => setEditRole(r)} style={[styles.roleChip, editRole === r && styles.roleChipActive]}>
-                  <Text style={[styles.roleText, editRole === r && styles.roleTextActive]}>{r}</Text>
+                <Pressable key={r} onPress={() => setEditRole(r)} style={[styles.roleChip, { backgroundColor: colors.background, borderColor: colors.text + '20' }, editRole === r && styles.roleChipActive]}>
+                  <Text style={[styles.roleText, { color: colors.text }, editRole === r && styles.roleTextActive]}>{r}</Text>
                 </Pressable>
               ))}
             </View>
             <View style={styles.modalActions}>
-              <TouchableOpacity onPress={() => setEditModalVisible(false)} style={[styles.btn, styles.btnGhost]}>
-                <Text style={styles.btnGhostText}>Cancel</Text>
+              <TouchableOpacity onPress={() => setEditModalVisible(false)} style={[styles.btn, styles.btnGhost, { backgroundColor: colors.background, borderColor: colors.text + '20' }]}>
+                <Text style={[styles.btnGhostText, { color: colors.text }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={onSave} style={[styles.btn, styles.btnPrimary]}>
                 <Text style={styles.btnPrimaryText}>Save</Text>
@@ -180,38 +182,201 @@ export default function ManageUserScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  title: { fontSize: 22, fontWeight: '700' },
-  subtitle: { marginTop: 2 },
-  searchRow: { marginTop: 12 },
-  searchBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', paddingHorizontal: 10, borderRadius: 8, borderWidth: 1, borderColor: '#e9e9e9' },
-  searchInput: { flex: 1, height: 40, marginLeft: 8 },
-  filters: { flexDirection: 'row', marginTop: 8 },
-  filterChip: { paddingHorizontal: 10, paddingVertical: 6, backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 16, marginRight: 8 },
-  filterChipActive: { borderColor: '#1E90FF', backgroundColor: '#EAF4FF' },
-  filterText: { color: '#444' },
-  filterTextActive: { color: '#1E90FF', fontWeight: '600' },
-  sep: { height: 8 },
-  row: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#eee' },
-  name: { fontSize: 16, fontWeight: '600', color: '#222' },
-  email: { color: '#666' },
-  meta: { marginTop: 2, color: '#555' },
-  iconBtn: { padding: 8, marginLeft: 8 },
-  emptyBox: { marginTop: 24, alignItems: 'center' },
-  helper: { marginTop: 6, color: '#888', textAlign: 'center', fontSize: 12 },
-  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: 16 },
-  modalCard: { backgroundColor: '#fff', borderRadius: 12, padding: 16 },
-  modalTitle: { fontSize: 18, fontWeight: '700', marginBottom: 8 },
-  input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#e5e5e5', borderRadius: 8, paddingHorizontal: 10, height: 42, marginTop: 8 },
-  roleRow: { flexDirection: 'row', marginTop: 8 },
-  roleChip: { paddingHorizontal: 10, paddingVertical: 6, backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 16, marginRight: 8 },
-  roleChipActive: { borderColor: '#1E90FF', backgroundColor: '#EAF4FF' },
-  roleText: { color: '#444' },
-  roleTextActive: { color: '#1E90FF', fontWeight: '600' },
-  modalActions: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 12 },
-  btn: { height: 42, paddingHorizontal: 16, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginLeft: 8 },
-  btnGhost: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd' },
-  btnGhostText: { color: '#333' },
-  btnPrimary: { backgroundColor: '#1E90FF' },
-  btnPrimaryText: { color: '#fff', fontWeight: '600' },
+  container: {
+    flex: 1,
+    padding: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '800',
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 16,
+    opacity: 0.7,
+    marginBottom: 24,
+  },
+  searchRow: {
+    marginBottom: 20,
+  },
+  searchBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  searchInput: {
+    flex: 1,
+    height: 48,
+    marginLeft: 12,
+    fontSize: 16,
+  },
+  filters: {
+    flexDirection: 'row',
+    marginTop: 16,
+    gap: 8,
+  },
+  filterChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  filterChipActive: {
+    borderColor: '#1E90FF',
+    backgroundColor: '#1E90FF15',
+    shadowColor: '#1E90FF',
+    shadowOpacity: 0.2,
+  },
+  filterText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  filterTextActive: {
+    color: '#1E90FF',
+    fontWeight: '700',
+  },
+  sep: {
+    height: 12,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  name: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  email: {
+    fontSize: 14,
+    opacity: 0.7,
+    marginBottom: 4,
+  },
+  meta: {
+    fontSize: 13,
+    opacity: 0.6,
+    fontWeight: '500',
+  },
+  iconBtn: {
+    padding: 12,
+    marginLeft: 8,
+    borderRadius: 10,
+    backgroundColor: '#f8f9fa',
+  },
+  emptyBox: {
+    marginTop: 60,
+    alignItems: 'center',
+    paddingHorizontal: 40,
+  },
+  helper: {
+    marginTop: 12,
+    textAlign: 'center',
+    fontSize: 14,
+    lineHeight: 20,
+    opacity: 0.6,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  modalCard: {
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  input: {
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    height: 50,
+    marginTop: 12,
+    fontSize: 16,
+  },
+  roleRow: {
+    flexDirection: 'row',
+    marginTop: 16,
+    gap: 8,
+  },
+  roleChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderRadius: 20,
+    flex: 1,
+    alignItems: 'center',
+  },
+  roleChipActive: {
+    borderColor: '#1E90FF',
+    backgroundColor: '#1E90FF15',
+  },
+  roleText: {
+    fontSize: 14,
+    fontWeight: '600',
+    textTransform: 'capitalize',
+  },
+  roleTextActive: {
+    color: '#1E90FF',
+    fontWeight: '700',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 24,
+    gap: 12,
+  },
+  btn: {
+    height: 50,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  btnGhost: {
+    borderWidth: 1,
+  },
+  btnGhostText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  btnPrimary: {
+    backgroundColor: '#1E90FF',
+  },
+  btnPrimaryText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+  },
 });
