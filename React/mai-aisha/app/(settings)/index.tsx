@@ -190,5 +190,3 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
 });
-
-
