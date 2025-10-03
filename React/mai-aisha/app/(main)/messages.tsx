@@ -231,7 +231,6 @@ export default function MessagesScreen() {
 
 
   const canManageMessages = userRole === 'admin' || userRole === 'headteacher';
-  const canDeleteOwnMessages = true; // All users can delete their own messages
   const showDeleteSelectedButton = selectedMessages.length > 0;
 
   if (loading || authLoading) {

@@ -4,6 +4,7 @@ import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, Touc
 import { updateUserProfile, useAuth } from '../../lib/auth';
 import { UserProfile } from '../../lib/types';
 import { useTheme } from '@/contexts/ThemeContext';
+import { STANDARD_STYLES, MARGINS, SPACING, BORDER_RADIUS, SHADOWS, TYPOGRAPHY } from '@/constants/Styles';
 
 export default function ProfileScreen() {
   const { colors } = useTheme();

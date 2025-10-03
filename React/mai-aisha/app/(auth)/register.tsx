@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '@/contexts/ThemeContext';
+import { STANDARD_STYLES, MARGINS, SPACING, BORDER_RADIUS, SHADOWS, TYPOGRAPHY } from '@/constants/Styles';
 
 export default function SignUpScreen() {
   const { colors } = useTheme();
@@ -116,9 +117,9 @@ export default function SignUpScreen() {
       </View>
       <View style={[styles.passwordContainer, { backgroundColor: colors.cardBackground, borderColor: colors.text + '30' }]}>
         <TextInput
-          style={styles.passwordInput}
+          style={[styles.passwordInput, { color: colors.text }]}
           placeholder="Confirm Password"
-          placeholderTextColor="#666"
+          placeholderTextColor={colors.text + '70'}
           secureTextEntry={!showConfirmPassword}
           value={confirmPassword}
           onChangeText={setConfirmPassword}

@@ -3,6 +3,9 @@ import { ActivityIndicator, FlatList, SafeAreaView, StyleSheet, Text, TextInput,
 import { Ionicons } from '@expo/vector-icons';
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/config/firebase';
+import { useTheme } from '@/contexts/ThemeContext';
+import { MARGINS, SPACING, BORDER_RADIUS, SHADOWS, TYPOGRAPHY } from '@/constants/Styles';
+import { generateMalawiHolidays, type Holiday } from '@/constants/MalawiHolidays';
 
 interface CalendarEvent {
   id: string;
@@ -11,11 +14,15 @@ interface CalendarEvent {
   description?: string;
 }
 
+type CalendarItem = CalendarEvent | Holiday;
+
 const COLL = 'academicCalendar';
 
 export default function AcademicCalendarScreen() {
+  const { colors } = useTheme();
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<CalendarEvent[]>([]);
+  const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [currentMonth, setCurrentMonth] = useState(() => {
     const d = new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
@@ -24,16 +31,27 @@ export default function AcademicCalendarScreen() {
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
   const [description, setDescription] = useState('');
+  const [showHolidays, setShowHolidays] = useState(true);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const snap = await getDocs(collection(db, COLL));
-    const data = snap.docs.map(d => ({ id: d.id, ...(d.data() as Omit<CalendarEvent, 'id'>) }));
-    // Sort by date ascending
-    data.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-    setItems(data);
-    setLoading(false);
-  }, []);
+    try {
+      const snap = await getDocs(collection(db, COLL));
+      const data = snap.docs.map(d => ({ id: d.id, ...(d.data() as Omit<CalendarEvent, 'id'>) }));
+      // Sort by date ascending
+      data.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+      setItems(data);
+      
+      // Load Malawi holidays for current year
+      const year = currentMonth.getFullYear();
+      const yearHolidays = generateMalawiHolidays(year);
+      setHolidays(yearHolidays);
+    } catch (error) {
+      console.error('Error loading calendar data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentMonth]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -85,14 +103,26 @@ export default function AcademicCalendarScreen() {
   const monthLabel = currentMonth.toLocaleString(undefined, { month: 'long', year: 'numeric' });
 
   const eventsByDate = useMemo(() => {
-    const map = new Map<string, CalendarEvent[]>();
+    const map = new Map<string, CalendarItem[]>();
+    
+    // Add regular events
     for (const e of items) {
       const list = map.get(e.date) || [];
       list.push(e);
       map.set(e.date, list);
     }
+    
+    // Add holidays if enabled
+    if (showHolidays) {
+      for (const h of holidays) {
+        const list = map.get(h.date) || [];
+        list.push(h);
+        map.set(h.date, list);
+      }
+    }
+    
     return map;
-  }, [items]);
+  }, [items, holidays, showHolidays]);
 
   const toYmd = (d: Date) => {
     const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -144,190 +174,617 @@ export default function AcademicCalendarScreen() {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Academic Calendar</Text>
-      <Text style={styles.subtitle}>School-wide events and dates</Text>
-
-      {/* Month header */}
-      <View style={styles.monthHeader}>
-        <TouchableOpacity onPress={prevMonth} style={styles.monthNavBtn}>
-          <Ionicons name="chevron-back" size={20} color="#1E90FF" />
-        </TouchableOpacity>
-        <Text style={styles.monthLabel}>{monthLabel}</Text>
-        <TouchableOpacity onPress={nextMonth} style={styles.monthNavBtn}>
-          <Ionicons name="chevron-forward" size={20} color="#1E90FF" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={goToday} style={[styles.monthNavBtn, { marginLeft: 8 }]}> 
-          <Text style={{ color: '#1E90FF', fontWeight: '700' }}>Today</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Weekday header */}
-      <View style={styles.weekHeader}>
-        {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => (
-          <Text key={d} style={styles.weekHeaderText}>{d}</Text>
-        ))}
-      </View>
-
-      {/* Calendar grid */}
-      <View style={styles.grid}>
-        {getMonthMatrix.map((row, ri) => (
-          <View key={ri} style={styles.gridRow}>
-            {row.map((cell, ci) => {
-              const ymd = toYmd(cell.date);
-              const hasEvents = eventsByDate.has(ymd);
-              const isSelected = selectedDate === ymd;
-              return (
-                <TouchableOpacity key={ci} style={[styles.gridCell, !cell.isCurrent && styles.gridCellMuted, isSelected && styles.gridCellSelected, isToday(cell.date) && styles.gridCellToday]} onPress={() => onSelectDate(cell.date)}>
-                  <Text style={[styles.gridCellText, !cell.isCurrent && styles.gridCellTextMuted]}>{cell.date.getDate()}</Text>
-                  {hasEvents && <View style={styles.dot} />}
-                </TouchableOpacity>
-              );
-            })}
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* Combined Header */}
+      <View style={[styles.header, { backgroundColor: colors.primaryBlue }]}>
+        <View style={styles.headerTop}>
+          <View>
+            <Text style={[styles.title, { color: '#fff' }]}>Academic Calendar</Text>
+            <Text style={[styles.subtitle, { color: '#fff', opacity: 0.9 }]}>School-wide events and Malawi holidays</Text>
           </View>
-        ))}
-      </View>
-
-      {/* Legend */}
-      <View style={styles.legendRow}>
-        <View style={[styles.dot, { position: 'relative', bottom: 0, marginRight: 6 }]} />
-        <Text style={{ color: '#666' }}>Date has events</Text>
-        <View style={{ width: 10 }} />
-        <View style={[styles.legendBox, styles.gridCellToday]} />
-        <Text style={{ color: '#666', marginLeft: 6 }}>Today</Text>
-      </View>
-
-      <View style={styles.newRow}>
-        <TextInput value={title} onChangeText={setTitle} placeholder="Event title" style={[styles.input, { flex: 2, marginRight: 6 }]} />
-        <View style={{ flex: 1, marginLeft: 6 }}>
-          <TextInput 
-            value={date} 
-            onChangeText={setDate} 
-            placeholder="YYYY-MM-DD" 
-            style={styles.input}
-          />
           <TouchableOpacity 
-            onPress={() => {
-              const today = new Date();
-              const todayStr = today.toISOString().split('T')[0];
-              setDate(todayStr);
-            }}
-            style={styles.todayBtn}
+            onPress={() => setShowHolidays(!showHolidays)}
+            style={[styles.toggleButton, { backgroundColor: showHolidays ? '#fff' : 'rgba(255,255,255,0.3)' }]}
           >
-            <Text style={styles.todayBtnText}>Today</Text>
+            <Ionicons 
+              name={showHolidays ? 'calendar' : 'calendar-outline'} 
+              size={20} 
+              color={showHolidays ? colors.primaryBlue : '#fff'} 
+            />
+            <Text style={[styles.toggleText, { color: showHolidays ? colors.primaryBlue : '#fff' }]}>Holidays</Text>
+          </TouchableOpacity>
+        </View>
+        
+        {/* Month Navigation */}
+        <View style={styles.monthNavigation}>
+          <TouchableOpacity onPress={prevMonth} style={styles.monthNavBtn}>
+            <Ionicons name="chevron-back" size={24} color="#fff" />
+          </TouchableOpacity>
+          <Text style={[styles.monthLabel, { color: '#fff' }]}>{monthLabel}</Text>
+          <TouchableOpacity onPress={nextMonth} style={styles.monthNavBtn}>
+            <Ionicons name="chevron-forward" size={24} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={goToday} style={styles.todayButton}> 
+            <Text style={[styles.todayButtonText, { color: '#fff' }]}>Today</Text>
           </TouchableOpacity>
         </View>
       </View>
-      <TextInput value={description} onChangeText={setDescription} placeholder="Description (optional)" style={styles.input} />
-      <View style={{ flexDirection: 'row', marginTop: 10 }}>
-        <TouchableOpacity onPress={async () => {
-          try {
-            if (editingId) {
-              if (!title.trim() || !date.trim()) {
-                alert('Please enter both title and date');
-                return;
-              }
-              await updateDoc(doc(db, COLL, editingId), { 
-                title: title.trim(), 
-                date: date.trim(), 
-                description: description.trim() || '' 
-              });
-              setEditingId(null); 
-              setTitle(''); 
-              setDate(''); 
-              setDescription(''); 
-              await load();
-            } else {
-              await addEvent();
-            }
-          } catch (error) {
-            console.error('Error saving event:', error);
-            alert('Failed to save event. Please try again.');
-          }
-        }} style={[styles.btnPrimary, { marginRight: 8 }]}
-        >
-          <Ionicons name={editingId ? 'save-outline' : 'add'} size={18} color="#fff" />
-          <Text style={styles.btnPrimaryText}>{editingId ? 'Save Changes' : 'Add Event'}</Text>
-        </TouchableOpacity>
-        {editingId ? (
-          <TouchableOpacity onPress={() => { setEditingId(null); setTitle(''); setDate(''); setDescription(''); }} style={[styles.btnSecondary]}>
-            <Text style={styles.btnSecondaryText}>Cancel</Text>
-          </TouchableOpacity>
-        ) : null}
-      </View>
 
-      {loading ? (
-        <View style={{ marginTop: 20, alignItems: 'center' }}><ActivityIndicator /></View>
-      ) : (
-        <FlatList
-          style={{ marginTop: 12 }}
-          data={selectedDate ? items.filter(i => i.date === selectedDate) : items}
-          keyExtractor={(i) => i.id}
-          ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.cardTitle}>{item.title}</Text>
-                <Text style={styles.cardMeta}>Date: {item.date}</Text>
-                {!!item.description && <Text style={styles.cardMeta}>{item.description}</Text>}
-              </View>
-              <TouchableOpacity onPress={() => { setEditingId(item.id); setTitle(item.title); setDate(item.date); setDescription(item.description || ''); }} style={styles.iconBtn}>
-                <Ionicons name="create-outline" size={20} color="#1E90FF" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => remove(item.id)} style={styles.iconBtn}>
-                <Ionicons name="trash-outline" size={20} color="#D11A2A" />
-              </TouchableOpacity>
+      <View style={[styles.content, { backgroundColor: colors.background }]}>
+
+        {/* Weekday Header */}
+        <View style={[styles.weekHeader, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+          {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => (
+            <Text key={d} style={[styles.weekHeaderText, { color: colors.text }]}>{d}</Text>
+          ))}
+        </View>
+
+        {/* Calendar Grid */}
+        <View style={styles.grid}>
+          {getMonthMatrix.map((row, ri) => (
+            <View key={ri} style={styles.gridRow}>
+              {row.map((cell, ci) => {
+                const ymd = toYmd(cell.date);
+                const isSelected = selectedDate === ymd;
+                const cellEvents = eventsByDate.get(ymd) || [];
+                const hasHoliday = cellEvents.some(e => 'isNational' in e);
+                const hasRegularEvent = cellEvents.some(e => !('isNational' in e));
+                
+                return (
+                  <TouchableOpacity 
+                    key={ci} 
+                    style={[
+                      styles.gridCell, 
+                      { backgroundColor: colors.cardBackground, borderColor: colors.border },
+                      !cell.isCurrent && { backgroundColor: colors.background, opacity: 0.5 },
+                      isSelected && { borderColor: colors.primaryBlue, backgroundColor: colors.primaryBlue + '20' },
+                      isToday(cell.date) && { borderColor: colors.primaryBlue, borderWidth: 2 },
+                      hasHoliday && { backgroundColor: '#ff6b6b20' }
+                    ]} 
+                    onPress={() => onSelectDate(cell.date)}
+                  >
+                    <Text style={[
+                      styles.gridCellText, 
+                      { color: colors.text },
+                      !cell.isCurrent && { opacity: 0.5 },
+                      hasHoliday && { color: '#ff6b6b', fontWeight: '600' }
+                    ]}>
+                      {cell.date.getDate()}
+                    </Text>
+                    {hasRegularEvent && <View style={[styles.eventDot, { backgroundColor: colors.primaryBlue }]} />}
+                    {hasHoliday && <View style={[styles.holidayDot, { backgroundColor: '#ff6b6b' }]} />}
+                  </TouchableOpacity>
+                );
+              })}
             </View>
-          )}
-          ListEmptyComponent={<Text style={{ color: '#666' }}>{selectedDate ? 'No events for selected date.' : 'No events yet.'}</Text>}
-        />
-      )}
+          ))}
+        </View>
+
+        {/* Legend */}
+        <View style={[styles.legendRow, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+          <View style={styles.legendItem}>
+            <View style={[styles.eventDot, { backgroundColor: colors.primaryBlue, position: 'relative', bottom: 0 }]} />
+            <Text style={[styles.legendText, { color: colors.text }]}>School Events</Text>
+          </View>
+          <View style={styles.legendItem}>
+            <View style={[styles.holidayDot, { backgroundColor: '#ff6b6b', position: 'relative', bottom: 0 }]} />
+            <Text style={[styles.legendText, { color: colors.text }]}>Public Holidays</Text>
+          </View>
+          <View style={styles.legendItem}>
+            <View style={[styles.todayIndicator, { borderColor: colors.primaryBlue }]} />
+            <Text style={[styles.legendText, { color: colors.text }]}>Today</Text>
+          </View>
+        </View>
+
+        {/* Add Event Form */}
+        <View style={[styles.formCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+          <Text style={[styles.formTitle, { color: colors.text }]}>Add New Event</Text>
+          
+          <View style={styles.formRow}>
+            <View style={styles.formField}>
+              <Text style={[styles.fieldLabel, { color: colors.text }]}>Event Title</Text>
+              <TextInput 
+                value={title} 
+                onChangeText={setTitle} 
+                placeholder="Enter event title" 
+                placeholderTextColor={colors.text + '70'}
+                style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]} 
+              />
+            </View>
+          </View>
+          
+          <View style={styles.formRow}>
+            <View style={styles.formField}>
+              <Text style={[styles.fieldLabel, { color: colors.text }]}>Date</Text>
+              <View style={styles.dateInputContainer}>
+                <TextInput 
+                  value={date} 
+                  onChangeText={setDate} 
+                  placeholder="YYYY-MM-DD" 
+                  placeholderTextColor={colors.text + '70'}
+                  style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text, flex: 1 }]}
+                />
+                <TouchableOpacity 
+                  onPress={() => {
+                    const today = new Date();
+                    const todayStr = today.toISOString().split('T')[0];
+                    setDate(todayStr);
+                  }}
+                  style={[styles.quickDateBtn, { backgroundColor: colors.primaryBlue }]}
+                >
+                  <Text style={styles.quickDateText}>Today</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+          
+          <View style={styles.formRow}>
+            <View style={styles.formField}>
+              <Text style={[styles.fieldLabel, { color: colors.text }]}>Description (Optional)</Text>
+              <TextInput 
+                value={description} 
+                onChangeText={setDescription} 
+                placeholder="Enter event description" 
+                placeholderTextColor={colors.text + '70'}
+                style={[styles.input, styles.textArea, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]} 
+                multiline
+                numberOfLines={3}
+              />
+            </View>
+          </View>
+          <View style={styles.formActions}>
+            <TouchableOpacity 
+              onPress={async () => {
+                try {
+                  if (editingId) {
+                    if (!title.trim() || !date.trim()) {
+                      alert('Please enter both title and date');
+                      return;
+                    }
+                    await updateDoc(doc(db, COLL, editingId), { 
+                      title: title.trim(), 
+                      date: date.trim(), 
+                      description: description.trim() || '' 
+                    });
+                    setEditingId(null); 
+                    setTitle(''); 
+                    setDate(''); 
+                    setDescription(''); 
+                    await load();
+                  } else {
+                    await addEvent();
+                  }
+                } catch (error) {
+                  console.error('Error saving event:', error);
+                  alert('Failed to save event. Please try again.');
+                }
+              }} 
+              style={[styles.btnPrimary, { backgroundColor: colors.primaryBlue }]}
+            >
+              <Ionicons name={editingId ? 'save-outline' : 'add'} size={18} color="#fff" />
+              <Text style={styles.btnPrimaryText}>{editingId ? 'Save Changes' : 'Add Event'}</Text>
+            </TouchableOpacity>
+            {editingId && (
+              <TouchableOpacity 
+                onPress={() => { 
+                  setEditingId(null); 
+                  setTitle(''); 
+                  setDate(''); 
+                  setDescription(''); 
+                }} 
+                style={[styles.btnSecondary, { borderColor: colors.border }]}
+              >
+                <Text style={[styles.btnSecondaryText, { color: colors.text }]}>Cancel</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+
+        {/* Events List */}
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primaryBlue} />
+            <Text style={[styles.loadingText, { color: colors.text }]}>Loading events...</Text>
+          </View>
+        ) : (
+          <FlatList<CalendarItem>
+            style={styles.eventsList}
+            data={selectedDate ? 
+              [...items.filter(i => i.date === selectedDate), 
+               ...holidays.filter(h => h.date === selectedDate)] : 
+              [...items, ...(showHolidays ? holidays : [])]
+            }
+            keyExtractor={(item) => {
+              if ('id' in item && typeof item.id === 'string') {
+                return item.id;
+              } else {
+                const holiday = item as Holiday;
+                return `holiday-${holiday.date}-${holiday.name}`;
+              }
+            }}
+            ItemSeparatorComponent={() => <View style={{ height: SPACING.sm }} />}
+            renderItem={({ item }) => {
+              const isHoliday = 'isNational' in item;
+              return (
+                <View style={[styles.eventCard, { 
+                  backgroundColor: colors.cardBackground, 
+                  borderColor: colors.border,
+                  borderLeftColor: isHoliday ? '#ff6b6b' : colors.primaryBlue,
+                  borderLeftWidth: 4
+                }]}>
+                  <View style={styles.eventContent}>
+                    <View style={styles.eventHeader}>
+                      <Text style={[styles.eventTitle, { color: colors.text }]}>
+                        {isHoliday ? (item as Holiday).name : (item as CalendarEvent).title}
+                      </Text>
+                      {isHoliday && (
+                        <View style={[styles.holidayBadge, { backgroundColor: '#ff6b6b20' }]}>
+                          <Text style={[styles.holidayBadgeText, { color: '#ff6b6b' }]}>Holiday</Text>
+                        </View>
+                      )}
+                    </View>
+                    <Text style={[styles.eventDate, { color: colors.text, opacity: 0.7 }]}>
+                      {new Date(item.date).toLocaleDateString('en-US', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                      })}
+                    </Text>
+                    {((item as CalendarEvent).description || (item as Holiday).description) && (
+                      <Text style={[styles.eventDescription, { color: colors.text, opacity: 0.8 }]}>
+                        {(item as CalendarEvent).description || (item as Holiday).description}
+                      </Text>
+                    )}
+                  </View>
+                  {!isHoliday && (
+                    <View style={styles.eventActions}>
+                      <TouchableOpacity 
+                        onPress={() => { 
+                          const calendarItem = item as CalendarEvent;
+                          setEditingId(calendarItem.id); 
+                          setTitle(calendarItem.title); 
+                          setDate(calendarItem.date); 
+                          setDescription(calendarItem.description || ''); 
+                        }} 
+                        style={[styles.actionBtn, { backgroundColor: colors.primaryBlue + '20' }]}
+                      >
+                        <Ionicons name="create-outline" size={18} color={colors.primaryBlue} />
+                      </TouchableOpacity>
+                      <TouchableOpacity 
+                        onPress={() => remove((item as CalendarEvent).id)} 
+                        style={[styles.actionBtn, { backgroundColor: '#ff6b6b20' }]}
+                      >
+                        <Ionicons name="trash-outline" size={18} color="#ff6b6b" />
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </View>
+              );
+            }}
+            ListEmptyComponent={
+              <View style={styles.emptyState}>
+                <Ionicons name="calendar-outline" size={48} color={colors.text + '40'} />
+                <Text style={[styles.emptyText, { color: colors.text, opacity: 0.6 }]}>
+                  {selectedDate ? 'No events for selected date.' : 'No events yet. Add your first event!'}
+                </Text>
+              </View>
+            }
+          />
+        )}
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f7f8fa', padding: 16 },
-  title: { fontSize: 22, fontWeight: '700', color: '#222' },
-  subtitle: { marginTop: 2, color: '#666' },
-  monthHeader: { marginTop: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  monthNavBtn: { padding: 6, borderRadius: 6, backgroundColor: '#EAF4FF' },
-  monthLabel: { fontWeight: '700', color: '#222' },
-  weekHeader: { marginTop: 8, flexDirection: 'row' },
-  weekHeaderText: { flex: 1, textAlign: 'center', color: '#666', fontWeight: '600' },
-  grid: { marginTop: 4 },
-  gridRow: { flexDirection: 'row' },
-  gridCell: { flex: 1, aspectRatio: 1, margin: 2, alignItems: 'center', justifyContent: 'center', borderRadius: 8, backgroundColor: '#fff', borderWidth: 1, borderColor: '#eee', position: 'relative' },
-  gridCellMuted: { backgroundColor: '#f5f6f8' },
-  gridCellSelected: { borderColor: '#1E90FF', backgroundColor: '#EAF4FF' },
-  gridCellText: { color: '#222', fontWeight: '600' },
-  gridCellTextMuted: { color: '#999' },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#1E90FF', position: 'absolute', bottom: 8 },
-  gridCellToday: { borderColor: '#1E90FF', borderWidth: 2 },
-  legendRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8 },
-  legendBox: { width: 14, height: 14, borderRadius: 4, borderWidth: 2, borderColor: '#1E90FF', backgroundColor: '#EAF4FF' },
-  input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#e5e5e5', borderRadius: 8, paddingHorizontal: 10, height: 42, marginTop: 8 },
-  btnPrimary: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', backgroundColor: '#1E90FF', paddingHorizontal: 12, height: 36, borderRadius: 8, marginTop: 10 },
-  btnPrimaryText: { color: '#fff', marginLeft: 6, fontWeight: '600' },
-  btnSecondary: { alignSelf: 'flex-start', paddingHorizontal: 12, height: 36, borderRadius: 8, borderWidth: 1, borderColor: '#ccc', alignItems: 'center', justifyContent: 'center' },
-  btnSecondaryText: { color: '#333', fontWeight: '600' },
-  newRow: { flexDirection: 'row', alignItems: 'center' },
-  card: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#eee' },
-  cardTitle: { fontSize: 16, fontWeight: '700', color: '#222' },
-  cardMeta: { color: '#666', marginTop: 2 },
-  iconBtn: { padding: 8, marginLeft: 8 },
-  todayBtn: { 
-    position: 'absolute', 
-    right: 8, 
-    top: 8, 
-    backgroundColor: '#1E90FF', 
-    paddingHorizontal: 6, 
-    paddingVertical: 2, 
-    borderRadius: 4 
+  container: { 
+    flex: 1 
   },
-  todayBtnText: { 
+  header: {
+    paddingHorizontal: MARGINS.horizontal,
+    paddingTop: 50,
+    paddingBottom: SPACING.lg,
+    ...SHADOWS.md,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: SPACING.lg,
+  },
+  monthNavigation: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  title: { 
+    ...TYPOGRAPHY.h2,
+    marginBottom: 4,
+  },
+  subtitle: { 
+    ...TYPOGRAPHY.bodySmall,
+    opacity: 0.9,
+  },
+  toggleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: BORDER_RADIUS.md,
+    gap: SPACING.sm,
+  },
+  toggleText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: MARGINS.horizontal,
+  },
+  monthNavBtn: { 
+    padding: SPACING.sm, 
+    borderRadius: BORDER_RADIUS.sm,
+    minWidth: 40,
+    minHeight: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.2)',
+  },
+  monthLabel: { 
+    ...TYPOGRAPHY.h3,
+    flex: 1,
+    textAlign: 'center',
+  },
+  todayButton: {
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: BORDER_RADIUS.sm,
+    marginLeft: SPACING.sm,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  todayButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  weekHeader: { 
+    marginTop: SPACING.md,
+    flexDirection: 'row',
+    backgroundColor: 'transparent',
+    paddingVertical: SPACING.sm,
+    borderRadius: BORDER_RADIUS.sm,
+    borderWidth: 1,
+  },
+  weekHeaderText: { 
+    flex: 1, 
+    textAlign: 'center', 
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  grid: { 
+    marginTop: SPACING.sm 
+  },
+  gridRow: { 
+    flexDirection: 'row',
+    marginBottom: 2,
+  },
+  gridCell: { 
+    flex: 1, 
+    aspectRatio: 1, 
+    margin: 2, 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    borderRadius: BORDER_RADIUS.sm,
+    borderWidth: 1,
+    position: 'relative',
+    minHeight: 44,
+  },
+  gridCellText: { 
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  eventDot: { 
+    width: 6, 
+    height: 6, 
+    borderRadius: 3, 
+    position: 'absolute', 
+    bottom: 6,
+    left: '50%',
+    marginLeft: -3,
+  },
+  holidayDot: { 
+    width: 6, 
+    height: 6, 
+    borderRadius: 3, 
+    position: 'absolute', 
+    bottom: 6,
+    right: 6,
+  },
+  legendRow: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-around',
+    marginTop: SPACING.lg,
+    padding: SPACING.lg,
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1,
+    ...SHADOWS.sm,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+  },
+  legendText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  todayIndicator: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    borderWidth: 2,
+  },
+  formCard: {
+    marginTop: SPACING.xl,
+    padding: MARGINS.container,
+    borderRadius: BORDER_RADIUS.lg,
+    borderWidth: 1,
+    ...SHADOWS.md,
+  },
+  formTitle: {
+    ...TYPOGRAPHY.h3,
+    marginBottom: SPACING.lg,
+  },
+  formRow: {
+    marginBottom: SPACING.lg,
+  },
+  formField: {
+    flex: 1,
+  },
+  fieldLabel: {
+    ...TYPOGRAPHY.bodySmall,
+    fontWeight: '600',
+    marginBottom: SPACING.sm,
+  },
+  input: { 
+    borderWidth: 1,
+    borderRadius: BORDER_RADIUS.md,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+    fontSize: 16,
+    minHeight: 48,
+  },
+  textArea: {
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+  dateInputContainer: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
+  },
+  quickDateBtn: {
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: BORDER_RADIUS.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 60,
+  },
+  quickDateText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  formActions: {
+    flexDirection: 'row',
+    gap: SPACING.md,
+    marginTop: SPACING.lg,
+  },
+  btnPrimary: { 
+    flexDirection: 'row', 
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: SPACING.xl,
+    paddingVertical: SPACING.md,
+    borderRadius: BORDER_RADIUS.md,
+    gap: SPACING.sm,
+    flex: 1,
+    ...SHADOWS.sm,
+  },
+  btnPrimaryText: { 
     color: '#fff', 
-    fontSize: 10, 
-    fontWeight: '600' 
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  btnSecondary: { 
+    paddingHorizontal: SPACING.xl,
+    paddingVertical: SPACING.md,
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  btnSecondaryText: { 
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: SPACING.xxxl,
+    gap: SPACING.md,
+  },
+  loadingText: {
+    ...TYPOGRAPHY.bodySmall,
+  },
+  eventsList: {
+    marginTop: SPACING.lg,
+    flex: 1,
+  },
+  eventCard: { 
+    flexDirection: 'row', 
+    alignItems: 'center',
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.lg,
+    borderWidth: 1,
+    ...SHADOWS.sm,
+  },
+  eventContent: {
+    flex: 1,
+  },
+  eventHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: SPACING.sm,
+  },
+  eventTitle: { 
+    ...TYPOGRAPHY.h4,
+    flex: 1,
+  },
+  holidayBadge: {
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 2,
+    borderRadius: BORDER_RADIUS.sm,
+    marginLeft: SPACING.sm,
+  },
+  holidayBadgeText: {
+    fontSize: 10,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+  },
+  eventDate: { 
+    ...TYPOGRAPHY.bodySmall,
+    marginBottom: SPACING.sm,
+  },
+  eventDescription: {
+    ...TYPOGRAPHY.bodySmall,
+  },
+  eventActions: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
+    marginLeft: SPACING.md,
+  },
+  actionBtn: {
+    padding: SPACING.sm,
+    borderRadius: BORDER_RADIUS.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 36,
+    minHeight: 36,
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: SPACING.xxxl,
+    gap: SPACING.lg,
+  },
+  emptyText: {
+    ...TYPOGRAPHY.body,
+    textAlign: 'center',
   },
 });

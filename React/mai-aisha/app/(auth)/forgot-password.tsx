@@ -50,13 +50,14 @@ export default function ForgotPasswordScreen() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <View style={styles.container}>
-      <Image source={require('../../assets/images/maa.png')} style={styles.headerLogo} />
-      <Text style={styles.schoolName}>MAI AISHA ACADEMY</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Image source={require('../../assets/images/maa.png')} style={styles.logo} />
+      <Text style={[styles.schoolName, { color: colors.text }]}>MAI AISHA ACADEMY</Text>
         <Text style={[styles.title, { color: colors.text }]}>Enter your email to reset your password</Text>
         <TextInput
-          style={[styles.input, { backgroundColor: colors.cardBackground, borderColor: colors.text + '30' }]}
+          style={[styles.input, { backgroundColor: colors.cardBackground, borderColor: colors.text + '30', color: colors.text }]}
           placeholder="username@example.com"
+          placeholderTextColor={colors.text + '70'}
           autoCapitalize="none"
           keyboardType="email-address"
           value={email}
@@ -70,10 +71,10 @@ export default function ForgotPasswordScreen() {
           )}
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.replace('/(auth)/login')}>
-          <Text style={styles.link}>Back to Sign in</Text>
+          <Text style={[styles.link, { color: colors.primaryBlue }]}>Back to Sign in</Text>
         </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    </KeyboardAvoidingView> 
   );
 }
 
@@ -83,23 +84,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#fff',
   },
   title: {
     fontSize: 18,
     fontWeight: '400',
     marginBottom: 20,
-
   },
   input: {
     width: '100%',
     height: 50,
-    borderColor: '#ddd',
     borderWidth: 1,
     borderRadius: 25,
     paddingHorizontal: 20,
     marginBottom: 15,
-    backgroundColor: '#f9f9f9',
   },
   primaryButton: {
     width: '100%',
@@ -111,17 +108,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  primaryText: { color: '#fff', fontSize: 18, fontWeight: '500' },
-  link: { color: '#1E90FF' },
-  headerLogo: {
-    width: 80,
-    height: 80,
-    resizeMode: 'contain',
-    marginBottom: 10,
-    borderRadius: 40,
-    borderWidth: 1,
-    borderColor: 'whitesmoke',
+  primaryText: { 
+    color: '#fff', 
+    fontSize: 18, 
+    fontWeight: '500' 
   },
-  schoolName: {  fontSize: 20, fontWeight: 'bold', marginBottom: 30 },
+  link: { 
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    resizeMode: 'cover',
+    borderRadius: 60, 
+    borderWidth: 2,
+    borderColor: '#1E90FF',
+    marginBottom: 30,
+  },
+  schoolName: {  
+    fontSize: 20, 
+    fontWeight: '500', 
+    marginBottom: 30 
+  },
 });
 

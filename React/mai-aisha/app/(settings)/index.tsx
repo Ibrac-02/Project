@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -8,9 +7,9 @@ import AnimatedBackButton from '@/components/AnimatedBackButton';
 import { useAuth } from '@/lib/auth';
 
 export default function SettingsIndexScreen() {
-  const navigate = (path: Parameters<typeof router.push>[0]) => smoothNavigate(path as string);
+  const navigate = (path: string) => smoothNavigate(path);
   const { colors } = useTheme();
-  const { user } = useAuth();
+  const { userProfile } = useAuth();
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -36,10 +35,10 @@ export default function SettingsIndexScreen() {
               <Ionicons name="person" size={32} color={colors.primaryBlue} />
             </View>
             <View style={styles.userDetails}>
-              <Text style={[styles.userName, { color: colors.text }]}>{(user as any)?.name || 'User'}</Text>
-              <Text style={[styles.userEmail, { color: colors.text }]}>{user?.email || 'user@example.com'}</Text>
+              <Text style={[styles.userName, { color: colors.text }]}>{userProfile?.name || 'User'}</Text>
+              <Text style={[styles.userEmail, { color: colors.text }]}>{userProfile?.email || 'username@example.com'}</Text>
               <Text style={[styles.userRole, { color: colors.primaryBlue }]}>
-                {(user as any)?.role?.toUpperCase() || 'USER'}
+                {userProfile?.role?.toUpperCase() || 'USER'}
               </Text>
             </View>
           </View>

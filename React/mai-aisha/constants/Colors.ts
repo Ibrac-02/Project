@@ -10,7 +10,7 @@ const tintColorDark = '#fff';
 export const Colors = {
   light: {
     text: '#11181C',
-    background: '#fff',
+    background: '#f3efefff',
     tint: tintColorLight,
     icon: '#687076',
     tabIconDefault: '#687076',
@@ -29,7 +29,7 @@ export const Colors = {
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
     primaryBlue: primaryBlue, // Add primaryBlue to dark theme
-    cardBackground: '#373030ff',
+    cardBackground: '#303334ff',
     border: '#2c2c2c',
     danger: '#ff6b6b',
     success: '#28a745',

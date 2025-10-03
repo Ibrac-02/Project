@@ -45,7 +45,11 @@ export async function updateUser(uid: string, updates: Partial<UserProfile>) {
 }
 
 export async function deleteUser(uid: string) {
-  await deleteDoc(doc(db, USERS_COLL, uid));
+  try {
+    await deleteDoc(doc(db, USERS_COLL, uid));
+  } catch (error: any) {
+    throw new Error('Failed to delete user: ' + error.message);
+  }
 }
 
 export async function getUserById(uid: string): Promise<UserProfile | null> {

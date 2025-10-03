@@ -9,6 +9,7 @@ import { listClasses } from '@/lib/classes';
 import { listStudents } from '@/lib/students';
 import AutoComplete from '@/components/AutoComplete';
 import { useTheme } from '@/contexts/ThemeContext';
+import { STANDARD_STYLES, MARGINS, SPACING, BORDER_RADIUS, SHADOWS, TYPOGRAPHY } from '@/constants/Styles';
 
 export default function TeacherAttendanceScreen() {
   const { allowed, loading: roleLoading } = useRequireRole('teacher');

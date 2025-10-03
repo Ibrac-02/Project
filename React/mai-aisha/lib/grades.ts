@@ -25,7 +25,11 @@ export async function updateGrade(id: string, updates: Partial<Omit<GradeRecord,
 }
 
 export async function deleteGrade(id: string): Promise<void> {
-  await deleteDoc(doc(db, COLL, id));
+  try {
+    await deleteDoc(doc(db, COLL, id));
+  } catch (error: any) {
+    throw new Error('Failed to delete grade record: ' + error.message);
+  }
 }
 
 export async function getGradeById(id: string): Promise<GradeRecord | null> {
