@@ -4,8 +4,8 @@ import { ActivityIndicator, Alert, Modal, ScrollView, StyleSheet, Text, TextInpu
 import { AnnouncementCard } from '@/components/AnnouncementCard';
 import { Announcement, createAnnouncement, deleteAnnouncement, getAnnouncements, updateAnnouncement } from '@/lib/announcements';
 import { useAuth } from '@/lib/auth';
-import { useTheme } from '@/contexts/ThemeContext';
-import { STANDARD_STYLES, MARGINS, SPACING, BORDER_RADIUS, SHADOWS, TYPOGRAPHY } from '@/constants/Styles';
+//import { useTheme } from '@/contexts/ThemeContext';
+//import { STANDARD_STYLES, MARGINS, SPACING, BORDER_RADIUS, SHADOWS, TYPOGRAPHY } from '@/constants/Styles';
 
 export default function AnnouncementsScreen() {
   const { user, role: userRole, loading: authLoading } = useAuth();
@@ -372,4 +372,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-

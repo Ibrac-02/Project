@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '@/contexts/ThemeContext';
-import { STANDARD_STYLES, MARGINS, SPACING, BORDER_RADIUS, SHADOWS, TYPOGRAPHY } from '@/constants/Styles';
+//import { STANDARD_STYLES, MARGINS, SPACING, BORDER_RADIUS, SHADOWS, TYPOGRAPHY } from '@/constants/Styles';
 
 export default function SignUpScreen() {
   const { colors } = useTheme();
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
     borderRadius: 50, // Make it circular (half of width/height)
     borderWidth: 2,
-    borderColor: '#1E90FF',
+    borderColor: '#fff',
     marginBottom: 10,
   },
   schoolName: {

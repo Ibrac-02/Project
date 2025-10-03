@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, Image, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { STANDARD_STYLES, MARGINS, SPACING, BORDER_RADIUS, SHADOWS, TYPOGRAPHY } from '@/constants/Styles';
+import {  MARGINS, SPACING, SHADOWS, TYPOGRAPHY } from '@/constants/Styles';
 
 const REMEMBER_ME_KEY = 'remember_me_email'; 
 
@@ -151,6 +151,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: MARGINS.horizontal,
     paddingVertical: MARGINS.vertical,
+    backgroundColor: '#fff',
   },
   logo: {
     width: 120,
@@ -158,7 +159,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
     borderRadius: 60,
     borderWidth: 3,
-    borderColor: '#1E90FF',
+    borderColor: '#fff',
     marginBottom: SPACING.xxxl,
     ...SHADOWS.md,
   },
@@ -174,44 +175,43 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   input: {
-    width: '100%',
-    height: 56,
+   width: '100%',
+    height: 50,
+    borderColor: '#ddd',
     borderWidth: 1,
-    borderRadius: BORDER_RADIUS.lg,
-    paddingHorizontal: SPACING.xl,
-    marginBottom: SPACING.lg,
-    fontSize: 16,
-    ...SHADOWS.sm,
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    marginBottom: 15,
+    backgroundColor: '#f9f9f9',
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    height: 56,
+    height: 50,
+    borderColor: '#ddd',
     borderWidth: 1,
-    borderRadius: BORDER_RADIUS.lg,
-    marginBottom: SPACING.lg,
-    ...SHADOWS.sm,
+    borderRadius: 25,
+    marginBottom: 15,
+    backgroundColor: '#f9f9f9',
   },
   passwordInput: {
     flex: 1,
-    paddingHorizontal: SPACING.xl,
-    fontSize: 16,
+    paddingHorizontal: 20,
   },
   eyeIcon: {
     paddingRight: SPACING.lg,
     paddingLeft: SPACING.sm,
   },
   signInButton: {
-    width: '100%',
-    height: 56,
-    borderRadius: BORDER_RADIUS.lg,
+     width: '100%',
+    height: 50,
+    borderRadius: 25,
     backgroundColor: '#1E90FF',
-    marginTop: SPACING.lg,
-    marginBottom: SPACING.xl,
+    marginTop: 10,
+    marginBottom: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    ...SHADOWS.md,
   },
   buttonText: {
     color: '#fff',
