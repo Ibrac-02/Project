@@ -183,7 +183,14 @@ export default function MessagesScreen() {
         { text: "Cancel", style: "cancel" },
         { text: "Delete All", style: "destructive", onPress: async () => {
             try {
-              await Promise.all(selectedMessages.map(id => deleteMessage(id)));
+              const idsToDelete = selectedMessages.filter(id => {
+                const m = messages.find(mm => mm.id === id);
+                if (!m) return false;
+                const isOwn = m.senderId === (user?.uid || '');
+                const isRcpt = m.recipientIds.includes(user?.uid || '');
+                return canManageMessages || isOwn || isRcpt;
+              });
+              await Promise.all(idsToDelete.map(id => deleteMessage(id)));
               Alert.alert("Success", `${selectedMessages.length} message(s) deleted successfully!`);
               setSelectedMessages([]);
               fetchMessages();
@@ -204,8 +211,12 @@ export default function MessagesScreen() {
         { text: "Cancel", style: "cancel" },
         { text: "Delete All", style: "destructive", onPress: async () => {
             try {
-              const userMessages = messages.filter(m => m.senderId === user?.uid || m.recipientIds.includes(user?.uid || ''));
-              await Promise.all(userMessages.map(m => deleteMessage(m.id)));
+              const deletable = messages.filter(m => {
+                const isOwn = m.senderId === (user?.uid || '');
+                const isRcpt = m.recipientIds.includes(user?.uid || '');
+                return canManageMessages || isOwn || isRcpt;
+              });
+              await Promise.all(deletable.map(m => deleteMessage(m.id)));
               Alert.alert("Success", "All messages deleted successfully!");
               setSelectedMessages([]);
               fetchMessages();
@@ -232,6 +243,7 @@ export default function MessagesScreen() {
 
   const canManageMessages = userRole === 'admin' || userRole === 'headteacher';
   const showDeleteSelectedButton = selectedMessages.length > 0;
+  const EDIT_WINDOW_MS = 30 * 60 * 1000; // 30 minutes
 
   if (loading || authLoading) {
     return (
@@ -268,16 +280,19 @@ export default function MessagesScreen() {
           <View style={styles.messagesList}>
             {messages.map((message) => {
               const isOwnMessage = message.senderId === user?.uid;
-              const canDelete = canManageMessages || isOwnMessage;
+              const isRecipient = message.recipientIds.includes(user?.uid || '');
+              const canDelete = canManageMessages || isOwnMessage || isRecipient;
+              const withinEditWindow = (Date.now() - message.createdAt.toMillis()) <= EDIT_WINDOW_MS;
+              const canEdit = canManageMessages || (isOwnMessage && withinEditWindow);
               
               return (
                 <MessageCard
                   key={message.id}
                   message={message}
                   currentUserId={user?.uid || ''}
-                  onEdit={canManageMessages ? handleEdit : undefined}
+                  onEdit={canEdit ? handleEdit : undefined}
                   onDelete={canDelete ? handleDelete : undefined}
-                  showActions={canDelete}
+                  showActions={canDelete || canEdit}
                   isSelected={selectedMessages.includes(message.id)}
                   onSelect={toggleSelectMessage}
                   unreadCount={messageUnreadCounts[message.id] || 0}

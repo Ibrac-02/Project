@@ -151,65 +151,66 @@ export default function AdminStudentsList() {
       <View style={styles.modalOverlay}>
         <StatusBar barStyle="light-content" backgroundColor="rgba(0,0,0,0.8)" />
         <ScrollView contentContainerStyle={{ justifyContent: 'center', alignItems: 'center', minHeight: '100%' }} showsVerticalScrollIndicator={false}>
-          <View style={styles.modalCard}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Edit Student</Text>
+          <View style={[styles.modalCard, { backgroundColor: colors.cardBackground }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Edit Student</Text>
               <TouchableOpacity onPress={closeModals} style={styles.closeBtn}>
-                <Ionicons name="close" size={24} color="#64748b" />
+                <Ionicons name="close" size={24} color={colors.icon} />
               </TouchableOpacity>
             </View>
             
             <View style={styles.formRow}>
-              <Text style={styles.label}>Full Name</Text>
+              <Text style={[styles.label, { color: colors.text }]}>Full Name</Text>
               <TextInput 
                 value={formName} 
                 onChangeText={setFormName} 
                 placeholder="Student name" 
-                style={styles.input} 
+                placeholderTextColor={colors.text + '70'}
+                style={[styles.input, { backgroundColor: colors.cardBackground, borderColor: colors.border, color: colors.text }]} 
               />
             </View>
             
             <View style={styles.formRow}>
-              <Text style={styles.label}>Gender</Text>
+              <Text style={[styles.label, { color: colors.text }]}>Gender</Text>
               <View style={styles.genderButtons}>
                 <TouchableOpacity 
-                  style={[styles.genderBtn, formGender === 'male' && styles.genderBtnActive]} 
+                  style={[styles.genderBtn, { borderColor: colors.border, backgroundColor: colors.background }, formGender === 'male' && [styles.genderBtnActive, { backgroundColor: colors.primaryBlue, borderColor: colors.primaryBlue }]]} 
                   onPress={() => setFormGender('male')}
                 >
-                  <Text style={[styles.genderBtnText, formGender === 'male' && styles.genderBtnTextActive]}>Male</Text>
+                  <Text style={[styles.genderBtnText, { color: colors.text }, formGender === 'male' && [styles.genderBtnTextActive, { color: '#fff' }]]}>Male</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
-                  style={[styles.genderBtn, formGender === 'female' && styles.genderBtnActive]} 
+                  style={[styles.genderBtn, { borderColor: colors.border, backgroundColor: colors.background }, formGender === 'female' && [styles.genderBtnActive, { backgroundColor: colors.primaryBlue, borderColor: colors.primaryBlue }]]} 
                   onPress={() => setFormGender('female')}
                 >
-                  <Text style={[styles.genderBtnText, formGender === 'female' && styles.genderBtnTextActive]}>Female</Text>
+                  <Text style={[styles.genderBtnText, { color: colors.text }, formGender === 'female' && [styles.genderBtnTextActive, { color: '#fff' }]]}>Female</Text>
                 </TouchableOpacity>
               </View>
             </View>
             
             <View style={styles.formRow}>
-              <Text style={styles.label}>Class</Text>
+              <Text style={[styles.label, { color: colors.text }]}>Class</Text>
               <View style={styles.modalClassChips}>
                 {classes.map(c => (
                   <TouchableOpacity 
                     key={c.id} 
-                    style={[styles.modalClassChip, formClassId === c.id && styles.modalClassChipActive]} 
+                    style={[styles.modalClassChip, { borderColor: colors.border, backgroundColor: colors.background }, formClassId === c.id && [styles.modalClassChipActive, { backgroundColor: colors.primaryBlue, borderColor: colors.primaryBlue }]]} 
                     onPress={() => setFormClassId(c.id)}
                   >
-                    <Text style={[styles.modalClassChipText, formClassId === c.id && styles.modalClassChipTextActive]}>{c.name}</Text>
+                    <Text style={[styles.modalClassChipText, { color: colors.text }, formClassId === c.id && [styles.modalClassChipTextActive, { color: '#fff' }]]}>{c.name}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
             </View>
 
             <View style={styles.buttonRow}>
-              <TouchableOpacity style={[styles.btn, styles.editSaveBtn]} onPress={saveStudent} disabled={saving}>
+              <TouchableOpacity style={[styles.btn, { backgroundColor: colors.primaryBlue }]} onPress={saveStudent} disabled={saving}>
                 <Ionicons name="save-outline" size={20} color="#fff" />
-                <Text style={styles.btnText}>{saving ? 'Saving...' : 'Save'}</Text>
+                <Text style={[styles.btnText, { color: '#fff' }]}>{saving ? 'Saving...' : 'Save'}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.btn, styles.deleteBtn]} onPress={confirmDeleteFromModal}>
+              <TouchableOpacity style={[styles.btn, { backgroundColor: colors.danger }]} onPress={confirmDeleteFromModal}>
                 <Ionicons name="trash-outline" size={20} color="#fff" />
-                <Text style={styles.btnText}>Delete</Text>
+                <Text style={[styles.btnText, { color: '#fff' }]}>Delete</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -225,11 +226,11 @@ export default function AdminStudentsList() {
       <View style={styles.modalOverlay}>
         <StatusBar barStyle="light-content" backgroundColor="rgba(0,0,0,0.8)" />
         <ScrollView contentContainerStyle={{ justifyContent: 'center', alignItems: 'center', minHeight: '100%' }} showsVerticalScrollIndicator={false}>
-          <View style={styles.modalCard}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>New Student</Text>
+          <View style={[styles.modalCard, { backgroundColor: colors.cardBackground }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>New Student</Text>
               <TouchableOpacity onPress={closeModals} style={styles.closeBtn}>
-                <Ionicons name="close" size={24} color="#64748b" />
+                <Ionicons name="close" size={24} color={colors.icon} />
               </TouchableOpacity>
             </View>
             
@@ -276,7 +277,7 @@ export default function AdminStudentsList() {
               </View>
             </View>
 
-            <TouchableOpacity style={styles.saveBtn} onPress={saveStudent} disabled={saving}>
+            <TouchableOpacity style={[styles.saveBtn, { backgroundColor: colors.primaryBlue }]} onPress={saveStudent} disabled={saving}>
               <Ionicons name="save-outline" size={20} color="#fff" />
               <Text style={styles.saveBtnText}>{saving ? 'Saving...' : 'Save Student'}</Text>
             </TouchableOpacity>
@@ -339,7 +340,7 @@ export default function AdminStudentsList() {
       </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#1E90FF" style={{ marginTop: 40 }} />
+        <ActivityIndicator size="large" color={colors.primaryBlue} style={{ marginTop: 40 }} />
       ) : (
         <FlatList
           data={groupedData}
@@ -378,7 +379,7 @@ export default function AdminStudentsList() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
+  container: { flex: 1, padding: 20 },
   topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   title: { fontSize: 20, fontWeight: '700' },
   addBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1E90FF', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
@@ -401,13 +402,13 @@ const styles = StyleSheet.create({
   
   // Modal styles
   modalOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'center', alignItems: 'center', padding: 20, zIndex: 1000 },
-  modalCard: { backgroundColor: '#fff', borderRadius: 16, padding: 24, width: '100%', maxWidth: 500, maxHeight: '80%' },
+  modalCard: { borderRadius: 16, padding: 24, width: '100%', maxWidth: 500, maxHeight: '80%' },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, paddingBottom: 16, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#e5e7eb' },
-  modalTitle: { fontSize: 22, fontWeight: '800', color: '#0f172a' },
+  modalTitle: { fontSize: 22, fontWeight: '800' },
   closeBtn: { padding: 4 },
   formRow: { marginBottom: 16 },
-  label: { fontWeight: '700', color: '#334155', marginBottom: 8, fontSize: 16 },
-  input: { backgroundColor: '#f8fafc', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, borderWidth: StyleSheet.hairlineWidth, borderColor: '#e5e7eb', fontSize: 16 },
+  label: { fontWeight: '700', marginBottom: 8, fontSize: 16 },
+  input: { borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, borderWidth: StyleSheet.hairlineWidth, fontSize: 16 },
   genderButtons: { flexDirection: 'row', gap: 12 },
   genderBtn: { flex: 1, borderWidth: 1.5, borderColor: '#cbd5e1', paddingVertical: 16, borderRadius: 12, alignItems: 'center', backgroundColor: '#f8fafc' },
   genderBtnActive: { backgroundColor: '#1E90FF', borderColor: '#1E90FF' },

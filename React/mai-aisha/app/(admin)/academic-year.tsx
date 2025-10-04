@@ -4,9 +4,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRequireRole } from '@/lib/access';
 import { createAcademicYear, deleteAcademicYear, listAcademicYears, listTerms, createTerm, updateAcademicYear, updateTerm, deleteTerm } from '@/lib/academicYear';
 import type { AcademicYear, Term } from '@/lib/types';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function AcademicYearScreen() {
   const { allowed, loading: roleLoading } = useRequireRole('admin');
+  const { colors } = useTheme();
 
   // Years state
   const [years, setYears] = useState<AcademicYear[]>([]);

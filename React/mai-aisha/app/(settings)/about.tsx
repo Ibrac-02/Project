@@ -1,21 +1,23 @@
 import Constants from 'expo-constants';
 import React from 'react';
 import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function AboutScreen() {
+  const { colors } = useTheme();
   const version = Constants.expoConfig?.version || '1.0.0';
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
+    <ScrollView contentContainerStyle={[styles.scrollContainer, { backgroundColor: colors.background }]}>
       <View style={styles.container}>
-        <View style={styles.card}>
-          <Text style={styles.row}><Text style={styles.label}>App:</Text> Mai Aisha Academy</Text>
-          <Text style={styles.row}><Text style={styles.label}>Version:</Text> {version}</Text>
-          <Text style={styles.row}><Text style={styles.label}>Contact:</Text> support@maiaisha.academy</Text>
-          <Text style={styles.row}><Text style={styles.label}>Developed by:</Text> Ibrac02</Text>
+        <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
+          <Text style={[styles.row, { color: colors.text }]}><Text style={[styles.label, { color: colors.text }]}>App:</Text> Mai Aisha Academy</Text>
+          <Text style={[styles.row, { color: colors.text }]}><Text style={[styles.label, { color: colors.text }]}>Version:</Text> {version}</Text>
+          <Text style={[styles.row, { color: colors.text }]}><Text style={[styles.label, { color: colors.text }]}>Contact:</Text> support@maiaisha.academy</Text>
+          <Text style={[styles.row, { color: colors.text }]}><Text style={[styles.label, { color: colors.text }]}>Developed by:</Text> Ibrac02</Text>
         </View>
 
-        <TouchableOpacity onPress={() => Linking.openURL('mailto:support@maiaisha.academy')} style={styles.button}>
+        <TouchableOpacity onPress={() => Linking.openURL('mailto:support@maiaisha.academy')} style={[styles.button, { backgroundColor: colors.primaryBlue }]}>
           <Text style={styles.buttonText}>Contact Support</Text>
         </TouchableOpacity>
       </View>
@@ -26,7 +28,6 @@ export default function AboutScreen() {
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
-    backgroundColor: '#f0f2f5',
     paddingVertical: 20,
   },
   container: {
@@ -34,7 +35,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   card: {
-    backgroundColor: '#fff',
     borderRadius: 10,
     padding: 16,
     shadowColor: '#000',

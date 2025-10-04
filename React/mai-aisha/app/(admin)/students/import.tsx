@@ -1,20 +1,28 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import * as DocumentPicker from 'expo-document-picker';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Papa from 'papaparse';
-import { createStudent } from '@/lib/students';
+import { router } from 'expo-router';
+import { createStudent } from '@/lib/students-offline';
 import { listClasses } from '@/lib/classes';
+import type { SchoolClass } from '@/lib/types';
+import { useTheme } from '@/contexts/ThemeContext';
+import * as DocumentPicker from 'expo-document-picker';
+import Papa from 'papaparse';
 
 // Simple CSV import skeleton with mapping for: name,class,gender
-export default function AdminStudentsImport() {
+export default function ImportStudentsScreen() {
+  const { colors } = useTheme();
+  const [importing, setImporting] = useState(false);
   const [rows, setRows] = useState<any[]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
   const [parsing, setParsing] = useState(false);
   const [classes, setClasses] = useState<{ id: string; name: string }[]>([]);
 
   React.useEffect(() => {
-    listClasses().then(cls => setClasses(cls.map(c => ({ id: c.id, name: c.name }))));
+    // Load classes on mount
+    listClasses().then(cls => {
+      setClasses(cls.map(c => ({ id: c.id, name: c.name })));
+    });
   }, []);
 
   const pickFile = async () => {

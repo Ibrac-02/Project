@@ -1,15 +1,16 @@
 
 import { Stack } from 'expo-router';
+import { useTheme } from '@/contexts/ThemeContext';
 import { StatusBar } from 'expo-status-bar';
 import AnimatedBackButton from '@/components/AnimatedBackButton';
 
 export default function HeadteacherLayout() {
-
+  const { colors } = useTheme();
   return (
     <Stack
       screenOptions={{
-         headerStyle: {
-          backgroundColor: '#1E90FF', 
+        headerStyle: {
+          backgroundColor: colors.primaryBlue,
         },
         headerTintColor: '#fff',
         headerTitleStyle: {

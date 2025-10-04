@@ -4,11 +4,11 @@ import { ActivityIndicator, Alert, Modal, ScrollView, StyleSheet, Text, TextInpu
 import { AnnouncementCard } from '@/components/AnnouncementCard';
 import { Announcement, createAnnouncement, deleteAnnouncement, getAnnouncements, updateAnnouncement } from '@/lib/announcements';
 import { useAuth } from '@/lib/auth';
-//import { useTheme } from '@/contexts/ThemeContext';
-//import { STANDARD_STYLES, MARGINS, SPACING, BORDER_RADIUS, SHADOWS, TYPOGRAPHY } from '@/constants/Styles';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function AnnouncementsScreen() {
   const { user, role: userRole, loading: authLoading } = useAuth();
+  const { colors } = useTheme();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -138,16 +138,16 @@ export default function AnnouncementsScreen() {
 
   if (loading || authLoading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#1E90FF" />
-        <Text>Loading announcements...</Text>
+      <View style={[styles.centered, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primaryBlue} />
+        <Text style={{ color: colors.text }}>Loading announcements...</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, { backgroundColor: colors.background }]}>
         {canCreateAnnouncement && (
           <TouchableOpacity style={styles.createButton} onPress={() => {
             setEditingAnnouncement(null);
@@ -169,7 +169,7 @@ export default function AnnouncementsScreen() {
         )}
 
         {announcements.length === 0 ? (
-          <Text style={styles.noAnnouncementsText}>No announcements available.</Text>
+          <Text style={[styles.noAnnouncementsText, { color: colors.text }]}>No announcements available.</Text>
         ) : (
           announcements.map((announcement) => (
             <AnnouncementCard
@@ -192,18 +192,20 @@ export default function AnnouncementsScreen() {
         onRequestClose={() => setIsModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{editingAnnouncement ? 'Edit Announcement' : 'Create New Announcement'}</Text>
+          <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>{editingAnnouncement ? 'Edit Announcement' : 'Create New Announcement'}</Text>
 
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.text + '30' }]}
               placeholder="Title"
+              placeholderTextColor={colors.text + '70'}
               value={title}
               onChangeText={setTitle}
             />
             <TextInput
-              style={[styles.input, styles.textArea]}
+              style={[styles.input, styles.textArea, { backgroundColor: colors.background, color: colors.text, borderColor: colors.text + '30' }]}
               placeholder="Content"
+              placeholderTextColor={colors.text + '70'}
               multiline
               value={content}
               onChangeText={setContent}
@@ -228,7 +230,6 @@ export default function AnnouncementsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f2f5',
   },
   scrollContent: {
     padding: 20,
@@ -238,7 +239,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f0f2f5',
   },
   
   createButton: {
@@ -279,7 +279,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 30,
     fontSize: 16,
-    color: '#666',
   },
   modalOverlay: {
     flex: 1,
@@ -288,7 +287,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContent: {
-    backgroundColor: '#fff',
     borderRadius: 10,
     padding: 25,
     width: '90%',
@@ -303,16 +301,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
-    color: '#333',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
     borderRadius: 8,
     padding: 12,
     marginBottom: 15,
     fontSize: 16,
-    color: '#333',
   },
   textArea: {
     height: 100,

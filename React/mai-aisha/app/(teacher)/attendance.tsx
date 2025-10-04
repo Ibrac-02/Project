@@ -9,7 +9,6 @@ import { listClasses } from '@/lib/classes';
 import { listStudents } from '@/lib/students';
 import AutoComplete from '@/components/AutoComplete';
 import { useTheme } from '@/contexts/ThemeContext';
-import { STANDARD_STYLES, MARGINS, SPACING, BORDER_RADIUS, SHADOWS, TYPOGRAPHY } from '@/constants/Styles';
 
 export default function TeacherAttendanceScreen() {
   const { allowed, loading: roleLoading } = useRequireRole('teacher');
@@ -159,7 +158,7 @@ export default function TeacherAttendanceScreen() {
             <TouchableOpacity onPress={() => remove(item)} style={styles.iconBtn}><Ionicons name="trash-outline" size={20} color={colors.danger} /></TouchableOpacity>
           </View>
         )}
-        ListEmptyComponent={!loading ? (<Text style={{ color: '#666' }}>No attendance records yet.</Text>) : null}
+        ListEmptyComponent={!loading ? (<Text style={{ color: colors.text + '70' }}>No attendance records yet.</Text>) : null}
       />
 
       <Modal visible={modalOpen} animationType="slide" transparent>
@@ -247,14 +246,14 @@ const styles = StyleSheet.create({
   subtitle: { marginTop: 2 },
   addBtn: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, height: 36, borderRadius: 8, marginTop: 12, marginBottom: 8 },
   addBtnText: { color: '#fff', marginLeft: 6, fontWeight: '600' },
-  card: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#eee' },
+  card: { flexDirection: 'row', alignItems: 'center', borderRadius: 10, padding: 12, borderWidth: 1 },
   cardTitle: { fontSize: 16, fontWeight: '700' },
   cardMeta: { marginTop: 2 },
   iconBtn: { padding: 8, marginLeft: 8 },
   modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: 16 },
-  modalCard: { backgroundColor: '#fff', borderRadius: 12, padding: 16 },
+  modalCard: { borderRadius: 12, padding: 16 },
   modalTitle: { fontSize: 18, fontWeight: '700', marginBottom: 8 },
-  input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#e5e5e5', borderRadius: 8, paddingHorizontal: 10, height: 42, marginTop: 8 },
+  input: { borderWidth: 1, borderRadius: 8, paddingHorizontal: 10, height: 42, marginTop: 8 },
   label: { marginTop: 12, marginBottom: 4, fontWeight: '600' },
   statusButtons: { flexDirection: 'row', gap: 8, marginTop: 8 },
   statusButton: { 

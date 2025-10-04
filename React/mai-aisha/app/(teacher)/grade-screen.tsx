@@ -7,10 +7,12 @@ import { createGrade, deleteGrade, listGradesForTeacher, updateGrade, type Grade
 import { listClasses } from '@/lib/classes';
 import { listSubjects } from '@/lib/subjects';
 import AutoComplete from '@/components/AutoComplete';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function TeacherMarksScreen() {
   const { allowed, loading: roleLoading } = useRequireRole('teacher');
   const { user } = useAuth();
+  const { colors } = useTheme();
   const teacherId = user?.uid || '';
 
   const [items, setItems] = useState<GradeRecord[]>([]);
@@ -108,11 +110,11 @@ export default function TeacherMarksScreen() {
 
   return (
     !allowed || roleLoading ? null : (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Student Marks</Text>
-      <Text style={styles.subtitle}>Add and edit exam results</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.title, { color: colors.text }]}>Student Marks</Text>
+      <Text style={[styles.subtitle, { color: colors.text }]}>Add and edit exam results</Text>
 
-      <TouchableOpacity onPress={openNew} style={styles.addBtn}>
+      <TouchableOpacity onPress={openNew} style={[styles.addBtn, { backgroundColor: colors.primaryBlue }]}>
         <Ionicons name="add" size={20} color="#fff" />
         <Text style={styles.addBtnText}>New Marks</Text>
       </TouchableOpacity>
@@ -124,24 +126,24 @@ export default function TeacherMarksScreen() {
         onRefresh={load}
         ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
         renderItem={({ item }) => (
-          <View style={styles.card}>
+          <View style={[styles.card, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.cardTitle}>{item.studentId}</Text>
-              <Text style={styles.cardMeta}>Subject: {subjectName.get(item.subjectId) || item.subjectId} {item.classId ? `• Class: ${className.get(item.classId) || item.classId}` : ''}</Text>
-              <Text style={styles.cardMeta}>Marks: {item.marksObtained}/{item.totalMarks} • Status: {item.status}</Text>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>{item.studentId}</Text>
+              <Text style={[styles.cardMeta, { color: colors.text }]}>Subject: {subjectName.get(item.subjectId) || item.subjectId} {item.classId ? `• Class: ${className.get(item.classId) || item.classId}` : ''}</Text>
+              <Text style={[styles.cardMeta, { color: colors.text }]}>Marks: {item.marksObtained}/{item.totalMarks} • Status: {item.status}</Text>
             </View>
-            <TouchableOpacity onPress={() => openEdit(item)} style={styles.iconBtn}><Ionicons name="create-outline" size={20} color="#1E90FF" /></TouchableOpacity>
-            <TouchableOpacity onPress={() => remove(item)} style={styles.iconBtn}><Ionicons name="trash-outline" size={20} color="#D11A2A" /></TouchableOpacity>
+            <TouchableOpacity onPress={() => openEdit(item)} style={styles.iconBtn}><Ionicons name="create-outline" size={20} color={colors.primaryBlue} /></TouchableOpacity>
+            <TouchableOpacity onPress={() => remove(item)} style={styles.iconBtn}><Ionicons name="trash-outline" size={20} color={colors.danger} /></TouchableOpacity>
           </View>
         )}
-        ListEmptyComponent={!loading ? (<Text style={{ color: '#666' }}>No marks yet.</Text>) : null}
+        ListEmptyComponent={!loading ? (<Text style={{ color: colors.text + '70' }}>No marks yet.</Text>) : null}
       />
 
       <Modal visible={modalOpen} animationType="slide" transparent>
         <View style={styles.modalBackdrop}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>{editing ? 'Edit Marks' : 'New Marks'}</Text>
-            <Text style={styles.label}>Class</Text>
+          <View style={[styles.modalCard, { backgroundColor: colors.cardBackground }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>{editing ? 'Edit Marks' : 'New Marks'}</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Class</Text>
             <AutoComplete
               value={classId ? (className.get(classId) || '') : ''}
               placeholder="Search class..."
@@ -150,7 +152,7 @@ export default function TeacherMarksScreen() {
               onChangeText={() => { /* search-only */ }}
               onSelectItem={(it) => setClassId(it.id)}
             />
-            <Text style={styles.label}>Subject</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Subject</Text>
             <AutoComplete
               value={subjectId ? (subjectName.get(subjectId) || '') : ''}
               placeholder="Search subject..."
@@ -159,7 +161,7 @@ export default function TeacherMarksScreen() {
               onChangeText={() => { /* search-only */ }}
               onSelectItem={(it) => setSubjectId(it.id)}
             />
-            <Text style={styles.label}>Student</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Student</Text>
             <AutoComplete
               value={studentId}
               placeholder="Type or select student ID..."
@@ -169,8 +171,8 @@ export default function TeacherMarksScreen() {
               onSelectItem={(it) => setStudentId(it.id)}
             />
             <View style={{ flexDirection: 'row' }}>
-              <TextInput value={marksObtained} onChangeText={setMarksObtained} placeholder="Marks" keyboardType="numeric" style={[styles.input, { flex: 1, marginRight: 6 }]} />
-              <TextInput value={totalMarks} onChangeText={setTotalMarks} placeholder="Total" keyboardType="numeric" style={[styles.input, { flex: 1, marginLeft: 6 }]} />
+              <TextInput value={marksObtained} onChangeText={setMarksObtained} placeholder="Marks" placeholderTextColor={colors.text + '70'} keyboardType="numeric" style={[styles.input, { flex: 1, marginRight: 6, backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]} />
+              <TextInput value={totalMarks} onChangeText={setTotalMarks} placeholder="Total" placeholderTextColor={colors.text + '70'} keyboardType="numeric" style={[styles.input, { flex: 1, marginLeft: 6, backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]} />
             </View>
             <View style={styles.modalActions}>
               <TouchableOpacity onPress={() => setModalOpen(false)} style={[styles.btn, styles.btnGhost]}>
@@ -188,20 +190,20 @@ export default function TeacherMarksScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f7f8fa', padding: 16 },
-  title: { fontSize: 22, fontWeight: '700', color: '#222' },
-  subtitle: { marginTop: 2, color: '#666' },
-  addBtn: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', backgroundColor: '#1E90FF', paddingHorizontal: 12, height: 36, borderRadius: 8, marginTop: 12, marginBottom: 8 },
+  container: { flex: 1, padding: 16 },
+  title: { fontSize: 22, fontWeight: '700' },
+  subtitle: { marginTop: 2 },
+  addBtn: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, height: 36, borderRadius: 8, marginTop: 12, marginBottom: 8 },
   addBtnText: { color: '#fff', marginLeft: 6, fontWeight: '600' },
-  card: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#eee' },
-  cardTitle: { fontSize: 16, fontWeight: '700', color: '#222' },
-  cardMeta: { color: '#666', marginTop: 2 },
+  card: { flexDirection: 'row', alignItems: 'center', borderRadius: 10, padding: 12, borderWidth: 1 },
+  cardTitle: { fontSize: 16, fontWeight: '700' },
+  cardMeta: { marginTop: 2 },
   iconBtn: { padding: 8, marginLeft: 8 },
   modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: 16 },
-  modalCard: { backgroundColor: '#fff', borderRadius: 12, padding: 16 },
+  modalCard: { borderRadius: 12, padding: 16 },
   modalTitle: { fontSize: 18, fontWeight: '700', marginBottom: 8 },
-  input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#e5e5e5', borderRadius: 8, paddingHorizontal: 10, height: 42, marginTop: 8 },
-  label: { marginTop: 12, marginBottom: 4, fontWeight: '600', color: '#555' },
+  input: { borderWidth: 1, borderRadius: 8, paddingHorizontal: 10, height: 42, marginTop: 8 },
+  label: { marginTop: 12, marginBottom: 4, fontWeight: '600' },
   chipsRow: { flexDirection: 'row', flexWrap: 'wrap' },
   chip: { paddingHorizontal: 10, paddingVertical: 6, backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 16, marginRight: 8, marginBottom: 8 },
   chipActive: { borderColor: '#1E90FF', backgroundColor: '#EAF4FF' },

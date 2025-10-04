@@ -6,10 +6,12 @@ import { createLessonPlan, deleteLessonPlan, listLessonPlansForTeacher, updateLe
 import { listClasses } from '@/lib/classes';
 import { useRequireRole } from '@/lib/access';
 import { listSubjects } from '@/lib/subjects';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function TeacherLessonPlanScreen() {
   const { allowed, loading: roleLoading } = useRequireRole('teacher');
   const { user } = useAuth();
+  const { colors } = useTheme();
   const teacherId = user?.uid || '';
 
   const [items, setItems] = useState<LessonPlanRecord[]>([]);

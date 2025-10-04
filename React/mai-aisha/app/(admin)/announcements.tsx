@@ -4,9 +4,11 @@ import { Ionicons } from '@expo/vector-icons';
 // import { Timestamp } from 'firebase/firestore';
 import { createAnnouncement, getAnnouncements, type Announcement } from '@/lib/announcements';
 import { useAuth } from '@/lib/auth';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function AdminAnnouncementsScreen() {
   const { user, role } = useAuth();
+  const { colors } = useTheme();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [scope, setScope] = useState<'school-wide' | 'staff-only'>('school-wide');

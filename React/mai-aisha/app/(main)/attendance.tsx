@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/config/firebase';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface AttendanceDoc {
   id: string;
@@ -13,6 +14,7 @@ interface AttendanceDoc {
 }
 
 export default function AttendanceOverviewScreen() {
+  const { colors } = useTheme();
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<AttendanceDoc[]>([]);
 
@@ -36,21 +38,25 @@ export default function AttendanceOverviewScreen() {
   }, [items]);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Attendance Overview</Text>
-      <Text style={styles.subtitle}>School-wide attendance summary</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.title, { color: colors.text }]}>Attendance Overview</Text>
+      <Text style={[styles.subtitle, { color: colors.text }]}>School-wide attendance summary</Text>
 
       {loading ? (
-        <View style={{ marginTop: 20, alignItems: 'center' }}><ActivityIndicator /></View>
+        <View style={{ marginTop: 20, alignItems: 'center' }}><ActivityIndicator color={colors.primaryBlue} /></View>
+      ) : items.length === 0 ? (
+        <View style={{ marginTop: 16, alignItems: 'center' }}>
+          <Text style={{ color: colors.text + '70' }}>No attendance data available yet.</Text>
+        </View>
       ) : (
         <View style={{ marginTop: 12 }}>
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Summary</Text>
-            <View style={styles.rowBetween}><Text style={styles.label}>Records</Text><Text style={styles.value}>{aggregates.total}</Text></View>
-            <View style={styles.rowBetween}><Text style={styles.label}>Present</Text><Text style={styles.value}>{aggregates.present}</Text></View>
-            <View style={styles.rowBetween}><Text style={styles.label}>Absent</Text><Text style={styles.value}>{aggregates.absent}</Text></View>
-            <View style={styles.rowBetween}><Text style={styles.label}>Late</Text><Text style={styles.value}>{aggregates.late}</Text></View>
-            <View style={styles.rowBetween}><Text style={styles.label}>Present Rate</Text><Text style={styles.value}>{aggregates.presentRate.toFixed(1)}%</Text></View>
+          <View style={[styles.card, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+            <Text style={[styles.cardTitle, { color: colors.text }]}>Summary</Text>
+            <View style={styles.rowBetween}><Text style={[styles.label, { color: colors.text }]}>Records</Text><Text style={[styles.value, { color: colors.text }]}>{aggregates.total}</Text></View>
+            <View style={styles.rowBetween}><Text style={[styles.label, { color: colors.text }]}>Present</Text><Text style={[styles.value, { color: colors.text }]}>{aggregates.present}</Text></View>
+            <View style={styles.rowBetween}><Text style={[styles.label, { color: colors.text }]}>Absent</Text><Text style={[styles.value, { color: colors.text }]}>{aggregates.absent}</Text></View>
+            <View style={styles.rowBetween}><Text style={[styles.label, { color: colors.text }]}>Late</Text><Text style={[styles.value, { color: colors.text }]}>{aggregates.late}</Text></View>
+            <View style={styles.rowBetween}><Text style={[styles.label, { color: colors.text }]}>Present Rate</Text><Text style={[styles.value, { color: colors.text }]}>{aggregates.presentRate.toFixed(1)}%</Text></View>
           </View>
         </View>
       )}
@@ -59,12 +65,12 @@ export default function AttendanceOverviewScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f7f8fa', padding: 16 },
-  title: { fontSize: 22, fontWeight: '700', color: '#222' },
-  subtitle: { marginTop: 2, color: '#666' },
-  card: { backgroundColor: '#fff', borderRadius: 10, padding: 16, borderWidth: 1, borderColor: '#eee', marginTop: 8 },
-  cardTitle: { fontSize: 16, fontWeight: '700', color: '#333', marginBottom: 6 },
+  container: { flex: 1, padding: 20 },
+  title: { fontSize: 22, fontWeight: '700' },
+  subtitle: { marginTop: 2 },
+  card: { borderRadius: 10, padding: 16, borderWidth: 1, marginTop: 8 },
+  cardTitle: { fontSize: 16, fontWeight: '700', marginBottom: 6 },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 },
-  label: { color: '#555' },
-  value: { color: '#111', fontWeight: '700' },
+  label: {},
+  value: { fontWeight: '700' },
 })

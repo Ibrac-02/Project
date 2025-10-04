@@ -103,8 +103,8 @@ export default function ChangePasswordScreen() {
           secureTextEntry
         />
       </View>
-      <TouchableOpacity style={styles.saveButton} onPress={handleChangePassword}>
-        <Text style={styles.saveButtonText}>Change Password</Text>
+      <TouchableOpacity style={[styles.saveButton, { backgroundColor: colors.primaryBlue }]} onPress={handleChangePassword}>
+        <Text style={[styles.saveButtonText, { color: '#fff' }]}>Change Password</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -138,14 +138,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   saveButton: {
-    backgroundColor: '#1E90FF',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 20,
   },
   saveButtonText: {
-    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
   },

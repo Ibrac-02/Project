@@ -1,18 +1,19 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView, ActivityIndicator, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert, TextInput, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Picker } from '@react-native-picker/picker';
 import { useLocalSearchParams, router } from 'expo-router';
-import { listClasses } from '@/lib/classes';
 import { getStudentById, updateStudent, deleteStudent } from '@/lib/students-offline';
-import type { SchoolClass, UserProfile } from '@/lib/types';
+import { listClasses } from '@/lib/classes';
+import type { UserProfile, SchoolClass } from '@/lib/types';
+import { useTheme } from '@/contexts/ThemeContext';
+import { Picker } from '@react-native-picker/picker';
 
-export default function AdminStudentEdit() {
+export default function StudentDetailScreen() {
+  const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [student, setStudent] = useState<UserProfile | null>(null);
-
   const [name, setName] = useState('');
   const [classId, setClassId] = useState<string | null>(null);
   const [gender, setGender] = useState<'male' | 'female' | null>(null);

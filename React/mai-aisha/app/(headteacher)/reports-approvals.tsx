@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { collection, getDocs, query, updateDoc, where, doc } from 'firebase/firestore';
-import { db } from '@/config/firebase';
+import { Ionicons } from '@expo/vector-icons';
+import { listGradesAll, updateGrade, type GradeRecord } from '@/lib/grades';
 import { useRequireRole } from '@/lib/access';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface GradeDoc {
   id: string;
@@ -15,14 +16,19 @@ interface GradeDoc {
 }
 
 export default function ReportsApprovalsScreen() {
+  const { colors } = useTheme();
   const { allowed, loading: roleLoading } = useRequireRole('headteacher');
-  const [items, setItems] = useState<GradeDoc[]>([]);
+  const [items, setItems] = useState<GradeRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
   async function load() {
     setLoading(true);
-    const snap = await getDocs(query(collection(db, 'grades'), where('status', '==', 'pending')));
-    setItems(snap.docs.map(d => ({ id: d.id, ...(d.data() as any) })));
+    try {
+      const grades = await listGradesAll();
+      setItems(grades.filter(g => g.status === 'pending'));
+    } catch (error) {
+      console.error('Error loading grades:', error);
+    }
     setLoading(false);
   }
 
@@ -30,18 +36,19 @@ export default function ReportsApprovalsScreen() {
 
   const setStatus = async (id: string, status: 'approved' | 'rejected') => {
     try {
-      await updateDoc(doc(db, 'grades', id), { status });
+      await updateGrade(id, { status });
       await load();
     } catch (e: any) {
       Alert.alert('Failed', e?.message || 'Could not update status');
     }
   };
 
+  if (!allowed || roleLoading) return null;
+
   return (
-    !allowed || roleLoading ? null : (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Approve Reports</Text>
-      <Text style={styles.subtitle}>Review class performance submissions</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.title, { color: colors.text }]}>Approve Reports</Text>
+      <Text style={[styles.subtitle, { color: colors.text }]}>Review class performance submissions</Text>
 
       <FlatList
         data={items}
@@ -66,19 +73,19 @@ export default function ReportsApprovalsScreen() {
             </View>
           </View>
         )}
-        ListEmptyComponent={!loading ? (<Text style={{ color: '#666' }}>No pending reports.</Text>) : null}
+        ListEmptyComponent={!loading ? (<Text style={{ color: colors.text + '70' }}>No pending grades.</Text>) : null}
       />
     </SafeAreaView>
-  ));
+  );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f7f8fa', padding: 16 },
-  title: { fontSize: 22, fontWeight: '700', color: '#222' },
-  subtitle: { marginTop: 2, color: '#666' },
-  card: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#eee' },
-  cardTitle: { fontSize: 16, fontWeight: '700', color: '#222' },
-  cardMeta: { color: '#666', marginTop: 2 },
+  container: { flex: 1, padding: 16 },
+  title: { fontSize: 22, fontWeight: '700' },
+  subtitle: { marginTop: 2 },
+  card: { flexDirection: 'row', alignItems: 'center', borderRadius: 10, padding: 12, borderWidth: 1 },
+  cardTitle: { fontSize: 16, fontWeight: '700' },
+  cardMeta: { marginTop: 2 },
   row: { flexDirection: 'row' },
   btn: { height: 36, paddingHorizontal: 12, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginLeft: 8 },
   btnApprove: { backgroundColor: '#2E7D32' },

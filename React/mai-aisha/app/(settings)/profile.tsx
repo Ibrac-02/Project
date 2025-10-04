@@ -4,7 +4,6 @@ import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, Touc
 import { updateUserProfile, useAuth } from '../../lib/auth';
 import { UserProfile } from '../../lib/types';
 import { useTheme } from '@/contexts/ThemeContext';
-import { STANDARD_STYLES, MARGINS, SPACING, BORDER_RADIUS, SHADOWS, TYPOGRAPHY } from '@/constants/Styles';
 
 export default function ProfileScreen() {
   const { colors } = useTheme();
@@ -97,9 +96,9 @@ export default function ProfileScreen() {
 
   if (loading || authLoading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#1E90FF" />
-        <Text>Loading profile...</Text>
+      <View style={[styles.centered, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primaryBlue} />
+        <Text style={{ color: colors.text }}>Loading profile...</Text>
       </View>
     );
   }
@@ -115,13 +114,15 @@ export default function ProfileScreen() {
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.contentContainer}>
       <View style={[styles.headerCard, { backgroundColor: colors.cardBackground, borderColor: colors.text + '10', borderWidth: 1 }]}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{initials}</Text>
+        <View style={[styles.avatar, { backgroundColor: colors.primaryBlue }]}>
+          <Text style={[styles.avatarText, { color: '#fff' }]}>{initials}</Text>
         </View>
         <View style={styles.headerInfo}>
           <Text style={[styles.headerName, { color: colors.text }]}>{name || 'Your Name'}</Text>
           <Text style={[styles.headerEmail, { color: colors.text }]}>{email}</Text>
-          <View style={styles.roleChip}><Text style={styles.roleChipText}>{roleLabel}</Text></View>
+          <View style={[styles.roleChip, { backgroundColor: colors.primaryBlue + '15', borderColor: colors.primaryBlue }]}>
+            <Text style={[styles.roleChipText, { color: colors.primaryBlue }]}>{roleLabel}</Text>
+          </View>
         </View>
       </View>
       <View style={styles.formGroup}>
@@ -133,7 +134,7 @@ export default function ProfileScreen() {
           placeholder="Enter your name"
           placeholderTextColor={colors.text + '50'}
         />
-        {formErrors.name && <Text style={styles.errorInline}>{formErrors.name}</Text>}
+        {formErrors.name && <Text style={[styles.errorInline, { color: colors.danger }]}>{formErrors.name}</Text>}
       </View>
       <View style={styles.formGroup}>
         <Text style={[styles.label, { color: colors.text }]}>Email</Text>
@@ -207,7 +208,7 @@ export default function ProfileScreen() {
               placeholderTextColor={colors.text + '50'}
               keyboardType="phone-pad"
             />
-            {formErrors.parentContactNumber && <Text style={styles.errorInline}>{formErrors.parentContactNumber}</Text>}
+            {formErrors.parentContactNumber && <Text style={[styles.errorInline, { color: colors.danger }]}>{formErrors.parentContactNumber}</Text>}
           </View>
           <View style={styles.formGroup}>
             <Text style={[styles.label, { color: colors.text }]}>Parent/Guardian Email</Text>
@@ -223,8 +224,16 @@ export default function ProfileScreen() {
         </>
       )}
 
-      <TouchableOpacity style={[styles.saveButton, (!name.trim() || loading) && styles.saveButtonDisabled]} onPress={handleUpdateProfile} disabled={!name.trim() || loading}>
-        <Text style={styles.saveButtonText}>Save Profile</Text>
+      <TouchableOpacity
+        style={[
+          styles.saveButton,
+          { backgroundColor: colors.primaryBlue, shadowColor: colors.primaryBlue },
+          (!name.trim() || loading) && [styles.saveButtonDisabled, { backgroundColor: colors.border }],
+        ]}
+        onPress={handleUpdateProfile}
+        disabled={!name.trim() || loading}
+      >
+        <Text style={[styles.saveButtonText, { color: '#fff' }]}>Save Profile</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -254,18 +263,16 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: '#1E90FF',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
-    shadowColor: '#1E90FF',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
   },
   avatarText: {
-    color: '#fff',
     fontSize: 24,
     fontWeight: '800',
   },
@@ -286,13 +293,10 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: '#1E90FF15',
-    borderColor: '#1E90FF',
     borderWidth: 1.5,
     borderRadius: 16,
   },
   roleChipText: {
-    color: '#1E90FF',
     fontSize: 13,
     fontWeight: '700',
     textTransform: 'uppercase',
@@ -303,7 +307,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   errorText: {
-    color: '#dc3545',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -328,8 +331,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   inputError: {
-    borderColor: '#dc3545',
-    backgroundColor: '#dc354510',
+    // Border/background overridden inline using theme colors
   },
   errorInline: {
     marginTop: 8,
@@ -338,24 +340,20 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   saveButton: {
-    backgroundColor: '#1E90FF',
     paddingVertical: 18,
     paddingHorizontal: 32,
     borderRadius: 16,
     alignItems: 'center',
     marginTop: 32,
-    shadowColor: '#1E90FF',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
     elevation: 8,
   },
   saveButtonDisabled: {
-    backgroundColor: '#94a3b8',
     shadowOpacity: 0.1,
   },
   saveButtonText: {
-    color: '#fff',
     fontSize: 18,
     fontWeight: '800',
   },

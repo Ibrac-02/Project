@@ -105,7 +105,7 @@ export default function AdminDashboardScreen() {
     <TouchableWithoutFeedback onPress={() => setShowLogout(false)}>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: colors.primaryBlue }]}>
           <View style={styles.headerLeft}>
             <Image
               source={require('../../assets/images/maa.png')}
@@ -125,7 +125,7 @@ export default function AdminDashboardScreen() {
               style={styles.profileIconContainer}
             >
               <View style={styles.profileIcon}>
-                <Text style={styles.profileText}>
+                <Text style={[styles.profileText, { color: colors.primaryBlue }]}>
                   {loading ? '' : getInitials(userName)}
                 </Text>
               </View>
@@ -142,9 +142,9 @@ export default function AdminDashboardScreen() {
         </View>
 
         {showLogout && (
-          <View style={styles.logoutDropdown}>
+          <View style={[styles.logoutDropdown, { backgroundColor: colors.cardBackground, borderColor: colors.border, borderWidth: StyleSheet.hairlineWidth }]}>
             <TouchableOpacity onPress={handleLogout} style={styles.dropdownItem}>
-              <Text style={styles.dropdownItemText}>Sign out</Text>
+              <Text style={[styles.dropdownItemText, { color: colors.text }]}>Sign out</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -197,7 +197,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#1E90FF',
     paddingTop: 40,
     paddingHorizontal: 20,
     paddingBottom: 35,
@@ -226,19 +225,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'whitesmoke',
   },
-  profileText: { color: '#1E90FF', fontSize: 14, fontWeight: 'bold' },
+  profileText: { fontSize: 14, fontWeight: 'bold' },
   logoutDropdown: {
     position: 'absolute',
     top: 115, // show below header under profile icon
     right: 20,
-    backgroundColor: '#fff',
     borderRadius: 8,
     elevation: 5,
     zIndex: 999,
     width: 120,
   },
   dropdownItem: { paddingVertical: 12, paddingHorizontal: 15 },
-  dropdownItemText: { fontSize: 16, color: '#333' },
+  dropdownItemText: { fontSize: 16 },
   greetingCard: {
     borderRadius: 12,
     padding: 20,

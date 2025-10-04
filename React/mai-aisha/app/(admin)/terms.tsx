@@ -4,9 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { createTerm, deleteTerm, getCurrentTerm, listTerms, setActiveTerm, updateTerm, type AcademicTerm, type Holiday } from '@/lib/terms';
 import { useRequireRole } from '@/lib/access';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function TermManagementScreen() {
   const { allowed, loading: roleLoading } = useRequireRole('admin');
+  const { colors } = useTheme();
   const [terms, setTerms] = useState<AcademicTerm[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -161,11 +163,11 @@ export default function TermManagementScreen() {
   if (!allowed || roleLoading) return null;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Term Management</Text>
-      <Text style={styles.subtitle}>Create and manage academic terms</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.title, { color: colors.text }]}>Term Management</Text>
+      <Text style={[styles.subtitle, { color: colors.text }]}>Create and manage academic terms</Text>
 
-      <TouchableOpacity onPress={openNew} style={styles.addBtn}>
+      <TouchableOpacity onPress={openNew} style={[styles.addBtn, { backgroundColor: colors.primaryBlue }]}>
         <Ionicons name="add" size={20} color="#fff" />
         <Text style={styles.addBtnText}>New Term</Text>
       </TouchableOpacity>
@@ -177,42 +179,42 @@ export default function TermManagementScreen() {
         onRefresh={load}
         ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
         renderItem={({ item }) => (
-          <View style={styles.card}>
+          <View style={[styles.card, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
             <View style={{ flex: 1 }}>
               <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>{item.name}</Text>
+                <Text style={[styles.cardTitle, { color: colors.text }]}>{item.name}</Text>
                 {item.isActive && (
-                  <View style={styles.activeBadge}>
-                    <Text style={styles.activeText}>ACTIVE</Text>
+                  <View style={[styles.activeBadge, { backgroundColor: colors.primaryBlue + '15' }]}>
+                    <Text style={[styles.activeText, { color: colors.primaryBlue }]}>ACTIVE</Text>
                   </View>
                 )}
               </View>
-              <Text style={styles.cardMeta}>{item.academicYear} • Term {item.termNumber}</Text>
-              <Text style={styles.cardMeta}>
+              <Text style={[styles.cardMeta, { color: colors.text }]}>{item.academicYear} • Term {item.termNumber}</Text>
+              <Text style={[styles.cardMeta, { color: colors.text }]}>
                 {item.openingDate} to {item.closingDate}
               </Text>
-              <Text style={styles.cardMeta}>
+              <Text style={[styles.cardMeta, { color: colors.text }]}>
                 Exams: {item.examStartDate} • Holidays: {item.holidays.length}
               </Text>
             </View>
             <View style={styles.cardActions}>
               {!item.isActive && (
                 <TouchableOpacity onPress={() => makeActive(item)} style={styles.iconBtn}>
-                  <Ionicons name="checkmark-circle-outline" size={20} color="#10B981" />
+                  <Ionicons name="checkmark-circle-outline" size={20} color={colors.primaryBlue} />
                 </TouchableOpacity>
               )}
               <TouchableOpacity onPress={() => openEdit(item)} style={styles.iconBtn}>
-                <Ionicons name="create-outline" size={20} color="#1E90FF" />
+                <Ionicons name="create-outline" size={20} color={colors.primaryBlue} />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => remove(item)} style={styles.iconBtn}>
-                <Ionicons name="trash-outline" size={20} color="#EF4444" />
+                <Ionicons name="trash-outline" size={20} color={colors.danger} />
               </TouchableOpacity>
             </View>
           </View>
         )}
         ListEmptyComponent={
           !loading ? (
-            <Text style={{ color: '#666', textAlign: 'center', marginTop: 20 }}>
+            <Text style={{ color: colors.text + '70', textAlign: 'center', marginTop: 20 }}>
               No terms created yet
             </Text>
           ) : null
@@ -221,89 +223,98 @@ export default function TermManagementScreen() {
 
       <Modal visible={modalOpen} animationType="slide" transparent>
         <View style={styles.modalBackdrop}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>
+          <View style={[styles.modalCard, { backgroundColor: colors.cardBackground }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
               {editing ? 'Edit Term' : 'New Term'}
             </Text>
 
-            <Text style={styles.label}>Term Name *</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Term Name *</Text>
             <TextInput
               value={name}
               onChangeText={setName}
               placeholder="e.g., First Term 2024"
-              style={styles.input}
+              placeholderTextColor={colors.text + '70'}
+              style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
             />
 
-            <Text style={styles.label}>Academic Year *</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Academic Year *</Text>
             <TextInput
               value={academicYear}
               onChangeText={setAcademicYear}
               placeholder="e.g., 2024/2025"
-              style={styles.input}
+              placeholderTextColor={colors.text + '70'}
+              style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
             />
 
-            <Text style={styles.label}>Term Number *</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Term Number *</Text>
             <TextInput
               value={termNumber}
               onChangeText={setTermNumber}
               placeholder="1, 2, or 3"
               keyboardType="numeric"
-              style={styles.input}
+              placeholderTextColor={colors.text + '70'}
+              style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
             />
 
-            <Text style={styles.label}>Opening Date *</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Opening Date *</Text>
             <TextInput
               value={openingDate}
               onChangeText={setOpeningDate}
               placeholder="YYYY-MM-DD"
-              style={styles.input}
+              placeholderTextColor={colors.text + '70'}
+              style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
             />
 
-            <Text style={styles.label}>Exam Start Date *</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Exam Start Date *</Text>
             <TextInput
               value={examStartDate}
               onChangeText={setExamStartDate}
               placeholder="YYYY-MM-DD"
-              style={styles.input}
+              placeholderTextColor={colors.text + '70'}
+              style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
             />
 
-            <Text style={styles.label}>Closing Date *</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Closing Date *</Text>
             <TextInput
               value={closingDate}
               onChangeText={setClosingDate}
               placeholder="YYYY-MM-DD"
-              style={styles.input}
+              placeholderTextColor={colors.text + '70'}
+              style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
             />
 
             <View style={styles.holidaysSection}>
               <View style={styles.holidaysHeader}>
                 <Text style={styles.label}>Holidays</Text>
                 <TouchableOpacity onPress={addHoliday} style={styles.addHolidayBtn}>
-                  <Ionicons name="add" size={16} color="#1E90FF" />
-                  <Text style={styles.addHolidayText}>Add Holiday</Text>
+                  <Ionicons name="add" size={16} color={colors.primaryBlue} />
+                  <Text style={[styles.addHolidayText, { color: colors.primaryBlue }]}>Add Holiday</Text>
                 </TouchableOpacity>
               </View>
 
               {holidays.map((holiday, index) => (
-                <View key={index} style={styles.holidayItem}>
+                <View key={index} style={[styles.holidayItem, { backgroundColor: colors.background }]}>
                   <TextInput
                     value={holiday.name}
                     onChangeText={(text) => updateHoliday(index, 'name', text)}
                     placeholder="Holiday name"
-                    style={[styles.input, { marginBottom: 4 }]}
+                    placeholderTextColor={colors.text + '70'}
+                    style={[styles.input, { marginBottom: 4, backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
                   />
                   <View style={styles.holidayDates}>
                     <TextInput
                       value={holiday.startDate}
                       onChangeText={(text) => updateHoliday(index, 'startDate', text)}
                       placeholder="Start date"
-                      style={[styles.input, { flex: 1, marginRight: 8 }]}
+                      placeholderTextColor={colors.text + '70'}
+                      style={[styles.input, { flex: 1, marginRight: 8, backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
                     />
                     <TextInput
                       value={holiday.endDate}
                       onChangeText={(text) => updateHoliday(index, 'endDate', text)}
                       placeholder="End date"
-                      style={[styles.input, { flex: 1 }]}
+                      placeholderTextColor={colors.text + '70'}
+                      style={[styles.input, { flex: 1, backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
                     />
                     <TouchableOpacity onPress={() => removeHoliday(index)} style={styles.removeHolidayBtn}>
                       <Ionicons name="trash-outline" size={16} color="#EF4444" />
@@ -314,10 +325,10 @@ export default function TermManagementScreen() {
             </View>
 
             <View style={styles.modalActions}>
-              <TouchableOpacity onPress={() => setModalOpen(false)} style={[styles.btn, styles.btnGhost]}>
-                <Text style={styles.btnGhostText}>Cancel</Text>
+              <TouchableOpacity onPress={() => setModalOpen(false)} style={[styles.btn, styles.btnGhost, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                <Text style={[styles.btnGhostText, { color: colors.text }]}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={save} style={[styles.btn, styles.btnPrimary]}>
+              <TouchableOpacity onPress={save} style={[styles.btn, styles.btnPrimary, { backgroundColor: colors.primaryBlue }]}>
                 <Text style={styles.btnPrimaryText}>Save</Text>
               </TouchableOpacity>
             </View>
@@ -329,24 +340,24 @@ export default function TermManagementScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f7f8fa', padding: 16 },
-  title: { fontSize: 22, fontWeight: '700', color: '#222' },
-  subtitle: { marginTop: 2, color: '#666', marginBottom: 16 },
-  addBtn: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', backgroundColor: '#1E90FF', paddingHorizontal: 12, height: 36, borderRadius: 8, marginBottom: 16 },
+  container: { flex: 1, padding: 16 },
+  title: { fontSize: 22, fontWeight: '700' },
+  subtitle: { marginTop: 2, marginBottom: 16 },
+  addBtn: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, height: 36, borderRadius: 8, marginBottom: 16 },
   addBtnText: { color: '#fff', marginLeft: 6, fontWeight: '600' },
-  card: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#eee' },
+  card: { flexDirection: 'row', alignItems: 'center', borderRadius: 10, padding: 12, borderWidth: 1 },
   cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
-  cardTitle: { fontSize: 16, fontWeight: '700', color: '#222', flex: 1 },
+  cardTitle: { fontSize: 16, fontWeight: '700', flex: 1 },
   activeBadge: { backgroundColor: '#ECFDF5', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 },
   activeText: { fontSize: 10, fontWeight: '700', color: '#10B981' },
-  cardMeta: { color: '#666', fontSize: 13, marginTop: 2 },
+  cardMeta: { fontSize: 13, marginTop: 2 },
   cardActions: { flexDirection: 'row' },
   iconBtn: { padding: 8, marginLeft: 4 },
   modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: 16 },
-  modalCard: { backgroundColor: '#fff', borderRadius: 12, padding: 16, maxHeight: '90%' },
-  modalTitle: { fontSize: 18, fontWeight: '700', marginBottom: 16, color: '#222' },
-  label: { marginTop: 12, marginBottom: 4, fontWeight: '600', color: '#555' },
-  input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#e5e5e5', borderRadius: 8, paddingHorizontal: 10, height: 42, marginTop: 4 },
+  modalCard: { borderRadius: 12, padding: 16, maxHeight: '90%' },
+  modalTitle: { fontSize: 18, fontWeight: '700', marginBottom: 16 },
+  label: { marginTop: 12, marginBottom: 4, fontWeight: '600' },
+  input: { borderWidth: 1, borderRadius: 8, paddingHorizontal: 10, height: 42, marginTop: 4 },
   holidaysSection: { marginTop: 16 },
   holidaysHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   addHolidayBtn: { flexDirection: 'row', alignItems: 'center' },

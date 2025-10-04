@@ -4,8 +4,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import { listUsersByRole, deleteUser, updateUser, createUserWithRole } from '@/lib/users';
 import type { UserProfile } from '@/lib/types';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function AdminTeachersList() {
+  const { colors } = useTheme();
   const [teachers, setTeachers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState('');
@@ -121,63 +123,67 @@ export default function AdminTeachersList() {
       <View style={styles.modalOverlay}>
         <StatusBar barStyle="light-content" backgroundColor="rgba(0,0,0,0.8)" />
         <ScrollView contentContainerStyle={{ justifyContent: 'center', alignItems: 'center', minHeight: '100%' }} showsVerticalScrollIndicator={false}>
-          <View style={styles.modalCard}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Edit Teacher</Text>
+          <View style={[styles.modalCard, { backgroundColor: colors.cardBackground }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Edit Teacher</Text>
               <TouchableOpacity onPress={closeModals} style={styles.closeBtn}>
-                <Ionicons name="close" size={24} color="#64748b" />
+                <Ionicons name="close" size={24} color={colors.icon} />
               </TouchableOpacity>
             </View>
             
             <View style={styles.formRow}>
-              <Text style={styles.label}>Full Name</Text>
+              <Text style={[styles.label, { color: colors.text }]}>Full Name</Text>
               <TextInput 
                 value={formName} 
                 onChangeText={setFormName} 
                 placeholder="Teacher name" 
-                style={styles.input} 
+                placeholderTextColor={colors.text + '70'}
+                style={[styles.input, { backgroundColor: colors.cardBackground, borderColor: colors.border, color: colors.text }]} 
               />
             </View>
             
             <View style={styles.formRow}>
-              <Text style={styles.label}>Email</Text>
+              <Text style={[styles.label, { color: colors.text }]}>Email</Text>
               <TextInput 
                 value={formEmail} 
                 onChangeText={setFormEmail} 
                 placeholder="email@example.com" 
-                style={styles.input}
+                placeholderTextColor={colors.text + '70'}
+                style={[styles.input, { backgroundColor: colors.cardBackground, borderColor: colors.border, color: colors.text }]}
                 keyboardType="email-address"
               />
             </View>
             
             <View style={styles.formRow}>
-              <Text style={styles.label}>Department</Text>
+              <Text style={[styles.label, { color: colors.text }]}>Department</Text>
               <TextInput 
                 value={formDepartment} 
                 onChangeText={setFormDepartment} 
                 placeholder="e.g. Mathematics" 
-                style={styles.input} 
+                placeholderTextColor={colors.text + '70'}
+                style={[styles.input, { backgroundColor: colors.cardBackground, borderColor: colors.border, color: colors.text }]} 
               />
             </View>
             
             <View style={styles.formRow}>
-              <Text style={styles.label}>Title</Text>
+              <Text style={[styles.label, { color: colors.text }]}>Title</Text>
               <TextInput 
                 value={formTitle} 
                 onChangeText={setFormTitle} 
                 placeholder="e.g. Senior Teacher" 
-                style={styles.input} 
+                placeholderTextColor={colors.text + '70'}
+                style={[styles.input, { backgroundColor: colors.cardBackground, borderColor: colors.border, color: colors.text }]} 
               />
             </View>
 
             <View style={styles.buttonRow}>
-              <TouchableOpacity style={[styles.btn, styles.editSaveBtn]} onPress={saveUser} disabled={saving}>
+              <TouchableOpacity style={[styles.btn, { backgroundColor: colors.primaryBlue }]} onPress={saveUser} disabled={saving}>
                 <Ionicons name="save-outline" size={20} color="#fff" />
-                <Text style={styles.btnText}>{saving ? 'Saving...' : 'Save'}</Text>
+                <Text style={[styles.btnText, { color: '#fff' }]}>{saving ? 'Saving...' : 'Save'}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.btn, styles.deleteBtn]} onPress={confirmDeleteFromModal}>
+              <TouchableOpacity style={[styles.btn, { backgroundColor: colors.danger }]} onPress={confirmDeleteFromModal}>
                 <Ionicons name="trash-outline" size={20} color="#fff" />
-                <Text style={styles.btnText}>Delete</Text>
+                <Text style={[styles.btnText, { color: '#fff' }]}>Delete</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -193,56 +199,60 @@ export default function AdminTeachersList() {
       <View style={styles.modalOverlay}>
         <StatusBar barStyle="light-content" backgroundColor="rgba(0,0,0,0.8)" />
         <ScrollView contentContainerStyle={{ justifyContent: 'center', alignItems: 'center', minHeight: '100%' }} showsVerticalScrollIndicator={false}>
-          <View style={styles.modalCard}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>New Teacher</Text>
+          <View style={[styles.modalCard, { backgroundColor: colors.cardBackground }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>New Teacher</Text>
               <TouchableOpacity onPress={closeModals} style={styles.closeBtn}>
-                <Ionicons name="close" size={24} color="#64748b" />
+                <Ionicons name="close" size={24} color={colors.icon} />
               </TouchableOpacity>
             </View>
             
             <View style={styles.formRow}>
-              <Text style={styles.label}>Full Name</Text>
+              <Text style={[styles.label, { color: colors.text }]}>Full Name</Text>
               <TextInput 
                 value={formName} 
                 onChangeText={setFormName} 
                 placeholder="Teacher name" 
-                style={styles.input} 
+                placeholderTextColor={colors.text + '70'}
+                style={[styles.input, { backgroundColor: colors.cardBackground, borderColor: colors.border, color: colors.text }]} 
               />
             </View>
             
             <View style={styles.formRow}>
-              <Text style={styles.label}>Email</Text>
+              <Text style={[styles.label, { color: colors.text }]}>Email</Text>
               <TextInput 
                 value={formEmail} 
                 onChangeText={setFormEmail} 
                 placeholder="email@example.com" 
-                style={styles.input}
+                placeholderTextColor={colors.text + '70'}
+                style={[styles.input, { backgroundColor: colors.cardBackground, borderColor: colors.border, color: colors.text }]}
                 keyboardType="email-address"
               />
             </View>
             
             <View style={styles.formRow}>
-              <Text style={styles.label}>Department</Text>
+              <Text style={[styles.label, { color: colors.text }]}>Department</Text>
               <TextInput 
                 value={formDepartment} 
                 onChangeText={setFormDepartment} 
                 placeholder="e.g. Mathematics" 
-                style={styles.input} 
+                placeholderTextColor={colors.text + '70'}
+                style={[styles.input, { backgroundColor: colors.cardBackground, borderColor: colors.border, color: colors.text }]} 
               />
             </View>
             
             <View style={styles.formRow}>
-              <Text style={styles.label}>Title</Text>
+              <Text style={[styles.label, { color: colors.text }]}>Title</Text>
               <TextInput 
                 value={formTitle} 
                 onChangeText={setFormTitle} 
                 placeholder="e.g. Senior Teacher" 
-                style={styles.input} 
+                placeholderTextColor={colors.text + '70'}
+                style={[styles.input, { backgroundColor: colors.cardBackground, borderColor: colors.border, color: colors.text }]} 
               />
             </View>
 
-            <TouchableOpacity style={styles.saveBtn} onPress={saveUser} disabled={saving}>
+            <TouchableOpacity style={[styles.saveBtn, { backgroundColor: colors.primaryBlue }]} onPress={saveUser} disabled={saving}>
               <Ionicons name="save-outline" size={20} color="#fff" />
               <Text style={styles.saveBtnText}>{saving ? 'Saving...' : 'Save Teacher'}</Text>
             </TouchableOpacity>
@@ -259,35 +269,41 @@ export default function AdminTeachersList() {
   });
 
   return (
-    <View style={styles.container}>
-      <View style={styles.topBar}>
-        <Text style={styles.title}>Teachers</Text>
-        <TouchableOpacity style={styles.addBtn} onPress={() => openNewModal()}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}> 
+      <View style={[styles.topBar, { backgroundColor: colors.cardBackground }]}> 
+        <Text style={[styles.title, { color: colors.text }]}>Teachers</Text>
+        <TouchableOpacity style={[styles.addBtn, { backgroundColor: colors.primaryBlue }]} onPress={() => openNewModal()}>
           <Ionicons name="add-circle" size={24} color="#fff" />
           <Text style={styles.addBtnText}>New</Text>
         </TouchableOpacity>
       </View>
 
-      <TextInput placeholder="Search name, email, ID" style={styles.search} value={q} onChangeText={setQ} />
+      <TextInput 
+        placeholder="Search name, email, ID" 
+        placeholderTextColor={colors.text + '70'}
+        style={[styles.search, { backgroundColor: colors.cardBackground, borderColor: colors.border, color: colors.text }]} 
+        value={q} 
+        onChangeText={setQ} 
+      />
 
       {loading ? (
-        <ActivityIndicator size="large" color="#1E90FF" style={{ marginTop: 40 }} />
+        <ActivityIndicator size="large" color={colors.primaryBlue} style={{ marginTop: 40 }} />
       ) : (
         <FlatList
           data={filtered}
           keyExtractor={(item) => item.uid}
           contentContainerStyle={{ paddingBottom: 20 }}
           renderItem={({ item }) => (
-            <View style={styles.row}>
+            <View style={[styles.row, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}> 
               <View style={{ flex: 1 }}>
-                <Text style={styles.name}>{item.name || 'Unnamed'}</Text>
-                <Text style={styles.meta}>{item.email || 'No email'} · {(item.department || 'No dept')}</Text>
+                <Text style={[styles.name, { color: colors.text }]}>{item.name || 'Unnamed'}</Text>
+                <Text style={[styles.meta, { color: colors.text }]}>{item.email || 'No email'} · {(item.department || 'No dept')}</Text>
               </View>
               <TouchableOpacity onPress={() => openEditModal(item)} style={styles.rowBtn}>
-                <Ionicons name="create-outline" size={22} color="#1E90FF" />
+                <Ionicons name="create-outline" size={22} color={colors.primaryBlue} />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => confirmDelete(item)} style={styles.rowBtn}>
-                <Ionicons name="trash-outline" size={22} color="#ef4444" />
+                <Ionicons name="trash-outline" size={22} color={colors.danger} />
               </TouchableOpacity>
             </View>
           )}
@@ -300,7 +316,7 @@ export default function AdminTeachersList() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8fafc', padding: 16 },
+  container: { flex: 1, padding: 20 },
   topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   title: { fontSize: 20, fontWeight: '700', color: '#0f172a' },
   addBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1E90FF', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },

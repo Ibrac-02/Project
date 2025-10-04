@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/config/firebase';
-import { useRequireRole } from '@/lib/access';
+import React, { useEffect, useState } from 'react';
+import { SafeAreaView, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import { getAllUsers } from '@/lib/auth';
+import { useRequireRole } from '@/lib/access';
+import { useTheme } from '@/contexts/ThemeContext';
+import type { UserProfile } from '@/lib/types';
 
 interface LessonPlanDoc {
   id: string;
@@ -15,64 +15,73 @@ interface LessonPlanDoc {
   status?: string;
 }
 
-export default function HeadteacherViewLessonPlansScreen() {
+export default function ViewLessonPlansScreen() {
   const { allowed, loading: roleLoading } = useRequireRole('headteacher');
+  const { colors } = useTheme();
   const [loading, setLoading] = useState(true);
-  const [items, setItems] = useState<LessonPlanDoc[]>([]);
-  const [teachers, setTeachers] = useState<{ uid: string; name: string | null; email: string | null }[]>([]);
+  const [teachers, setTeachers] = useState<UserProfile[]>([]);
 
-  const load = useCallback(async () => {
+  useEffect(() => {
+    if (allowed) {
+      loadTeachers();
+    }
+  }, [allowed]);
+
+  const loadTeachers = async () => {
     setLoading(true);
-    const [lpSnap, users] = await Promise.all([
-      getDocs(collection(db, 'lessonPlans')),
-      getAllUsers(),
-    ]);
-    setItems(lpSnap.docs.map(d => ({ id: d.id, ...(d.data() as any) })));
-    setTeachers(users.filter(u => u.role === 'teacher').map(u => ({ uid: u.uid, name: u.name || null, email: u.email || null })));
+    try {
+      const users = await getAllUsers();
+      setTeachers(users.filter(u => u.role === 'teacher'));
+    } catch (error) {
+      console.error('Error loading teachers:', error);
+    }
     setLoading(false);
-  }, []);
+  };
 
-  useEffect(() => { if (allowed) { load(); } }, [allowed, load]);
-
-  const teacherName = useMemo(() => new Map(teachers.map(t => [t.uid, t.name || t.email || t.uid])), [teachers]);
+  if (!allowed || roleLoading) return null;
 
   return (
-    !allowed || roleLoading ? null : (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Lesson Plans</Text>
-      <Text style={styles.subtitle}>All submitted lesson plans</Text>
-
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.title, { color: colors.text }]}>Lesson Plans</Text>
+      <Text style={[styles.subtitle, { color: colors.text }]}>View all teacher lesson plans</Text>
+      
       {loading ? (
-        <View style={{ marginTop: 20, alignItems: 'center' }}><ActivityIndicator /></View>
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={colors.primaryBlue} />
+          <Text style={[styles.loadingText, { color: colors.text }]}>Loading lesson plans...</Text>
+        </View>
       ) : (
-        <FlatList
-          style={{ marginTop: 12 }}
-          data={items}
-          keyExtractor={(i) => i.id}
-          ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.cardTitle}>{item.title}</Text>
-                <Text style={styles.cardMeta}>Teacher: {teacherName.get(item.teacherId) || item.teacherId}</Text>
-                {!!item.date && <Text style={styles.cardMeta}>Date: {item.date}</Text>}
-                {!!item.status && <Text style={styles.cardMeta}>Status: {item.status}</Text>}
-                {!!item.classId && <Text style={styles.cardMeta}>Class: {item.classId}</Text>}
-                {!!item.subjectId && <Text style={styles.cardMeta}>Subject: {item.subjectId}</Text>}
-              </View>
+        <View style={styles.content}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Teachers ({teachers.length})</Text>
+          {teachers.map((teacher) => (
+            <View key={teacher.uid} style={[styles.teacherCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+              <Text style={[styles.teacherName, { color: colors.text }]}>{teacher.name || 'Unnamed Teacher'}</Text>
+              <Text style={[styles.teacherEmail, { color: colors.text }]}>{teacher.email}</Text>
+              <Text style={[styles.teacherMeta, { color: colors.text }]}>Lesson plans: Coming soon</Text>
             </View>
+          ))}
+          {teachers.length === 0 && (
+            <Text style={[styles.emptyText, { color: colors.text }]}>No teachers found</Text>
           )}
-          ListEmptyComponent={<Text style={{ color: '#666' }}>No lesson plans found.</Text>}
-        />
+        </View>
       )}
     </SafeAreaView>
-  ));
+  );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f7f8fa', padding: 16 },
   title: { fontSize: 22, fontWeight: '700', color: '#222' },
-  subtitle: { marginTop: 2, color: '#666' },
+  subtitle: { fontSize: 14, color: '#666', marginBottom: 20 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  loadingText: { fontSize: 16, color: '#666', marginTop: 8 },
+  content: { flex: 1, padding: 16 },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#222', marginBottom: 12 },
+  teacherCard: { backgroundColor: '#fff', borderRadius: 10, padding: 16, borderWidth: 1, borderColor: '#eee', marginBottom: 12 },
+  teacherName: { fontSize: 16, fontWeight: '700', color: '#333' },
+  teacherEmail: { fontSize: 14, color: '#666', marginTop: 2 },
+  teacherMeta: { fontSize: 14, color: '#666', marginTop: 4 },
+  emptyText: { fontSize: 16, color: '#666', textAlign: 'center', marginTop: 20 },
   card: { backgroundColor: '#fff', borderRadius: 10, padding: 16, borderWidth: 1, borderColor: '#eee' },
   cardTitle: { fontSize: 16, fontWeight: '700', color: '#333', marginBottom: 6 },
   cardMeta: { color: '#666', marginTop: 2 },

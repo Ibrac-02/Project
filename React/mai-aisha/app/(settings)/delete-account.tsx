@@ -3,9 +3,11 @@ import { deleteUser, EmailAuthProvider, reauthenticateWithCredential } from 'fir
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View, } from 'react-native';
 import { deleteUserById, useAuth } from '../../lib/auth';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function DeleteAccountScreen() {
   const { user } = useAuth();
+  const { colors } = useTheme();
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState('');
 
@@ -54,31 +56,31 @@ export default function DeleteAccountScreen() {
   };
 
   return (
-    <View style={styles.container}>
-     
-      <View style={styles.card}>
-        <Text style={styles.warningText}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.card, { backgroundColor: colors.cardBackground, borderColor: colors.border, borderWidth: StyleSheet.hairlineWidth }] }>
+        <Text style={[styles.warningText, { color: colors.danger }]}>
           Deleting your account is permanent and cannot be undone. All your data will be removed.
         </Text>
 
-        <Text style={styles.label}>Enter Password to Confirm</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Enter Password to Confirm</Text>
         <TextInput
           secureTextEntry
           value={password}
           onChangeText={setPassword}
-          style={styles.input}
+          style={[styles.input, { borderBottomColor: colors.border, color: colors.text }]}
           placeholder="Enter your password"
+          placeholderTextColor={colors.text + '70'}
         />
 
         <TouchableOpacity
-          style={styles.deleteButton}
+          style={[styles.deleteButton, { backgroundColor: colors.danger }]}
           onPress={handleDeleteAccount}
           disabled={loading}
         >
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.deleteText}>Delete My Account</Text>
+            <Text style={[styles.deleteText, { color: '#fff' }]}>Delete My Account</Text>
           )}
         </TouchableOpacity>
       </View>
@@ -89,7 +91,6 @@ export default function DeleteAccountScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f2f5',
     padding: 20,
   },
   header: {
@@ -98,7 +99,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 22,
-    backgroundColor: '#1E90FF',
     marginHorizontal: -20,
     marginTop: -20,
     marginBottom: 12,
@@ -113,40 +113,33 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
   },
   card: {
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 20,
     elevation: 4,
   },
   warningText: {
     fontSize: 16,
-    color: '#b22222',
     marginBottom: 20,
     textAlign: 'left',
   },
   label: {
     fontSize: 14,
     marginBottom: 6,
-    color: '#333',
   },
   input: {
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
     marginBottom: 15,
     paddingVertical: 4,
     fontSize: 16,
   },
   deleteButton: {
-    backgroundColor: '#dc3545',
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: 'center',
   },
   deleteText: {
-    color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
   },

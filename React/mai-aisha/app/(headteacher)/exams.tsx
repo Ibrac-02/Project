@@ -4,8 +4,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { createExam, deleteExam, listExams, updateExam, type ExamSchedule } from '@/lib/exams';
 import { listClasses } from '@/lib/classes';
 import { listSubjects } from '@/lib/subjects';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function ExamsScreen() {
+  const { colors } = useTheme();
   const [items, setItems] = useState<ExamSchedule[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -76,11 +78,11 @@ export default function ExamsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Exam Schedules</Text>
-      <Text style={styles.subtitle}>Create and manage exam schedules</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.title, { color: colors.text }]}>Exam Schedules</Text>
+      <Text style={[styles.subtitle, { color: colors.text }]}>Create and manage exam schedules</Text>
 
-      <TouchableOpacity onPress={openNew} style={styles.addBtn}>
+      <TouchableOpacity onPress={openNew} style={[styles.addBtn, { backgroundColor: colors.primaryBlue }]}>
         <Ionicons name="add" size={20} color="#fff" />
         <Text style={styles.addBtnText}>New Exam</Text>
       </TouchableOpacity>
@@ -92,27 +94,27 @@ export default function ExamsScreen() {
         onRefresh={load}
         ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
         renderItem={({ item }) => (
-          <View style={styles.card}>
+          <View style={[styles.card, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.cardTitle}>{item.title}</Text>
-              <Text style={styles.cardMeta}>Date: {item.date}</Text>
-              <Text style={styles.cardMeta}>Class: {classes.find(c => c.id === item.classId)?.name || item.classId}</Text>
-              <Text style={styles.cardMeta}>Subject: {subjects.find(s => s.id === item.subjectId)?.name || item.subjectId}</Text>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>{item.title}</Text>
+              <Text style={[styles.cardMeta, { color: colors.text }]}>Date: {item.date}</Text>
+              <Text style={[styles.cardMeta, { color: colors.text }]}>Class: {classes.find(c => c.id === item.classId)?.name || item.classId}</Text>
+              <Text style={[styles.cardMeta, { color: colors.text }]}>Subject: {subjects.find(s => s.id === item.subjectId)?.name || item.subjectId}</Text>
             </View>
-            <TouchableOpacity onPress={() => openEdit(item)} style={styles.iconBtn}><Ionicons name="create-outline" size={20} color="#1E90FF" /></TouchableOpacity>
-            <TouchableOpacity onPress={() => remove(item)} style={styles.iconBtn}><Ionicons name="trash-outline" size={20} color="#D11A2A" /></TouchableOpacity>
+            <TouchableOpacity onPress={() => openEdit(item)} style={styles.iconBtn}><Ionicons name="create-outline" size={20} color={colors.primaryBlue} /></TouchableOpacity>
+            <TouchableOpacity onPress={() => remove(item)} style={styles.iconBtn}><Ionicons name="trash-outline" size={20} color={colors.danger} /></TouchableOpacity>
           </View>
         )}
-        ListEmptyComponent={!loading ? (<Text style={{ color: '#666' }}>No exams scheduled.</Text>) : null}
+        ListEmptyComponent={!loading ? (<Text style={{ color: colors.text + '70' }}>No exams scheduled.</Text>) : null}
       />
 
       <Modal visible={modalOpen} animationType="slide" transparent>
         <View style={styles.modalBackdrop}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>{editing ? 'Edit Exam' : 'New Exam'}</Text>
-            <TextInput value={title} onChangeText={setTitle} placeholder="Title" style={styles.input} />
-            <TextInput value={date} onChangeText={setDate} placeholder="Date (YYYY-MM-DD)" style={styles.input} />
-            <Text style={styles.label}>Class</Text>
+          <View style={[styles.modalCard, { backgroundColor: colors.cardBackground }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>{editing ? 'Edit Exam' : 'New Exam'}</Text>
+            <TextInput value={title} onChangeText={setTitle} placeholder="Title" placeholderTextColor={colors.text + '70'} style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]} />
+            <TextInput value={date} onChangeText={setDate} placeholder="Date (YYYY-MM-DD)" placeholderTextColor={colors.text + '70'} style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]} />
+            <Text style={[styles.label, { color: colors.text }]}>Class</Text>
             <View style={styles.chipsRow}>
               {classes.map(c => (
                 <TouchableOpacity key={c.id} onPress={() => setClassId(c.id)} style={[styles.chip, classId === c.id && styles.chipActive]}>
@@ -120,7 +122,7 @@ export default function ExamsScreen() {
                 </TouchableOpacity>
               ))}
             </View>
-            <Text style={styles.label}>Subject</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Subject</Text>
             <View style={styles.chipsRow}>
               {subjects.map(s => (
                 <TouchableOpacity key={s.id} onPress={() => setSubjectId(s.id)} style={[styles.chip, subjectId === s.id && styles.chipActive]}>

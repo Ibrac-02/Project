@@ -373,23 +373,23 @@ export default function SchoolDataScreen() {
       {/* Class Modal */}
       <Modal visible={classModalOpen} animationType="slide" transparent>
         <View style={styles.modalBackdrop}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>{editingClass ? 'Edit Class' : 'New Class'}</Text>
-            <TextInput value={className} onChangeText={setClassName} placeholder="Class name" style={styles.input} />
-            <TextInput value={classDesc} onChangeText={setClassDesc} placeholder="Description (optional)" style={styles.input} />
-            <Text style={styles.label}>Assign Teacher</Text>
+          <View style={[styles.modalCard, { backgroundColor: colors.cardBackground }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>{editingClass ? 'Edit Class' : 'New Class'}</Text>
+            <TextInput value={className} onChangeText={setClassName} placeholder="Class name" placeholderTextColor={colors.text + '70'} style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]} />
+            <TextInput value={classDesc} onChangeText={setClassDesc} placeholder="Description (optional)" placeholderTextColor={colors.text + '70'} style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]} />
+            <Text style={[styles.label, { color: colors.text }]}>Assign Teacher</Text>
             <View style={styles.chipsRow}>
               {teachers.map(t => (
-                <Pressable key={t.uid} onPress={() => setClassTeacherId(classTeacherId === t.uid ? undefined : t.uid)} style={[styles.chip, classTeacherId === t.uid && styles.chipActive]}>
-                  <Text style={[styles.chipText, classTeacherId === t.uid && styles.chipTextActive]}>{t.name || t.email}</Text>
+                <Pressable key={t.uid} onPress={() => setClassTeacherId(classTeacherId === t.uid ? undefined : t.uid)} style={[styles.chip, { backgroundColor: colors.background, borderColor: colors.border }, classTeacherId === t.uid && { borderColor: colors.primaryBlue, backgroundColor: colors.primaryBlue + '15' }]}>
+                  <Text style={[styles.chipText, { color: colors.text }, classTeacherId === t.uid && { color: colors.primaryBlue, fontWeight: '600' }]}>{t.name || t.email}</Text>
                 </Pressable>
               ))}
             </View>
             <View style={styles.modalActions}>
-              <TouchableOpacity onPress={() => setClassModalOpen(false)} style={[styles.btn, styles.btnGhost]}>
-                <Text style={styles.btnGhostText}>Cancel</Text>
+              <TouchableOpacity onPress={() => setClassModalOpen(false)} style={[styles.btn, styles.btnGhost, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                <Text style={[styles.btnGhostText, { color: colors.text }]}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={saveClass} style={[styles.btn, styles.btnPrimary]}>
+              <TouchableOpacity onPress={saveClass} style={[styles.btn, styles.btnPrimary, { backgroundColor: colors.primaryBlue }]}>
                 <Text style={styles.btnPrimaryText}>Save</Text>
               </TouchableOpacity>
             </View>
@@ -400,26 +400,26 @@ export default function SchoolDataScreen() {
       {/* Subject Modal */}
       <Modal visible={subjectModalOpen} animationType="slide" transparent>
         <View style={styles.modalBackdrop}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>{editingSubject ? 'Edit Subject' : 'New Subject'}</Text>
-            <TextInput value={subjectName} onChangeText={setSubjectName} placeholder="Subject name" style={styles.input} />
-            <TextInput value={subjectDesc} onChangeText={setSubjectDesc} placeholder="Description (optional)" style={styles.input} />
-            <Text style={styles.label}>Assign Teachers</Text>
+          <View style={[styles.modalCard, { backgroundColor: colors.cardBackground }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>{editingSubject ? 'Edit Subject' : 'New Subject'}</Text>
+            <TextInput value={subjectName} onChangeText={setSubjectName} placeholder="Subject name" placeholderTextColor={colors.text + '70'} style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]} />
+            <TextInput value={subjectDesc} onChangeText={setSubjectDesc} placeholder="Description (optional)" placeholderTextColor={colors.text + '70'} style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]} />
+            <Text style={[styles.label, { color: colors.text }]}>Assign Teachers</Text>
             <View style={styles.chipsRow}>
               {teachers.map(t => {
                 const active = subjectTeachersAssigned.includes(t.uid);
                 return (
-                  <Pressable key={t.uid} onPress={() => toggleTeacherAssigned(t.uid)} style={[styles.chip, active && styles.chipActive]}>
-                    <Text style={[styles.chipText, active && styles.chipTextActive]}>{t.name || t.email}</Text>
+                  <Pressable key={t.uid} onPress={() => toggleTeacherAssigned(t.uid)} style={[styles.chip, { backgroundColor: colors.background, borderColor: colors.border }, active && { borderColor: colors.primaryBlue, backgroundColor: colors.primaryBlue + '15' }]}>
+                    <Text style={[styles.chipText, { color: colors.text }, active && { color: colors.primaryBlue, fontWeight: '600' }]}>{t.name || t.email}</Text>
                   </Pressable>
                 );
               })}
             </View>
             <View style={styles.modalActions}>
-              <TouchableOpacity onPress={() => setSubjectModalOpen(false)} style={[styles.btn, styles.btnGhost]}>
-                <Text style={styles.btnGhostText}>Cancel</Text>
+              <TouchableOpacity onPress={() => setSubjectModalOpen(false)} style={[styles.btn, styles.btnGhost, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                <Text style={[styles.btnGhostText, { color: colors.text }]}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={saveSubject} style={[styles.btn, styles.btnPrimary]}>
+              <TouchableOpacity onPress={saveSubject} style={[styles.btn, styles.btnPrimary, { backgroundColor: colors.primaryBlue }]}>
                 <Text style={styles.btnPrimaryText}>Save</Text>
               </TouchableOpacity>
             </View>
@@ -663,7 +663,6 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalCard: { 
-    backgroundColor: '#fff', 
     borderRadius: 16, 
     padding: 20,
   },
@@ -673,9 +672,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   input: { 
-    backgroundColor: '#f8fafc', 
     borderWidth: 1, 
-    borderColor: '#e5e7eb', 
     borderRadius: 12, 
     paddingHorizontal: 16, 
     height: 48, 
@@ -695,19 +692,13 @@ const styles = StyleSheet.create({
   chip: { 
     paddingHorizontal: 12, 
     paddingVertical: 8, 
-    backgroundColor: '#f8fafc', 
     borderWidth: 1, 
-    borderColor: '#e5e7eb', 
     borderRadius: 20, 
     marginRight: 8, 
     marginBottom: 8,
   },
-  chipActive: { 
-    borderColor: '#1E90FF', 
-    backgroundColor: '#EAF4FF',
-  },
+  chipActive: {},
   chipTextActive: { 
-    color: '#1E90FF', 
     fontWeight: '600',
   },
   modalActions: { 
@@ -724,17 +715,13 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   btnGhost: { 
-    backgroundColor: '#f8fafc', 
     borderWidth: 1, 
-    borderColor: '#e5e7eb',
   },
   btnGhostText: { 
     fontSize: 16, 
     fontWeight: '600',
   },
-  btnPrimary: { 
-    backgroundColor: '#1E90FF',
-  },
+  btnPrimary: { },
   btnPrimaryText: { 
     color: '#fff', 
     fontWeight: '600', 

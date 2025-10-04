@@ -1,12 +1,14 @@
 import React from 'react';
-import { SafeAreaView, View, Text, StyleSheet } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function AdminProfileScreen() {
+  const { colors } = useTheme();
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
       <View style={styles.container}>
-        <Text style={styles.title}>Admin Profile</Text>
-        <Text style={styles.subtitle}>This is a placeholder. Add profile details and actions.</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Admin Profile</Text>
+        <Text style={[styles.subtitle, { color: colors.text }]}>This is a placeholder. Add profile details and actions.</Text>
       </View>
     </SafeAreaView>
   );

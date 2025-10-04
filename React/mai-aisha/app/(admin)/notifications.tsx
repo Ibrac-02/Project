@@ -1,12 +1,14 @@
 import React from 'react';
-import { SafeAreaView, View, Text, StyleSheet } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function AdminNotificationsScreen() {
+  const { colors } = useTheme();
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
       <View style={styles.container}>
-        <Text style={styles.title}>Admin Notifications</Text>
-        <Text style={styles.subtitle}>This is a placeholder. Wire real data later.</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Admin Notifications</Text>
+        <Text style={[styles.subtitle, { color: colors.text }]}>This is a placeholder. Wire real data later.</Text>
       </View>
     </SafeAreaView>
   );
@@ -15,7 +17,6 @@ export default function AdminNotificationsScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   container: {
     flex: 1,
@@ -28,6 +29,5 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 14,
-    color: '#666',
   },
 });

@@ -50,7 +50,7 @@ export default function SettingsIndexScreen() {
         <View style={[styles.settingsCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Account Settings</Text>
           
-          <TouchableOpacity style={styles.settingItem} onPress={() => navigate('/(settings)/profile')}>
+          <TouchableOpacity style={[styles.settingItem, { borderBottomColor: colors.border }]} onPress={() => navigate('/(settings)/profile')}>
             <View style={styles.settingLeft}>
               <View style={[styles.settingIcon, { backgroundColor: colors.primaryBlue + '20' }]}>
                 <Ionicons name="person-outline" size={20} color={colors.primaryBlue} />
@@ -63,7 +63,7 @@ export default function SettingsIndexScreen() {
             <Ionicons name="chevron-forward-outline" size={18} color={colors.icon} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.settingItem} onPress={() => navigate('/(settings)/change-password')}>
+          <TouchableOpacity style={[styles.settingItem, { borderBottomColor: colors.border }]} onPress={() => navigate('/(settings)/change-password')}>
             <View style={styles.settingLeft}>
               <View style={[styles.settingIcon, { backgroundColor: '#F59E0B' + '20' }]}>
                 <Ionicons name="key-outline" size={20} color="#F59E0B" />
@@ -76,7 +76,7 @@ export default function SettingsIndexScreen() {
             <Ionicons name="chevron-forward-outline" size={18} color={colors.icon} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.settingItem} onPress={() => navigate('/(settings)/notifications')}>
+          <TouchableOpacity style={[styles.settingItem, { borderBottomColor: colors.border }]} onPress={() => navigate('/(settings)/notifications')}>
             <View style={styles.settingLeft}>
               <View style={[styles.settingIcon, { backgroundColor: '#8B5CF6' + '20' }]}>
                 <Ionicons name="notifications-outline" size={20} color="#8B5CF6" />
@@ -89,7 +89,7 @@ export default function SettingsIndexScreen() {
             <Ionicons name="chevron-forward-outline" size={18} color={colors.icon} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.settingItem} onPress={() => navigate('/(settings)/appearance')}>
+          <TouchableOpacity style={[styles.settingItem, { borderBottomColor: colors.border }]} onPress={() => navigate('/(settings)/appearance')}>
             <View style={styles.settingLeft}>
               <View style={[styles.settingIcon, { backgroundColor: '#10B981' + '20' }]}>
                 <Ionicons name="color-palette-outline" size={20} color="#10B981" />
@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
+    // border color is applied via inline style using theme
   },
   settingLeft: {
     flexDirection: 'row',

@@ -113,8 +113,16 @@ export default function ManageUserScreen() {
             { key: 'teachers', label: 'Teachers' },
             { key: 'admin', label: 'Administrators' }
           ] as const).map(({ key, label }) => (
-            <Pressable key={key} onPress={() => setFilter(key)} style={[styles.filterChip, { backgroundColor: colors.cardBackground, borderColor: colors.text + '20' }, filter === key && styles.filterChipActive]}>
-              <Text style={[styles.filterText, { color: colors.text }, filter === key && styles.filterTextActive]}>
+            <Pressable
+              key={key}
+              onPress={() => setFilter(key)}
+              style={[
+                styles.filterChip,
+                { backgroundColor: colors.cardBackground, borderColor: colors.text + '20' },
+                filter === key && { borderColor: colors.primaryBlue, backgroundColor: colors.primaryBlue + '15', shadowColor: colors.primaryBlue, shadowOpacity: 0.2 },
+              ]}
+            >
+              <Text style={[styles.filterText, { color: colors.text }, filter === key && { color: colors.primaryBlue, fontWeight: '700' }]}>
                 {label}
               </Text>
             </Pressable>
@@ -135,19 +143,20 @@ export default function ManageUserScreen() {
               <Text style={[styles.email, { color: colors.text }]}>{item.email}</Text>
               <Text style={[styles.meta, { color: colors.text }]}>Role: {item.role || '-' } {item.title ? ` • ${item.title}` : ''}</Text>
             </View>
-            <TouchableOpacity onPress={() => onEdit(item)} style={[styles.iconBtn, { backgroundColor: colors.background }]}>
-              <Ionicons name="create-outline" size={20} color="#1E90FF" />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => onDelete(item)} style={[styles.iconBtn, { backgroundColor: colors.background }]}>
-              <Ionicons name="trash-outline" size={20} color="#D11A2A" />
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <TouchableOpacity onPress={() => onEdit(item)} style={[styles.iconBtn, { backgroundColor: colors.background }]}>
+                <Ionicons name="create-outline" size={20} color={colors.primaryBlue} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => onDelete(item)} style={[styles.iconBtn, { backgroundColor: colors.background }]}>
+                <Ionicons name="trash-outline" size={20} color={colors.danger} />
+              </TouchableOpacity>
+            </View>
           </View>
         )}
         ListEmptyComponent={!loading ? (
           <View style={styles.emptyBox}>
             <Ionicons name="people-outline" size={64} color={colors.text + '30'} style={{ marginBottom: 16 }} />
-            <Text style={[{ fontSize: 18, fontWeight: '600', marginBottom: 8 }, { color: colors.text }]}>No staff members found</Text>
-            <Text style={[styles.helper, { color: colors.text }]}>Note: This manages administrative and teaching staff only. Students are managed separately in Student Management.</Text>
+            <Text style={[{ fontSize: 18, fontWeight: '600' }, { color: colors.text }]}>No staff members found</Text>
           </View>
         ) : null}
       />
@@ -161,8 +170,16 @@ export default function ManageUserScreen() {
             <TextInput value={editTitle} onChangeText={setEditTitle} placeholder="Title (e.g. Mr, Ms)" placeholderTextColor={colors.text + '50'} style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.text + '20' }]} />
             <View style={styles.roleRow}>
               {(['teacher', 'headteacher', 'admin'] as const).map(r => (
-                <Pressable key={r} onPress={() => setEditRole(r)} style={[styles.roleChip, { backgroundColor: colors.background, borderColor: colors.text + '20' }, editRole === r && styles.roleChipActive]}>
-                  <Text style={[styles.roleText, { color: colors.text }, editRole === r && styles.roleTextActive]}>{r}</Text>
+                <Pressable
+                  key={r}
+                  onPress={() => setEditRole(r)}
+                  style={[
+                    styles.roleChip,
+                    { backgroundColor: colors.background, borderColor: colors.text + '20' },
+                    editRole === r && { borderColor: colors.primaryBlue, backgroundColor: colors.primaryBlue + '15' },
+                  ]}
+                >
+                  <Text style={[styles.roleText, { color: colors.text }, editRole === r && { color: colors.primaryBlue, fontWeight: '700' }]}>{r}</Text>
                 </Pressable>
               ))}
             </View>
@@ -170,7 +187,7 @@ export default function ManageUserScreen() {
               <TouchableOpacity onPress={() => setEditModalVisible(false)} style={[styles.btn, styles.btnGhost, { backgroundColor: colors.background, borderColor: colors.text + '20' }]}>
                 <Text style={[styles.btnGhostText, { color: colors.text }]}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={onSave} style={[styles.btn, styles.btnPrimary]}>
+              <TouchableOpacity onPress={onSave} style={[styles.btn, { backgroundColor: colors.primaryBlue }]}>
                 <Text style={styles.btnPrimaryText}>Save</Text>
               </TouchableOpacity>
             </View>

@@ -1,16 +1,18 @@
-import React, { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Alert, FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
-import { listStudents } from '@/lib/students-offline';
-import { listClasses } from '@/lib/classes';
 import { useAuth } from '@/lib/auth';
 import { useRequireRole } from '@/lib/access';
+import { listClasses } from '@/lib/classes';
+import { listStudents } from '@/lib/students';
 import type { UserProfile, SchoolClass } from '@/lib/types';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function TeacherStudentsScreen() {
   const { allowed, loading: roleLoading } = useRequireRole('teacher');
   const { user } = useAuth();
+  const { colors } = useTheme();
   const teacherId = user?.uid || '';
 
   const [students, setStudents] = useState<UserProfile[]>([]);

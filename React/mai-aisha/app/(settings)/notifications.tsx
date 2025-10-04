@@ -95,7 +95,7 @@ export default function NotificationsSettingsScreen() {
         <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Push Notifications</Text>
           
-          <View style={styles.row}>
+          <View style={[styles.row, { borderBottomColor: colors.border }] }>
             <View style={styles.labelContainer}>
               <Text style={[styles.label, { color: colors.text }]}>Enable Push Notifications</Text>
               <Text style={[styles.description, { color: colors.icon }]}>
@@ -111,7 +111,7 @@ export default function NotificationsSettingsScreen() {
 
           {pushEnabled && (
             <>
-              <View style={styles.row}>
+              <View style={[styles.row, { borderBottomColor: colors.border }] }>
                 <View style={styles.labelContainer}>
                   <Text style={[styles.label, { color: colors.text }]}>Sound</Text>
                   <Text style={[styles.description, { color: colors.icon }]}>
@@ -125,7 +125,7 @@ export default function NotificationsSettingsScreen() {
                 />
               </View>
 
-              <View style={styles.row}>
+              <View style={[styles.row, { borderBottomColor: colors.border }] }>
                 <View style={styles.labelContainer}>
                   <Text style={[styles.label, { color: colors.text }]}>Vibration</Text>
                   <Text style={[styles.description, { color: colors.icon }]}>
@@ -151,13 +151,13 @@ export default function NotificationsSettingsScreen() {
         </View>
 
         {/* Email Notifications Section */}
-        <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
+        <View style={[styles.card, { backgroundColor: colors.cardBackground }]}> 
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Email Notifications</Text>
           
-          <View style={styles.row}>
+          <View style={[styles.row, { borderBottomColor: colors.border }] }>
             <View style={styles.labelContainer}>
               <Text style={[styles.label, { color: colors.text }]}>Email Updates</Text>
-              <Text style={[styles.description, { color: colors.icon }]}>
+              <Text style={[styles.description, { color: colors.icon }]}> 
                 Receive important updates via email
               </Text>
             </View>
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
+    // border color provided inline using theme
   },
   labelContainer: {
     flex: 1,

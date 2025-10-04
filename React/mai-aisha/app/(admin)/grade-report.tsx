@@ -3,6 +3,7 @@ import { ActivityIndicator, SafeAreaView, StyleSheet, Text, View } from 'react-n
 // import { collection, getDocs } from 'firebase/firestore';
 // import { db } from '@/config/firebase';
 // import { useRequireRole } from '@/lib/access';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface GradeDoc {
   marksObtained: number;
@@ -15,6 +16,7 @@ interface AttendanceDoc {
 
 export default function GradeReportScreen() {
   // const { allowed, loading: roleLoading } = useRequireRole('admin');
+  const { colors } = useTheme();
   const [loading, setLoading] = useState(true);
   const [grades, setGrades] = useState<GradeDoc[]>([]);
   const [attendance, setAttendance] = useState<AttendanceDoc[]>([]);
@@ -64,36 +66,46 @@ export default function GradeReportScreen() {
   }, [attendance]);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Reports & Analytics</Text>
-      <Text style={styles.subtitle}>Overview of performance and attendance</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.title, { color: colors.text }]}>Reports & Analytics</Text>
+      <Text style={[styles.subtitle, { color: colors.text }]}>Overview of performance and attendance</Text>
 
       {loading ? (
-        <View style={styles.center}><ActivityIndicator /></View>
+        <View style={styles.center}><ActivityIndicator color={colors.primaryBlue} /></View>
       ) : error ? (
-        <View style={styles.center}><Text style={{ color: '#D11A2A' }}>{error}</Text></View>
+        <View style={styles.center}><Text style={{ color: colors.danger }}>{error}</Text></View>
       ) : (
         <View style={{ marginTop: 16 }}>
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Performance</Text>
+          {(gradeAgg.count === 0 && attendanceAgg.total === 0) ? (
+            <View style={{ alignItems: 'center', paddingVertical: 24 }}>
+              <Text style={{ color: colors.text + '70' }}>No reports available yet.</Text>
+            </View>
+          ) : (
+            <></>
+          )}
+          {gradeAgg.count > 0 && (
+          <View style={[styles.card, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}> 
+            <Text style={[styles.cardTitle, { color: colors.text }]}>Performance</Text>
             <View style={styles.rowBetween}>
-              <Text style={styles.metricLabel}>Grades Recorded</Text>
-              <Text style={styles.metricValue}>{gradeAgg.count}</Text>
+              <Text style={[styles.metricLabel, { color: colors.text }]}>Grades Recorded</Text>
+              <Text style={[styles.metricValue, { color: colors.text }]}>{gradeAgg.count}</Text>
             </View>
             <View style={styles.rowBetween}>
-              <Text style={styles.metricLabel}>Average Score</Text>
-              <Text style={styles.metricValue}>{gradeAgg.avgPercent.toFixed(1)}%</Text>
+              <Text style={[styles.metricLabel, { color: colors.text }]}>Average Score</Text>
+              <Text style={[styles.metricValue, { color: colors.text }]}>{gradeAgg.avgPercent.toFixed(1)}%</Text>
             </View>
           </View>
-
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Attendance</Text>
-            <View style={styles.rowBetween}><Text style={styles.metricLabel}>Records</Text><Text style={styles.metricValue}>{attendanceAgg.total}</Text></View>
-            <View style={styles.rowBetween}><Text style={styles.metricLabel}>Present</Text><Text style={styles.metricValue}>{attendanceAgg.present}</Text></View>
-            <View style={styles.rowBetween}><Text style={styles.metricLabel}>Absent</Text><Text style={styles.metricValue}>{attendanceAgg.absent}</Text></View>
-            <View style={styles.rowBetween}><Text style={styles.metricLabel}>Late</Text><Text style={styles.metricValue}>{attendanceAgg.late}</Text></View>
-            <View style={styles.rowBetween}><Text style={styles.metricLabel}>Present Rate</Text><Text style={styles.metricValue}>{attendanceAgg.presentRate.toFixed(1)}%</Text></View>
+          )}
+          {attendanceAgg.total > 0 && (
+          <View style={[styles.card, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}> 
+            <Text style={[styles.cardTitle, { color: colors.text }]}>Attendance</Text>
+            <View style={styles.rowBetween}><Text style={[styles.metricLabel, { color: colors.text }]}>Records</Text><Text style={[styles.metricValue, { color: colors.text }]}>{attendanceAgg.total}</Text></View>
+            <View style={styles.rowBetween}><Text style={[styles.metricLabel, { color: colors.text }]}>Present</Text><Text style={[styles.metricValue, { color: colors.text }]}>{attendanceAgg.present}</Text></View>
+            <View style={styles.rowBetween}><Text style={[styles.metricLabel, { color: colors.text }]}>Absent</Text><Text style={[styles.metricValue, { color: colors.text }]}>{attendanceAgg.absent}</Text></View>
+            <View style={styles.rowBetween}><Text style={[styles.metricLabel, { color: colors.text }]}>Late</Text><Text style={[styles.metricValue, { color: colors.text }]}>{attendanceAgg.late}</Text></View>
+            <View style={styles.rowBetween}><Text style={[styles.metricLabel, { color: colors.text }]}>Present Rate</Text><Text style={[styles.metricValue, { color: colors.text }]}>{attendanceAgg.presentRate.toFixed(1)}%</Text></View>
           </View>
+          )}
         </View>
       )}
     </SafeAreaView>
@@ -101,13 +113,13 @@ export default function GradeReportScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f0f2f5', padding: 16 },
-  title: { fontSize: 22, fontWeight: '700', color: '#222' },
-  subtitle: { marginTop: 2, color: '#666' },
+  container: { flex: 1, padding: 16 },
+  title: { fontSize: 22, fontWeight: '700' },
+  subtitle: { marginTop: 2 },
   center: { marginTop: 20, alignItems: 'center' },
-  card: { backgroundColor: '#fff', borderRadius: 10, padding: 16, borderWidth: 1, borderColor: '#eee', marginTop: 12 },
-  cardTitle: { fontSize: 16, fontWeight: '700', color: '#333', marginBottom: 8 },
+  card: { borderRadius: 10, padding: 16, borderWidth: 1, marginTop: 12 },
+  cardTitle: { fontSize: 16, fontWeight: '700', marginBottom: 8 },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 },
-  metricLabel: { color: '#555' },
-  metricValue: { color: '#111', fontWeight: '700' },
+  metricLabel: {},
+  metricValue: { fontWeight: '700' },
 });

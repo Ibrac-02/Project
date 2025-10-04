@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, FlatList, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, Modal, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth, getAllUsers } from '@/lib/auth';
 import { createAnnouncement, getAnnouncements, type Announcement } from '@/lib/announcements';
+import { useAuth } from '@/lib/auth';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function HeadteacherAnnouncementsScreen() {
   const { user, role } = useAuth();
+  const { colors } = useTheme();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [scope, setScope] = useState<'staff-only' | 'class'>('staff-only');
