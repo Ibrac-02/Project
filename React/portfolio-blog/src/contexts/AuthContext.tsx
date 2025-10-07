@@ -12,7 +12,7 @@ type AuthContextType = {
   user: AuthUser | null
   loading: boolean
   login: (email: string, password: string) => Promise<{ error?: string }>
-  signup: (email: string, password: string) => Promise<{ error?: string }>
+  signup: (email: string, password: string, name: string) => Promise<{ error?: string }>
   logout: () => Promise<void>
   isAdmin: boolean
 }
@@ -82,19 +82,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const role = adminEmail && email.toLowerCase() === adminEmail.toLowerCase() ? 'admin' : 'guest'
     const uid = data.user?.id
     if (uid) {
-      await supabase.from('users').upsert({ id: uid, email, name: email.split('@')[0], role }).select('id').single()
+      // Do not overwrite existing name on login; only ensure row exists and role/email are set
+      await supabase.from('users').upsert({ id: uid, email, role }).select('id').single()
     }
     return {}
   }
 
-  const signup = async (email: string, password: string) => {
+  const signup = async (email: string, password: string, name: string) => {
     const { data, error } = await supabase.auth.signUp({ email, password })
     if (error) return { error: error.message }
     // On sign up, record user with role
     const role = adminEmail && email.toLowerCase() === adminEmail.toLowerCase() ? 'admin' : 'guest'
     const uid = data.user?.id
     if (uid) {
-      await supabase.from('users').upsert({ id: uid, email, name: email.split('@')[0], role }).select('id').single()
+      await supabase.from('users').upsert({ id: uid, email, name, role }).select('id').single()
     }
     return {}
   }

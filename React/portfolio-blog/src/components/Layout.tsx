@@ -17,6 +17,7 @@ export default function Layout() {
         <div className="sb-auth">
           {user ? (
             <>
+              <NavLink to="/profile" className="sb-btn">Profile</NavLink>
               <span className="sb-user">{user.name || user.email}{isAdmin ? ' · Admin' : ''}</span>
               <button className="sb-btn" onClick={logout}>Logout</button>
             </>
@@ -28,7 +29,7 @@ export default function Layout() {
       <main className="sb-main">
         <Outlet />
       </main>
-      <footer className="sb-footer">Built with React + Supabase · Deployed on Vercel</footer>
+      <footer className="sb-footer">{new Date().getFullYear()} © Ibrac-02 | All rights reserved. | Built with React + Supabase</footer>
     </div>
   )
 }

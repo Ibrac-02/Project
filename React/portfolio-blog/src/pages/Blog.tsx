@@ -9,6 +9,7 @@ export default function Blog() {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({})
 
   const canDelete = (p: Post) => isAdmin || (!!user && p.author_id === user.id)
 
@@ -52,6 +53,11 @@ export default function Blog() {
     }
   }
 
+  const MAX_CHARS = 220
+  const isLong = (text: string) => text.length > MAX_CHARS
+  const getPreview = (text: string) => text.slice(0, MAX_CHARS).trimEnd() + '…'
+  const toggleExpand = (id: string) => setExpanded(prev => ({ ...prev, [id]: !prev[id] }))
+
   return (
     <section className="sb-card" style={{ display: 'grid', gap: 16 }}>
       <div>
@@ -83,22 +89,33 @@ export default function Blog() {
         ) : posts.length === 0 ? (
           <div style={{ color: 'var(--sb-text-dim)' }}>No posts yet.</div>
         ) : (
-          posts.map(p => (
-            <article key={p.id} className="sb-post">
-              <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
-                <div className="sb-post-title">{p.title}</div>
-                {canDelete(p) && (
-                  <div className="sb-post-actions">
-                    <button className="sb-btn" onClick={() => onDelete(p.id)}>Delete</button>
-                  </div>
+          posts.map(p => {
+            const expandedOn = !!expanded[p.id]
+            const showToggle = isLong(p.content)
+            const body = expandedOn || !showToggle ? p.content : getPreview(p.content)
+            return (
+              <article key={p.id} className="sb-post">
+                <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
+                  <div className="sb-post-title">{p.title}</div>
+                  <span className="dot-leader" />
+                  {canDelete(p) && (
+                    <div className="sb-post-actions">
+                      <button className="sb-btn" onClick={() => onDelete(p.id)}>Delete</button>
+                    </div>
+                  )}
+                </div>
+                <div className="sb-post-meta">
+                  by {p.author_email ?? 'Guest'} · {new Date(p.created_at).toLocaleString()}
+                </div>
+                <p style={{ marginTop: 4, whiteSpace: 'pre-wrap' }}>{body}</p>
+                {showToggle && (
+                  <button className="sb-btn" onClick={() => toggleExpand(p.id)}>
+                    {expandedOn ? 'Show less' : 'Read more'}
+                  </button>
                 )}
-              </div>
-              <div className="sb-post-meta">
-                by {p.author_email ?? 'Guest'} · {new Date(p.created_at).toLocaleString()}
-              </div>
-              <p style={{ marginTop: 4 }}>{p.content}</p>
-            </article>
-          ))
+              </article>
+            )
+          })
         )}
       </div>
     </section>
