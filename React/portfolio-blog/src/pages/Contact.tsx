@@ -6,7 +6,9 @@ export default function Contact() {
       <ul style={{ lineHeight: 1.9, margin: 0 }}>
         <li>Email: <a className="sb-link" href={`mailto:${import.meta.env.VITE_ADMIN_EMAIL}`}>{import.meta.env.VITE_ADMIN_EMAIL}</a></li>
         <li>GitHub: <a className="sb-link" href="https://github.com/Ibrac-02" target="_blank" rel="noreferrer">Ibrac-02</a></li>
-        <li>Contact No: <a className="sb-link" href="tel:+265 999 198 480/+265 894 984 764" target="_blank" rel="noreferrer">+265 999 198 480/+265 894 984 764</a></li>
+        <li>WhatsApp: <a className="sb-link" href="tel:+265 999 198 480/+265 894 984 764" target="_blank" rel="noreferrer">+265 999 198 480/+265 894 984 764</a></li>
+        <li>Facebook: <a className="sb-link" href="https://www.facebook.com/ibrac_ahmad" target="_blank" rel="noreferrer">Ibrac Ahmad</a></li>
+        <li>Instagram: <a className="sb-link" href="https://www.instagram.com/qas_im2002" target="_blank" rel="noreferrer">Qas_im2002</a></li>
       </ul>
     </section>
   )

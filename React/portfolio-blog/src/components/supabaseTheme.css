@@ -89,7 +89,14 @@ a:hover { color: #b4bdfd; }
 .sb-main { flex:1; max-width: 1100px; width: 100%; margin: 0 auto; padding: var(--space-6); }
 .sb-footer { border-top: 1px solid var(--sb-border); background: var(--sb-bg-soft); padding: 16px 20px; color: var(--sb-text-dim); text-align:center; }
 
-.sb-card { background: var(--sb-card); border: 1px solid var(--sb-border); border-radius: 12px; padding: 16px; }
+.sb-card { 
+  background: var(--sb-card);
+  /* Softer border with subtle shadow */
+  border: 1px solid color-mix(in oklab, var(--sb-border) 70%, transparent);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
 .sb-input { width: 100%; background: var(--sb-bg); border: 1px solid var(--sb-border); border-radius: 8px; color: var(--sb-text); padding: 10px 12px; outline: none; transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease; }
 .sb-input::placeholder { color: var(--sb-text-dim); opacity: 0.7; }
 .sb-input:focus { border-color: var(--sb-accent); box-shadow: 0 0 0 3px rgba(62, 207, 142, 0.25); background: #0c182a; }
@@ -115,6 +122,35 @@ a:hover { color: #b4bdfd; }
 .grid { display: grid; gap: var(--space-6); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: var(--space-4); }
 .card { background: var(--sb-card); border: 1px solid var(--sb-border); border-radius: 12px; padding: var(--space-4) var(--space-6); color: var(--sb-text); }
 .card:hover { border-color: var(--sb-accent); box-shadow: 0 6px 18px rgba(0,0,0,0.25); }
+
+/* Softer surface variant to avoid heavy borders */
+.surface {
+  background: var(--sb-card);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+  border: 1px solid transparent;
+}
+
+/* Simple vertical list with light dividers (no full borders on each item) */
+.list {
+  display: grid;
+  gap: 0;
+  background: var(--sb-card);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--sb-border) 60%, transparent);
+}
+.list-item {
+  padding: 12px 16px;
+  display: grid;
+  gap: 4px;
+  border-bottom: 1px solid color-mix(in oklab, var(--sb-border) 50%, transparent);
+}
+.list-item:last-child { border-bottom: none; }
+
+/* Muted text utility */
+.muted { color: var(--sb-text-dim); }
 
 /* Hero section */
 .hero { padding: 48px 24px; background: linear-gradient(180deg, var(--sb-bg-soft), transparent 60%); border-radius: 16px; }

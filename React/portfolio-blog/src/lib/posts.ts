@@ -7,16 +7,22 @@ export type Post = {
   author_id: string | null
   created_at: string
   author_email?: string | null
-  author?: { id: string; name: string | null; email: string | null } | null
+  author_profile?: { id: string; name: string | null; email: string | null } | null
 }
 
 export async function listPosts(): Promise<Post[]> {
   const { data, error } = await supabase
     .from('posts')
-    .select('id, title, content, author_id, author_email, created_at')
+    .select('id, title, content, author_id, author_email, created_at, author_profile:profiles!posts_author_id_fkey(id, name, email)')
     .order('created_at', { ascending: false })
   if (error) throw new Error(error.message)
-  return (data ?? []) as Post[]
+  type ProfileRow = { id: string; name: string | null; email: string | null }
+  type Row = Omit<Post, 'author_profile'> & { author_profile?: ProfileRow | ProfileRow[] | null }
+  const rows = (data ?? []) as Row[]
+  return rows.map((r) => ({
+    ...r,
+    author_profile: Array.isArray(r.author_profile) ? r.author_profile[0] : (r.author_profile ?? null),
+  })) as Post[]
 }
 
 export async function createPost(title: string, content: string): Promise<Post> {
@@ -31,10 +37,16 @@ export async function createPost(title: string, content: string): Promise<Post> 
       author_id: uid,
       author_email: email,
     })
-    .select('id, title, content, author_id, author_email, created_at')
+    .select('id, title, content, author_id, author_email, created_at, author_profile:profiles!posts_author_id_fkey(id, name, email)')
     .single()
   if (error) throw new Error(error.message)
-  return data as Post
+  type ProfileRow = { id: string; name: string | null; email: string | null }
+  type Row = Omit<Post, 'author_profile'> & { author_profile?: ProfileRow | ProfileRow[] | null }
+  const row = data as Row
+  return {
+    ...row,
+    author_profile: Array.isArray(row.author_profile) ? row.author_profile[0] : (row.author_profile ?? null),
+  } as Post
 }
 
 export async function deletePost(id: string): Promise<void> {
