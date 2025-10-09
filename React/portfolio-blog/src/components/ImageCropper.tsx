@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import Cropper, { type Area } from 'react-easy-crop'
+import 'react-easy-crop/react-easy-crop.css'
 
 export type ImageCropperProps = {
   imageSrc: string
@@ -33,6 +34,8 @@ export default function ImageCropper({ imageSrc, onCancel, onConfirm, aspect = 1
             onRotationChange={setRotation}
             onCropComplete={onCropComplete}
             objectFit="contain"
+            showGrid
+            restrictPosition
           />
         </div>
 

@@ -141,7 +141,7 @@ function PostComments({ postId }: { postId: string }) {
           {items.map(c => (
             <div key={c.id} className="list-item">
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ fontWeight: 600 }}>{c.user_email ?? c.guest_name ?? 'Guest'}</div>
+                <div style={{ fontWeight: 600 }}>{c.user_name ?? c.guest_name ?? 'Guest'}</div>
                 <span className="dot-leader" />
                 <div className="muted" style={{ fontSize: 12 }}>{new Date(c.created_at).toLocaleString()}</div>
                 {canDelete(c) && (
@@ -162,10 +162,6 @@ function PostComments({ postId }: { postId: string }) {
             <div>
               <label className="sb-label" htmlFor={`guest_name_${postId}`}>Name</label>
               <input id={`guest_name_${postId}`} className="sb-input" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="Your name" />
-            </div>
-            <div>
-              <label className="sb-label" htmlFor={`guest_email_${postId}`}>Email (optional)</label>
-              <input id={`guest_email_${postId}`} className="sb-input" value={guestEmail} onChange={e => setGuestEmail(e.target.value)} placeholder="you@example.com" />
             </div>
           </div>
         )}

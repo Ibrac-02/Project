@@ -19,6 +19,7 @@ export default function Projects() {
     github_url: '',
   })
   const [imageFile, setImageFile] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [cropOpen, setCropOpen] = useState(false)
   const [cropSrc, setCropSrc] = useState<string | null>(null)
   const [pendingFile, setPendingFile] = useState<File | null>(null)
@@ -115,6 +116,27 @@ export default function Projects() {
                   }}
                 />
                 <div className="muted" style={{ fontSize: 12 }}>You can either paste an image URL above or choose a file to upload.</div>
+                {previewUrl && (
+                  <div className="surface" style={{ marginTop: 8, padding: 8 }}>
+                    <div style={{ marginBottom: 8, overflow: 'hidden', borderRadius: 8 }}>
+                      <img src={previewUrl} alt="Selected preview" style={{ width: '100%', height: 160, objectFit: 'cover', display: 'block' }} />
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button type="button" className="sb-btn" onClick={() => {
+                        if (!imageFile) return
+                        const url = URL.createObjectURL(imageFile)
+                        setPendingFile(imageFile)
+                        setCropSrc(url)
+                        setCropOpen(true)
+                      }}>Edit Image</button>
+                      <button type="button" className="sb-btn" onClick={() => {
+                        if (previewUrl) URL.revokeObjectURL(previewUrl)
+                        setPreviewUrl(null)
+                        setImageFile(null)
+                      }}>Remove</button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             <div>
@@ -137,28 +159,41 @@ export default function Projects() {
       ) : projects.length === 0 ? (
         <div className="list"><div className="list-item" style={{ color: 'var(--sb-text-dim)' }}>No projects yet.</div></div>
       ) : (
-        <div className="sb-row" style={{ flexWrap:'wrap' }}>
+        <div className="list">
           {projects.map((p) => (
-            <article key={p.id} className="surface" style={{ minWidth: 280, flex: '1 1 320px', display:'grid', gap: 8 }}>
-              {p.image_url && (
-                <div style={{ margin: '-16px -16px 12px', overflow: 'hidden', borderTopLeftRadius: 12, borderTopRightRadius: 12 }}>
-                  <img src={p.image_url} alt={p.title} style={{ width: '100%', height: 220, objectFit: 'cover', display: 'block' }} />
-                </div>
-              )}
+            <div key={p.id} className="list-item">
+              <article className="surface" style={{ display:'grid', gap: 8 }}>
+                {p.image_url && (
+                  <div style={{ margin: '-16px -16px 12px', overflow: 'hidden', borderTopLeftRadius: 12, borderTopRightRadius: 12 }}>
+                    <img src={p.image_url} alt={p.title} style={{ width: '100%', height: 220, objectFit: 'cover', display: 'block' }} />
+                  </div>
+                )}
               <h3 style={{ marginTop: 0 }}>{p.title}</h3>
               {p.description && <p className="muted">{p.description}</p>}
               {p.stack && (
                 <div style={{ display:'flex', gap: 6, flexWrap:'wrap', margin: '8px 0 12px' }}>
                   {p.stack.split(',').map(s => (
-                    <span key={s.trim()} style={{ border:'1px solid var(--sb-border)', borderRadius: 999, padding:'4px 8px', fontSize: 12, color:'var(--sb-text-dim)' }}>{s.trim()}</span>
+                    <span
+                      key={s.trim()}
+                      style={{
+                        display: 'inline-block',
+                        border:'1px solid var(--sb-border)',
+                        borderRadius: 999,
+                        padding:'6px 10px',
+                        fontSize: 12,
+                        lineHeight: 1,
+                        color:'var(--sb-text-dim)',
+                        minHeight: 24
+                      }}
+                    >{s.trim()}</span>
                   ))}
                 </div>
               )}
               <div style={{ display:'flex', gap: 8, alignItems:'center' }}>
-                {p.demo_url && <a className="sb-btn" href={p.demo_url} target="_blank" rel="noreferrer">View Project</a>}
-                {p.github_url && <a className="sb-btn" href={p.github_url} target="_blank" rel="noreferrer">View Code</a>}
+                {p.demo_url && <a className="sb-btn" style={{ minHeight: 36, display:'inline-flex', alignItems:'center' }} href={p.demo_url} target="_blank" rel="noreferrer">Live Demo</a>}
+                {p.github_url && <a className="sb-btn" style={{ minHeight: 36, display:'inline-flex', alignItems:'center' }} href={p.github_url} target="_blank" rel="noreferrer">GitHub</a>}
                 {isAdmin && (
-                  <button className="sb-btn" onClick={async () => {
+                  <button className="sb-btn" style={{ minHeight: 36, display:'inline-flex', alignItems:'center' }} onClick={async () => {
                     if (!confirm('Delete this project?')) return
                     try {
                       await deleteProject(p.id)
@@ -169,7 +204,8 @@ export default function Projects() {
                   }}>Delete</button>
                 )}
               </div>
-            </article>
+              </article>
+            </div>
           ))}
         </div>
       )}
@@ -194,6 +230,10 @@ export default function Projects() {
               // Convert to File so downstream code treats it uniformly
               const croppedFile = new File([blob], pendingFile.name.replace(/\.[^.]+$/, '.jpg'), { type: blob.type })
               setImageFile(croppedFile)
+              // Update preview
+              if (previewUrl) URL.revokeObjectURL(previewUrl)
+              const nextPreview = URL.createObjectURL(croppedFile)
+              setPreviewUrl(nextPreview)
               setError(null)
             } catch (e: unknown) {
               setError(e instanceof Error ? e.message : 'Failed to crop image')
