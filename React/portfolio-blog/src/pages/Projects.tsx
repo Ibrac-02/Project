@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { listProjects, createProject, deleteProject, type Project } from '@/lib/projects'
 import { useAuth } from '@/contexts/AuthContext'
-import supabase from '@/config/supabaseClient'
+import { uploadImage } from '@/lib/images'
 
 export default function Projects() {
   const { isAdmin, user } = useAuth()
@@ -56,12 +56,8 @@ export default function Projects() {
               setSaving(true)
               let finalImageUrl = form.image_url.trim() || undefined
               if (imageFile && user?.id) {
-                const ext = imageFile.name.split('.').pop()?.toLowerCase() || 'png'
-                const fileName = `${user.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
-                const { error: upErr } = await supabase.storage.from('project-images').upload(fileName, imageFile, { cacheControl: '3600', upsert: true })
-                if (upErr) throw new Error(upErr.message)
-                const { data: pub } = supabase.storage.from('project-images').getPublicUrl(fileName)
-                finalImageUrl = pub.publicUrl
+                const res = await uploadImage(imageFile, user.id, 'project-images')
+                finalImageUrl = res.publicUrl
               }
               await createProject({
                 title: form.title.trim(),

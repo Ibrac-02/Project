@@ -84,6 +84,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (uid) {
       // Do not overwrite existing name on login; only ensure row exists and role/email are set
       await supabase.from('users').upsert({ id: uid, email, role }).select('id').single()
+      // Ensure a matching profile row exists for FK targets (avoid clobbering name on login)
+      await supabase.from('profiles').upsert({ id: uid, email }).select('id').single()
     }
     return {}
   }
@@ -96,6 +98,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const uid = data.user?.id
     if (uid) {
       await supabase.from('users').upsert({ id: uid, email, name, role }).select('id').single()
+      // Create matching profile row for FK references
+      await supabase.from('profiles').upsert({ id: uid, email, name }).select('id').single()
     }
     return {}
   }

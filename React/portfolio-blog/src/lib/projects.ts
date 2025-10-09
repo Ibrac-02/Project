@@ -30,6 +30,11 @@ export async function createProject(input: {
 }): Promise<Project> {
   const { data: auth } = await supabase.auth.getUser()
   const user_id = auth.user?.id ?? null
+  if (!user_id) {
+    throw new Error('You must be signed in to create a project.')
+  }
+  // Ensure profile row exists to satisfy FK (projects.user_id -> profiles.id)
+  await supabase.from('profiles').upsert({ id: user_id, email: auth.user?.email ?? null }).select('id').single()
   const { data, error } = await supabase
     .from('projects')
     .insert({

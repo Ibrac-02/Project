@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { createPost, deletePost, listPosts, type Post } from '@/lib/posts'
 import { useAuth } from '@/contexts/AuthContext'
@@ -50,9 +50,73 @@ export default function Blog() {
     }
   }
 
-  const MAX_CHARS = 250
-  const truncateText = (text: string) =>
-    text.length > MAX_CHARS ? text.slice(0, MAX_CHARS).trimEnd() + '...' : text
+  function PostExcerpt({ post }: { post: Post }) {
+    const [overflowing, setOverflowing] = useState(false)
+    const pRef = useRef<HTMLParagraphElement | null>(null)
+
+    useEffect(() => {
+      const el = pRef.current
+      if (!el) return
+      const check = () => {
+        // Compare scrollHeight vs clientHeight to detect clamp overflow
+        setOverflowing(el.scrollHeight > el.clientHeight + 1)
+      }
+      // Run after layout
+      const id = requestAnimationFrame(check)
+      // Also re-check on window resize
+      window.addEventListener('resize', check)
+      return () => {
+        cancelAnimationFrame(id)
+        window.removeEventListener('resize', check)
+      }
+    }, [post.id, post.content])
+
+    // Fallback author label: name -> email -> Guest
+    const authorLabel = post.author_profile?.name ?? post.author_email ?? 'Guest'
+
+    return (
+      <div className="list-item">
+        <article className="sb-post">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Link to={`/blog/${post.id}`} className="sb-post-title">{post.title}</Link>
+            <span className="dot-leader" />
+            {canDelete(post) && (
+              <button className="sb-btn" onClick={() => onDelete(post.id)}>Delete</button>
+            )}
+          </div>
+
+          <div className="sb-post-meta">
+            by {authorLabel} · {new Date(post.created_at).toLocaleString()}
+          </div>
+
+          <p
+            ref={pRef}
+            style={{
+              whiteSpace: 'pre-wrap',
+              marginTop: 8,
+              display: '-webkit-box',
+              WebkitLineClamp: 5,
+              WebkitBoxOrient: 'vertical' as CSSProperties['WebkitBoxOrient'],
+              overflow: 'hidden',
+            }}
+          >
+            {post.content}
+          </p>
+          {overflowing && (
+            <div>
+              <Link
+                to={`/blog/${post.id}`}
+                className="sb-btn"
+                style={{ padding: 0, background: 'transparent', color: '#2563eb', textDecoration: 'underline' }}
+              >
+                Read More →
+              </Link>
+            </div>
+          )}
+        </article>
+      </div>
+    )
+  }
   return (
     <section className="surface" style={{ display: 'grid', gap: 16 }}>
       <div>
@@ -88,32 +152,7 @@ export default function Blog() {
         ) : posts.length === 0 ? (
           <div className="list-item" style={{ color: 'var(--sb-text-dim)' }}>No posts yet.</div>
         ) : (
-          posts.map(p => {
-            const displayText = truncateText(p.content)
-
-            return (
-              <div key={p.id} className="list-item">
-                <article className="sb-post">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Link to={`/blog/${p.id}`} className="sb-post-title">{p.title}</Link>
-                    <span className="dot-leader" />
-                    {canDelete(p) && (
-                      <button className="sb-btn" onClick={() => onDelete(p.id)}>Delete</button>
-                    )}
-                  </div>
-
-                  <div className="sb-post-meta">
-                    by {p.author_profile?.name ?? p.author_email ?? 'Guest'} · {new Date(p.created_at).toLocaleString()}
-                  </div>
-
-                  <p style={{ whiteSpace: 'pre-wrap', marginTop: 8 }}>{displayText}</p>
-                  <div>
-                    <Link to={`/blog/${p.id}`} className="sb-btn" style={{ padding: 0, background: 'transparent', color: '#2563eb', textDecoration: 'underline' }}>Read More →</Link>
-                  </div>
-                </article>
-              </div>
-            )
-          })
+          posts.map(p => <PostExcerpt key={p.id} post={p} />)
         )}
       </div>
     </section>

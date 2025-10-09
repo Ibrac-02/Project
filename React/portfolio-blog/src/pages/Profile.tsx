@@ -26,11 +26,19 @@ export default function Profile() {
     setSuccess(null)
     setSaving(true)
     try {
-      const { error } = await supabase
+      const newName = name.trim() || null
+      // Update app users table
+      const { error: uErr } = await supabase
         .from('users')
-        .update({ name: name.trim() || null })
+        .update({ name: newName })
         .eq('id', user.id)
-      if (error) throw new Error(error.message)
+      if (uErr) throw new Error(uErr.message)
+      // Keep profiles in sync so posts author name reflects immediately
+      const { error: pErr } = await supabase
+        .from('profiles')
+        .update({ name: newName })
+        .eq('id', user.id)
+      if (pErr) throw new Error(pErr.message)
       setSuccess('Profile updated successfully.')
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Failed to update profile'

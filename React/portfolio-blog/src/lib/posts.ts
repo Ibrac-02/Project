@@ -29,6 +29,11 @@ export async function createPost(title: string, content: string): Promise<Post> 
   const { data: auth } = await supabase.auth.getUser()
   const uid = auth.user?.id ?? null
   const email = auth.user?.email ?? null
+  if (!uid) {
+    throw new Error('You must be signed in to create a post.')
+  }
+  // Ensure profile row exists to satisfy FK (posts.author_id -> profiles.id)
+  await supabase.from('profiles').upsert({ id: uid, email, name: null }).select('id').single()
   const { data, error } = await supabase
     .from('posts')
     .insert({
