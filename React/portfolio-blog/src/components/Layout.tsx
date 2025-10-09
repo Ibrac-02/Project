@@ -1,14 +1,20 @@
 import { Link, NavLink, Outlet } from 'react-router-dom'
+import { useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import './supabaseTheme.css'
 
 export default function Layout() {
   const { user, logout, isAdmin } = useAuth()
+  const appName: string = import.meta.env.VITE_APP_NAME || 'Portfolio-Blog'
+
+  useEffect(() => {
+    if (appName) document.title = appName
+  }, [appName])
 
   return (
     <div className="sb-root">
       <header className="sb-header">
-        <Link to="/" className="sb-brand">Ibrac-02</Link>
+        <Link to="/" className="sb-brand">{appName}</Link>
         <nav className="sb-nav">
           <NavLink to="/" className="sb-link">Home</NavLink>
           <NavLink to="/projects" className="sb-link">Portfolio</NavLink>
@@ -29,7 +35,7 @@ export default function Layout() {
       <main className="sb-main">
         <Outlet />
       </main>
-      <footer className="sb-footer">{new Date().getFullYear()} © Ibrac-02 | All rights reserved. | Built with React + Supabase</footer>
+      <footer className="sb-footer">{new Date().getFullYear()} © {appName} | All rights reserved. | Built with React + Supabase</footer>
     </div>
   )
 }
