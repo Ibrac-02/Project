@@ -65,20 +65,7 @@ export default function Login() {
               onClick={() => setShowPassword(s => !s)}
               className="sb-password-toggle"
             >
-              {showPassword ? (
-                // Eye-off SVG
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M3 3l18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M10.58 10.58A2 2 0 0012 14a2 2 0 001.42-3.42" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M9.88 5.09A10.94 10.94 0 0112 5c7 0 10 7 10 7a15.77 15.77 0 01-3.54 4.46M6.53 6.53A15.77 15.77 0 002 12s3 7 10 7a10.94 10.94 0 003.09-.38" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
-              ) : (
-                // Eye SVG
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke="currentColor" strokeWidth="2" fill="none"/>
-                  <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" fill="none"/>
-                </svg>
-              )}
+              {showPassword ? '🙈' : '👁️'}
             </button>
           </div>
         </div>

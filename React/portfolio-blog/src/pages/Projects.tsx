@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { listProjects, createProject, deleteProject, type Project } from '@/lib/projects'
 import { useAuth } from '@/contexts/AuthContext'
-import { uploadImage } from '@/lib/images'
+import { uploadResizedImage, cropImage } from '@/lib/images'
+import ImageCropper from '@/components/ImageCropper'
 
 export default function Projects() {
   const { isAdmin, user } = useAuth()
@@ -18,6 +19,9 @@ export default function Projects() {
     github_url: '',
   })
   const [imageFile, setImageFile] = useState<File | null>(null)
+  const [cropOpen, setCropOpen] = useState(false)
+  const [cropSrc, setCropSrc] = useState<string | null>(null)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
 
   useEffect(() => {
     const load = async () => {
@@ -56,7 +60,7 @@ export default function Projects() {
               setSaving(true)
               let finalImageUrl = form.image_url.trim() || undefined
               if (imageFile && user?.id) {
-                const res = await uploadImage(imageFile, user.id, 'project-images')
+                const res = await uploadResizedImage(imageFile, user.id, 'project-images', { maxWidth: 1600, maxHeight: 1200, quality: 0.85 })
                 finalImageUrl = res.publicUrl
               }
               await createProject({
@@ -98,7 +102,18 @@ export default function Projects() {
               <label className="sb-label" htmlFor="prj_img">Image URL</label>
               <input id="prj_img" className="sb-input" value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })} placeholder="https://.../screenshot.png" />
               <div style={{ marginTop: 8 }}>
-                <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] ?? null)} />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] ?? null
+                    if (!file) { setPendingFile(null); setCropSrc(null); setCropOpen(false); return }
+                    const url = URL.createObjectURL(file)
+                    setPendingFile(file)
+                    setCropSrc(url)
+                    setCropOpen(true)
+                  }}
+                />
                 <div className="muted" style={{ fontSize: 12 }}>You can either paste an image URL above or choose a file to upload.</div>
               </div>
             </div>
@@ -127,7 +142,7 @@ export default function Projects() {
             <article key={p.id} className="surface" style={{ minWidth: 280, flex: '1 1 320px', display:'grid', gap: 8 }}>
               {p.image_url && (
                 <div style={{ margin: '-16px -16px 12px', overflow: 'hidden', borderTopLeftRadius: 12, borderTopRightRadius: 12 }}>
-                  <img src={p.image_url} alt={p.title} style={{ width: '100%', height: 'auto', display: 'block' }} />
+                  <img src={p.image_url} alt={p.title} style={{ width: '100%', height: 220, objectFit: 'cover', display: 'block' }} />
                 </div>
               )}
               <h3 style={{ marginTop: 0 }}>{p.title}</h3>
@@ -157,6 +172,40 @@ export default function Projects() {
             </article>
           ))}
         </div>
+      )}
+      {cropOpen && cropSrc && pendingFile && (
+        <ImageCropper
+          imageSrc={cropSrc}
+          onCancel={() => {
+            if (cropSrc) URL.revokeObjectURL(cropSrc)
+            setCropOpen(false)
+            setCropSrc(null)
+            setPendingFile(null)
+          }}
+          onConfirm={async ({ croppedAreaPixels, rotation }) => {
+            try {
+              // Produce cropped blob using canvas
+              const blob = await cropImage(pendingFile, {
+                x: croppedAreaPixels.x,
+                y: croppedAreaPixels.y,
+                width: croppedAreaPixels.width,
+                height: croppedAreaPixels.height,
+              }, { rotate: rotation, outputType: 'image/jpeg', quality: 0.9 })
+              // Convert to File so downstream code treats it uniformly
+              const croppedFile = new File([blob], pendingFile.name.replace(/\.[^.]+$/, '.jpg'), { type: blob.type })
+              setImageFile(croppedFile)
+              setError(null)
+            } catch (e: unknown) {
+              setError(e instanceof Error ? e.message : 'Failed to crop image')
+            } finally {
+              if (cropSrc) URL.revokeObjectURL(cropSrc)
+              setCropOpen(false)
+              setCropSrc(null)
+              setPendingFile(null)
+            }
+          }}
+          aspect={16/9}
+        />
       )}
     </section>
   )
