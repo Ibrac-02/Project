@@ -1,124 +1,74 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import supabase from '@/config/supabaseClient'
+import { getSiteOwner } from '@/lib/site'
+ 
 
 export default function About() {
-  const { user, isAdmin } = useAuth()
-  const adminEmail = (import.meta.env.VITE_ADMIN_EMAIL as string | undefined) ?? undefined
-  const bucket = (import.meta.env.VITE_SITE_BUCKET as string | undefined) || 'site-content'
-  const objectKey = 'about.json'
-  const [about, setAbout] = useState('')
-  const [adminName, setAdminName] = useState<string>('Admin')
-  const [adminEmailState, setAdminEmailState] = useState<string>('')
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
-  const [editMode, setEditMode] = useState(false)
+  const { isAdmin } = useAuth()
+  const [ownerName, setOwnerName] = useState<string | null>(null)
+  const [ownerEmail, setOwnerEmail] = useState<string | null>(null)
+  const ENV_NAME = (import.meta.env.VITE_ADMIN_NAME as string | undefined) ?? 'Ibrac-02'
+  const ENV_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL as string | undefined) ?? 'ibrahim@example.com'
 
-  const loadAbout = useCallback(async () => {
-    try {
-      setError(null)
-      // Derive a display name: prefer context user name if admin is viewing; otherwise fallback to email local part
-      const fallbackName = adminEmail ? (adminEmail.split('@')[0] || 'Admin') : 'Admin'
-      setAdminName(user && isAdmin ? (user.name ?? fallbackName) : fallbackName)
-      setAdminEmailState(adminEmail || '')
-      // Try to download about.json from storage
-      const { data, error } = await supabase.storage.from(bucket).download(objectKey)
-      if (error) {
-        // If file not found, show empty and optionally enable edit mode for admin
-        setAbout('')
-        setEditMode(!!(isAdmin))
-        return
-      }
-      const text = await data.text()
+  useEffect(() => {
+    const load = async () => {
       try {
-        const json = JSON.parse(text) as { about?: string }
-        const content = json.about ?? ''
-        setAbout(content)
-        setEditMode(!!(isAdmin && content.length === 0))
+        const owner = await getSiteOwner()
+        setOwnerName(owner?.name ?? null)
+        setOwnerEmail(owner?.email ?? null)
       } catch {
-        // Fallback if non-JSON content
-        setAbout(text)
-        setEditMode(!!(isAdmin && text.length === 0))
+        // ignore; fall back to env
       }
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Failed to load About content')
     }
-  }, [adminEmail, bucket, isAdmin, user])
+    void load()
+  }, [])
 
-  useEffect(() => { void loadAbout() }, [loadAbout])
+  const ADMIN_NAME = ownerName ?? ENV_NAME
+  const ADMIN_EMAIL = ownerEmail ?? ENV_EMAIL
 
-  const onSave = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!user || !isAdmin) return
-    setSaving(true)
-    setError(null)
-    setSuccess(null)
-    try {
-      const payload = JSON.stringify({ about }, null, 2)
-      const blob = new Blob([payload], { type: 'application/json' })
-      const { error } = await supabase.storage.from(bucket).upload(objectKey, blob, { upsert: true, contentType: 'application/json' })
-      if (error) throw new Error(error.message)
-      setSuccess('About me updated.')
-      setEditMode(false)
-      // Reload to confirm persistence
-      await loadAbout()
-    } catch (e: unknown) {
-      setError(e instanceof Error ? `Failed to save About me: ${e.message}` : 'Failed to save About me')
-    } finally {
-      setSaving(false)
-    }
+  const ABOUT_TEXT = `Hi, I'm Ibrahim Cassim — a passionate web developer who loves turning ideas into functional and beautiful digital products. I specialize in React.js and Laravel, creating clean, responsive, and user-friendly web applications.
+I enjoy solving real-world problems with code, learning new technologies, and sharing my knowledge through blogs and projects. When I’m not coding, I’m usually exploring tech trends or working on personal projects to sharpen my skills.`
+
+  const CONTACT = {
+    github: 'github.com/Ibrac-02',
+    instagram: 'instagram.com/qas_im2002',
+    facebook: 'facebook.com/ibrac.ahmad',
+    whatsapp: 'wa.me/+265 999 198 480 & +265 894 984 764',
   }
+
 
   return (
     <section className="sb-card" style={{ maxWidth: 720, margin: '0 auto', display: 'grid', gap: 12 }}>
       <div>
-        <h1 style={{ margin: 0 }}>About Me</h1>
-        <p className="muted" style={{ marginTop: 4 }}>Personal details and biography.</p>
+        <p className="muted" style={{ marginTop: 4 ,marginLeft: 10 }}>Profile information.</p>
       </div>
-
-      {error && <div className="sb-card" style={{ borderColor: '#b91c1c', color: '#fecaca' }}>{error}</div>}
-      {success && <div className="sb-card" style={{ borderColor: '#065f46', color: '#d1fae5' }}>{success}</div>}
 
       <div className="surface" style={{ display: 'grid', gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div className="mini-avatar" style={{ width: 56, height: 56, fontSize: 18 }}>
-            {(user && isAdmin && user.avatarUrl) ? <img src={user.avatarUrl} alt="avatar" /> : (adminName?.trim() ? adminName.trim().split(/\s+/).map(p=>p[0]).slice(0,2).join('').toUpperCase() : (adminEmailState?.[0]?.toUpperCase() || '?'))}
+            {ADMIN_NAME.trim().split(/\s+/).map(p=>p[0]).slice(0,2).join('').toUpperCase()}
           </div>
           <div>
-            <div style={{ fontWeight: 700, fontSize: 18 }}>{adminName}</div>
-            <div className="muted" style={{ fontSize: 12 }}>{adminEmailState}</div>
+            <div style={{ fontWeight: 700, fontSize: 18 }}>{ADMIN_NAME}</div>
+            <div className="muted" style={{ fontSize: 14 }}>{ADMIN_EMAIL}</div>
           </div>
         </div>
 
+        {/* Show biography to everyone */}
         <div>
           <div className="muted" style={{ marginBottom: 6 }}>Biography</div>
-          {about ? (
-            <div className="sb-card" style={{ whiteSpace: 'pre-wrap' }}>{about}</div>
-          ) : (
-            <div className="sb-card muted">No bio yet.</div>
-          )}
+          <div className="sb-card" style={{ whiteSpace: 'pre-wrap' }}>{ABOUT_TEXT}</div>
         </div>
 
-        {isAdmin && !editMode && (
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button className="sb-btn sb-btn-primary" onClick={() => setEditMode(true)}>Update</button>
+        {/* Admin-only contact details */}
+        {isAdmin && (
+          <div className="surface" style={{ display: 'grid', gap: 6 }}>
+            <div style={{ fontWeight: 600 }}>Contact</div>
+            <div>GitHub: <a className="sb-link" href={CONTACT.github} target="_blank" rel="noreferrer">{CONTACT.github}</a></div>
+            <div>Instagram: <a className="sb-link" href={CONTACT.instagram} target="_blank" rel="noreferrer">{CONTACT.instagram}</a></div>
+            <div>Facebook: <a className="sb-link" href={CONTACT.facebook} target="_blank" rel="noreferrer">{CONTACT.facebook}</a></div>
+            <div>WhatsApp: <a className="sb-link" href={CONTACT.whatsapp} target="_blank" rel="noreferrer">{CONTACT.whatsapp}</a></div>
           </div>
-        )}
-
-        {isAdmin && editMode && (
-          <form onSubmit={onSave} className="sb-card" style={{ display: 'grid', gap: 10 }}>
-            <div>
-              <label className="sb-label" htmlFor="about-edit">Edit About Me</label>
-              <textarea id="about-edit" className="sb-input" style={{ minHeight: 140 }} value={about} onChange={e => setAbout(e.target.value)} placeholder="Write your personal details and biography here..." />
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <button type="button" className="sb-btn" onClick={() => setEditMode(false)}>Cancel</button>
-              <button disabled={saving} className="sb-btn sb-btn-primary" type="submit">
-                {saving ? 'Saving…' : (about ? 'Update' : 'Save')}
-              </button>
-            </div>
-          </form>
         )}
       </div>
     </section>

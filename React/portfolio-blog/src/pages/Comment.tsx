@@ -198,6 +198,7 @@ function PostComments({ postId }: { postId: string }) {
       message="Are you sure you want to delete this comment? This action cannot be undone."
       confirmText="Delete"
       cancelText="Cancel"
+      confirmVariant="danger"
       onConfirm={onConfirmDelete}
       onCancel={onCancelDelete}
     />

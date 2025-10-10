@@ -169,6 +169,7 @@ export default function Blog() {
         message="Are you sure you want to delete this post? This action cannot be undone."
         confirmText="Delete"
         cancelText="Cancel"
+        confirmVariant="danger"
         onConfirm={onConfirmDelete}
         onCancel={() => { setConfirmOpen(false); setPendingDeleteId(null) }}
       />

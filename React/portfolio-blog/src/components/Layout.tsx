@@ -35,7 +35,7 @@ export default function Layout() {
       <main className="sb-main">
         <Outlet />
       </main>
-      <footer className="sb-footer">{new Date().getFullYear()} © {appName} | All rights reserved. | Built with React + Supabase</footer>
+      <footer className="sb-footer">{new Date().getFullYear()} © ☆𝐼𝑏𝑟̃𝑎𝑐-02☆ ~ Portfolio-Blog ~ </footer>
     </div>
   )
 }

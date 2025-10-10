@@ -29,7 +29,7 @@ export default function Home() {
       <div className="grid hero-actions">
         <Link to="/projects" className="card">View Projects →</Link>
         <Link to="/blog" className="card">Read the Blog →</Link>
-        <Link to="/contact" className="card">Contact Me →</Link>
+        <Link to="/about" className="card">About Me →</Link>
       </div>
     </section>
   )

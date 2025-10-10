@@ -247,6 +247,7 @@ export default function Projects() {
         message="Are you sure you want to delete this project? This action cannot be undone."
         confirmText="Delete"
         cancelText="Cancel"
+        confirmVariant="danger"
         onConfirm={async () => {
           const id = pendingDeleteId
           if (!id) { setConfirmOpen(false); return }
