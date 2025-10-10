@@ -15,7 +15,7 @@ export default function Layout() {
   return (
     <div className="sb-root">
       <header className="sb-header">
-        <Link to="/" className="sb-brand">{appName}</Link>
+        <Link to="/" className="sb-brand wave">☆𝐼𝑏𝑟̃𝑎𝑐-02☆ ~ Portfolio-Blog ~</Link>
         <nav className="sb-nav">
           <NavLink to="/" className="sb-link">Home</NavLink>
           <NavLink to="/projects" className="sb-link">Portfolio</NavLink>

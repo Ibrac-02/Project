@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { createPost, deletePost, listPosts, type Post } from '@/lib/posts'
 import { useAuth } from '@/contexts/AuthContext'
+import ConfirmModal from '@/components/ConfirmModal'
 
 export default function Blog() {
   const { user, isAdmin } = useAuth()
@@ -10,6 +11,8 @@ export default function Blog() {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
   const canDelete = (p: Post) => isAdmin || (!!user && p.author_id === user.id)
 
@@ -40,13 +43,18 @@ export default function Blog() {
     }
   }
 
-  const onDelete = async (id: string) => {
-    if (!confirm('Delete this post?')) return
+  const onRequestDelete = (id: string) => { setPendingDeleteId(id); setConfirmOpen(true) }
+  const onConfirmDelete = async () => {
+    const id = pendingDeleteId
+    if (!id) return
     try {
       await deletePost(id)
       setPosts(prev => prev.filter(p => p.id !== id))
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Failed to delete post')
+    } finally {
+      setConfirmOpen(false)
+      setPendingDeleteId(null)
     }
   }
 
@@ -81,7 +89,7 @@ export default function Blog() {
             <Link to={`/blog/${post.id}`} className="sb-post-title">{post.title}</Link>
             <span className="dot-leader" />
             {canDelete(post) && (
-              <button className="sb-btn" onClick={() => onDelete(post.id)}>Delete</button>
+              <button className="sb-btn" onClick={() => onRequestDelete(post.id)}>Delete</button>
             )}
           </div>
 
@@ -155,6 +163,15 @@ export default function Blog() {
           posts.map(p => <PostExcerpt key={p.id} post={p} />)
         )}
       </div>
+      <ConfirmModal
+        open={confirmOpen}
+        title="Delete post"
+        message="Are you sure you want to delete this post? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={onConfirmDelete}
+        onCancel={() => { setConfirmOpen(false); setPendingDeleteId(null) }}
+      />
     </section>
   )
 }

@@ -3,6 +3,7 @@ import { listProjects, createProject, deleteProject, type Project } from '@/lib/
 import { useAuth } from '@/contexts/AuthContext'
 import { uploadResizedImage, cropImage } from '@/lib/images'
 import ImageCropper from '@/components/ImageCropper'
+import ConfirmModal from '@/components/ConfirmModal'
 
 export default function Projects() {
   const { isAdmin, user } = useAuth()
@@ -23,6 +24,8 @@ export default function Projects() {
   const [cropOpen, setCropOpen] = useState(false)
   const [cropSrc, setCropSrc] = useState<string | null>(null)
   const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
   useEffect(() => {
     const load = async () => {
@@ -153,7 +156,6 @@ export default function Projects() {
           </div>
         </form>
       )}
-
       {loading ? (
         <div className="list"><div className="list-item">Loading projects…</div></div>
       ) : projects.length === 0 ? (
@@ -193,15 +195,7 @@ export default function Projects() {
                 {p.demo_url && <a className="sb-btn" style={{ minHeight: 36, display:'inline-flex', alignItems:'center' }} href={p.demo_url} target="_blank" rel="noreferrer">Live Demo</a>}
                 {p.github_url && <a className="sb-btn" style={{ minHeight: 36, display:'inline-flex', alignItems:'center' }} href={p.github_url} target="_blank" rel="noreferrer">GitHub</a>}
                 {isAdmin && (
-                  <button className="sb-btn" style={{ minHeight: 36, display:'inline-flex', alignItems:'center' }} onClick={async () => {
-                    if (!confirm('Delete this project?')) return
-                    try {
-                      await deleteProject(p.id)
-                      setProjects(prev => prev.filter(x => x.id !== p.id))
-                    } catch (e: unknown) {
-                      setError(e instanceof Error ? e.message : 'Failed to delete project')
-                    }
-                  }}>Delete</button>
+                  <button className="sb-btn" style={{ minHeight: 36, display:'inline-flex', alignItems:'center' }} onClick={() => { setPendingDeleteId(p.id); setConfirmOpen(true) }}>Delete</button>
                 )}
               </div>
               </article>
@@ -247,6 +241,27 @@ export default function Projects() {
           aspect={16/9}
         />
       )}
+      <ConfirmModal
+        open={confirmOpen}
+        title="Delete project"
+        message="Are you sure you want to delete this project? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={async () => {
+          const id = pendingDeleteId
+          if (!id) { setConfirmOpen(false); return }
+          try {
+            await deleteProject(id)
+            setProjects(prev => prev.filter(x => x.id !== id))
+          } catch (e: unknown) {
+            setError(e instanceof Error ? e.message : 'Failed to delete project')
+          } finally {
+            setPendingDeleteId(null)
+            setConfirmOpen(false)
+          }
+        }}
+        onCancel={() => { setConfirmOpen(false); setPendingDeleteId(null) }}
+      />
     </section>
   )
 }

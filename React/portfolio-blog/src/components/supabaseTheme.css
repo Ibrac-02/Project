@@ -262,4 +262,27 @@ a:hover { color: #b4bdfd; }
   background: #334155;
   flex: 0 0 auto;
 }
-.mini-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mini-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Flowing gradient brand treatment */
+.sb-brand.wave {
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  background: linear-gradient(90deg, #22d3ee, #3ecf8e, #a78bfa, #22d3ee);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: brand-wave 6s ease-in-out infinite;
+  text-decoration: none;
+}
+@keyframes brand-wave {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}

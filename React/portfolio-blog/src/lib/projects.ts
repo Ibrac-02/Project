@@ -53,6 +53,12 @@ export async function createProject(input: {
 }
 
 export async function deleteProject(id: string): Promise<void> {
-  const { error } = await supabase.from('projects').delete().eq('id', id)
+  const { data, error } = await supabase
+    .from('projects')
+    .delete()
+    .eq('id', id)
+    .select('id')
+    .maybeSingle()
   if (error) throw new Error(error.message)
+  if (!data) throw new Error('Delete failed: project not found or not permitted by policy')
 }
