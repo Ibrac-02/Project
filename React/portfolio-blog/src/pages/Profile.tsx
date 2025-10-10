@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import supabase from '@/config/supabaseClient'
+import { uploadResizedImage } from '@/lib/images'
 
 export default function Profile() {
   const { user, loading } = useAuth()
@@ -13,11 +14,16 @@ export default function Profile() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [visible, setVisible] = useState(true)
+  const [about, setAbout] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     if (!user) return
     setEmail(user.email ?? '')
     setName(user.name ?? '')
+    setAbout(user.aboutMe ?? '')
+    setAvatarUrl(user.avatarUrl ?? null)
   }, [user])
 
   if (!loading && !user) return <Navigate to="/login" replace />
@@ -48,6 +54,11 @@ export default function Profile() {
         const { error: authErr } = await supabase.auth.updateUser({ password: password.trim() })
         if (authErr) throw new Error(authErr.message)
       }
+
+      // Always update auth metadata with avatar_url and about_me
+      const { error: metaErr } = await supabase.auth.updateUser({ data: { avatar_url: avatarUrl, about_me: about.trim() || null } })
+      if (metaErr) throw new Error(metaErr.message)
+
       setSuccess(password.trim() ? 'Profile and password updated successfully.' : 'Profile updated successfully.')
       // Hide card within 3 seconds
       setTimeout(() => setVisible(false), 3000)
@@ -59,17 +70,46 @@ export default function Profile() {
     }
   }
 
+  const onUploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user) return
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    setError(null)
+    try {
+      const { publicUrl } = await uploadResizedImage(file, user.id, 'project-images', { maxWidth: 512, maxHeight: 512, quality: 0.9 })
+      setAvatarUrl(publicUrl)
+      setSuccess('Avatar uploaded. Click "Save changes" to persist to your profile.')
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Failed to upload avatar'
+      setError(msg)
+    } finally {
+      setUploading(false)
+    }
+  }
+
   return (
     <section className="sb-card" style={{ maxWidth: 560, margin: '0 auto', display: 'grid', gap: 12 }}>
       <div>
         <h1 style={{ margin: 0 }}>Profile</h1>
-        <p style={{ color: 'var(--sb-text-dim)', marginTop: 4 }}>Update your display information and password.</p>
+        <p style={{ color: 'var(--sb-text-dim)', marginTop: 4 }}>Update your display information, avatar, about me, and password.</p>
       </div>
 
       {error && <div className="sb-card" style={{ borderColor: '#b91c1c', color: '#fecaca' }}>{error}</div>}
       {success && <div className="sb-card" style={{ borderColor: '#065f46', color: '#d1fae5' }}>{success}</div>}
 
       <form onSubmit={onSave} className="sb-card" style={{ display: 'grid', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div className="mini-avatar" style={{ width: 48, height: 48, fontSize: 16 }}>
+            {avatarUrl ? <img src={avatarUrl} alt="avatar" /> : (name?.trim() ? name.trim().split(/\s+/).map(p=>p[0]).slice(0,2).join('').toUpperCase() : (email?.[0]?.toUpperCase() || '?'))}
+          </div>
+          <div>
+            <label className="sb-btn" style={{ display: 'inline-block', cursor: 'pointer' }}>
+              <input type="file" accept="image/*" onChange={onUploadAvatar} style={{ display: 'none' }} />
+              {uploading ? 'Uploading…' : 'Upload avatar'}
+            </label>
+          </div>
+        </div>
         <div>
           <label className="sb-label" htmlFor="email">Email</label>
           <input id="email" className="sb-input" value={email} readOnly />
@@ -80,6 +120,10 @@ export default function Profile() {
         <div>
           <label className="sb-label" htmlFor="name">Display name</label>
           <input id="name" className="sb-input" value={name} onChange={e => setName(e.target.value)} placeholder="Your name" />
+        </div>
+        <div>
+          <label className="sb-label" htmlFor="about">About me</label>
+          <textarea id="about" className="sb-input" style={{ minHeight: 80 }} value={about} onChange={e => setAbout(e.target.value)} placeholder="Tell something about yourself" />
         </div>
         <div>
           <label className="sb-label" htmlFor="password">New password</label>

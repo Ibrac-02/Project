@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom'
 import { listComments, createComment, deleteComment, type Comment } from '@/lib/comments'
 import supabase from '@/config/supabaseClient'
 import { useAuth } from '@/contexts/AuthContext'
+import ConfirmModal from '@/components/ConfirmModal'
+import { getInitials, stringToColor } from '@/lib/avatar'
 
 export type FullPost = {
   id: string
@@ -87,10 +89,12 @@ function PostComments({ postId }: { postId: string }) {
   const [text, setText] = useState('')
   const [guestName, setGuestName] = useState('')
   const [guestEmail, setGuestEmail] = useState('')
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
   const canDelete = (c: Comment) => !!user && c.user_id === user.id
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       setLoading(true)
       const data = await listComments(postId)
@@ -100,9 +104,9 @@ function PostComments({ postId }: { postId: string }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [postId])
 
-  useEffect(() => { load() }, [postId])
+  useEffect(() => { load() }, [load])
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -118,17 +122,24 @@ function PostComments({ postId }: { postId: string }) {
     }
   }
 
-  const onDelete = async (id: string) => {
-    if (!confirm('Delete this comment?')) return
+  const onRequestDelete = (id: string) => { setPendingDeleteId(id); setConfirmOpen(true) }
+  const onConfirmDelete = async () => {
+    const id = pendingDeleteId
+    if (!id) return
     try {
       await deleteComment(id)
       setItems(prev => prev.filter(i => i.id !== id))
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Failed to delete comment')
+    } finally {
+      setConfirmOpen(false)
+      setPendingDeleteId(null)
     }
   }
+  const onCancelDelete = () => { setConfirmOpen(false); setPendingDeleteId(null) }
 
   return (
+    <>
     <div className="surface" style={{ display: 'grid', gap: 12 }}>
       <div style={{ fontWeight: 600 }}>Comments</div>
       {error && <div className="list-item" style={{ borderColor: '#b91c1c', color: '#fecaca' }}>{error}</div>}
@@ -138,21 +149,28 @@ function PostComments({ postId }: { postId: string }) {
         <div className="list"><div className="list-item" style={{ color: 'var(--sb-text-dim)' }}>No comments yet. Be the first to comment!</div></div>
       ) : (
         <div className="list">
-          {items.map(c => (
-            <div key={c.id} className="list-item">
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ fontWeight: 600 }}>{c.user_name ?? c.guest_name ?? 'Guest'}</div>
-                <span className="dot-leader" />
-                <div className="muted" style={{ fontSize: 12 }}>{new Date(c.created_at).toLocaleString()}</div>
-                {canDelete(c) && (
-                  <div style={{ marginLeft: 'auto' }}>
-                    <button className="sb-btn" onClick={() => onDelete(c.id)}>Delete</button>
-                  </div>
-                )}
+          {items.map(c => {
+            const name = c.user_name ?? c.guest_name ?? 'Guest'
+            const email = c.user_email ?? c.guest_email ?? null
+            const initials = getInitials(name, email)
+            const color = stringToColor(name || email || 'guest')
+            return (
+              <div key={c.id} className="list-item">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div className="mini-avatar" style={{ background: color }}>{initials}</div>
+                  <div style={{ fontWeight: 600 }}>{name}</div>
+                  <span className="dot-leader" />
+                  <div className="muted" style={{ fontSize: 12 }}>{new Date(c.created_at).toLocaleString()}</div>
+                  {canDelete(c) && (
+                    <div style={{ marginLeft: 'auto' }}>
+                      <button className="sb-btn" onClick={() => onRequestDelete(c.id)}>Delete</button>
+                    </div>
+                  )}
+                </div>
+                <div style={{ whiteSpace: 'pre-wrap', marginLeft: 38 }}>{c.content}</div>
               </div>
-              <div style={{ whiteSpace: 'pre-wrap' }}>{c.content}</div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
@@ -174,5 +192,15 @@ function PostComments({ postId }: { postId: string }) {
         </div>
       </form>
     </div>
+    <ConfirmModal
+      open={confirmOpen}
+      title="Delete comment"
+      message="Are you sure you want to delete this comment? This action cannot be undone."
+      confirmText="Delete"
+      cancelText="Cancel"
+      onConfirm={onConfirmDelete}
+      onCancel={onCancelDelete}
+    />
+    </>
   )
 }

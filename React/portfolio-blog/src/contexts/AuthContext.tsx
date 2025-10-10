@@ -6,6 +6,8 @@ export type AuthUser = {
   id: string
   email: string | null
   name: string | null
+  avatarUrl?: string | null
+  aboutMe?: string | null
 }
 
 type AuthContextType = {
@@ -36,7 +38,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq('id', sUser.id)
           .single<{ name: string | null }>()
         const fallbackName = (sUser.email ?? '').split('@')[0] || null
-        setUser({ id: sUser.id, email: sUser.email ?? null, name: profile?.name ?? fallbackName })
+        const meta = (sUser.user_metadata ?? {}) as { avatar_url?: string | null; about_me?: string | null }
+        setUser({
+          id: sUser.id,
+          email: sUser.email ?? null,
+          name: profile?.name ?? fallbackName,
+          avatarUrl: meta.avatar_url ?? null,
+          aboutMe: meta.about_me ?? null,
+        })
       } else {
         setUser(null)
       }
@@ -58,7 +67,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .eq('id', sUser.id)
             .single<{ name: string | null }>()
           const fallbackName = (sUser.email ?? '').split('@')[0] || null
-          setUser({ id: sUser.id, email: sUser.email ?? null, name: profile?.name ?? fallbackName })
+          const meta = (sUser.user_metadata ?? {}) as { avatar_url?: string | null; about_me?: string | null }
+          setUser({
+            id: sUser.id,
+            email: sUser.email ?? null,
+            name: profile?.name ?? fallbackName,
+            avatarUrl: meta.avatar_url ?? null,
+            aboutMe: meta.about_me ?? null,
+          })
         })()
       } else {
         setUser(null)

@@ -1,10 +1,11 @@
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import UserAvatar from './UserAvatar'
 import './supabaseTheme.css'
 
 export default function Layout() {
-  const { user, logout, isAdmin } = useAuth()
+  const { user } = useAuth()
   const appName: string = import.meta.env.VITE_APP_NAME || 'Portfolio-Blog'
 
   useEffect(() => {
@@ -19,13 +20,12 @@ export default function Layout() {
           <NavLink to="/" className="sb-link">Home</NavLink>
           <NavLink to="/projects" className="sb-link">Portfolio</NavLink>
           <NavLink to="/blog" className="sb-link">Blog</NavLink>
+          <NavLink to="/about" className="sb-link">About</NavLink>
         </nav>
         <div className="sb-auth">
           {user ? (
             <>
-              <NavLink to="/profile" className="sb-btn">Profile</NavLink>
-              <span className="sb-user">{user.name || user.email}{isAdmin ? ' · Admin' : ''}</span>
-              <button className="sb-btn" onClick={logout}>Logout</button>
+            <UserAvatar />
             </>
           ) : (
             <NavLink to="/login" className="sb-btn">Login</NavLink>
@@ -39,3 +39,4 @@ export default function Layout() {
     </div>
   )
 }
+
