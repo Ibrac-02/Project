@@ -281,6 +281,8 @@ a:hover { color: #b4bdfd; }
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  /* Improve compatibility with some mobile browsers */
+  -webkit-text-fill-color: transparent;
   animation: brand-wave 6s ease-in-out infinite;
   text-decoration: none;
 }
@@ -288,4 +290,43 @@ a:hover { color: #b4bdfd; }
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+/*
+  Responsive header tweaks
+  - Keep profile/avatar aligned in the top row
+  - Move nav to its own row on small screens
+*/
+@media (max-width: 720px) {
+  .sb-header {
+    flex-wrap: wrap;
+    row-gap: 8px;
+    column-gap: 12px;
+  }
+  .sb-brand {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .sb-auth {
+    margin-left: auto;
+    order: 2;
+  }
+  .sb-nav {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    gap: 10px;
+  }
+}
+
+/* Responsive grid helpers for Projects form */
+.prj-two-col { display:grid; gap: 8px; grid-template-columns: 1fr 1fr; }
+.prj-links-grid { display:grid; gap: 8px; grid-template-columns: 1fr 1fr 1fr; }
+@media (max-width: 900px) {
+  .prj-links-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 720px) {
+  .prj-two-col { grid-template-columns: 1fr; }
+  .prj-links-grid { grid-template-columns: 1fr; }
 }

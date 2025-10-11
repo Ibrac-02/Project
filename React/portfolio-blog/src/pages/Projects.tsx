@@ -87,7 +87,7 @@ export default function Projects() {
             }
           }}
         >
-          <div style={{ display:'grid', gap: 8, gridTemplateColumns: '1fr 1fr' }}>
+          <div className="prj-two-col">
             <div>
               <label className="sb-label" htmlFor="prj_title">Project Title</label>
               <input id="prj_title" className="sb-input" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="e.g. Land Access Marketplace" />
@@ -101,7 +101,7 @@ export default function Projects() {
             <label className="sb-label" htmlFor="prj_desc">Short Description</label>
             <textarea id="prj_desc" className="sb-input" style={{ minHeight: 80 }} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="What it does, problem solved, etc." />
           </div>
-          <div style={{ display:'grid', gap: 8, gridTemplateColumns: '1fr 1fr 1fr' }}>
+          <div className="prj-links-grid">
             <div>
               <label className="sb-label" htmlFor="prj_img">Image URL</label>
               <input id="prj_img" className="sb-input" value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })} placeholder="https://.../screenshot.png" />
