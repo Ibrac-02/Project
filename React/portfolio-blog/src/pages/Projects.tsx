@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { listProjects, createProject, deleteProject, type Project } from '@/lib/projects'
+import { listProjects, createProject, deleteProject, updateProject, type Project } from '@/lib/projects'
 import { useAuth } from '@/contexts/AuthContext'
 import { uploadResizedImage, cropImage } from '@/lib/images'
 import ImageCropper from '@/components/ImageCropper'
@@ -11,6 +11,7 @@ export default function Projects() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -67,16 +68,29 @@ export default function Projects() {
                 const res = await uploadResizedImage(imageFile, user.id, 'project-images', { maxWidth: 1600, maxHeight: 1200, quality: 0.85 })
                 finalImageUrl = res.publicUrl
               }
-              await createProject({
-                title: form.title.trim(),
-                description: form.description.trim() || undefined,
-                stack: form.stack.trim() || undefined,
-                image_url: finalImageUrl,
-                demo_url: form.demo_url.trim() || undefined,
-                github_url: form.github_url.trim() || undefined,
-              })
+              if (editingId) {
+                await updateProject(editingId, {
+                  title: form.title.trim(),
+                  description: form.description.trim() || null,
+                  stack: form.stack.trim() || null,
+                  image_url: finalImageUrl ?? null,
+                  demo_url: form.demo_url.trim() || null,
+                  github_url: form.github_url.trim() || null,
+                })
+              } else {
+                await createProject({
+                  title: form.title.trim(),
+                  description: form.description.trim() || undefined,
+                  stack: form.stack.trim() || undefined,
+                  image_url: finalImageUrl,
+                  demo_url: form.demo_url.trim() || undefined,
+                  github_url: form.github_url.trim() || undefined,
+                })
+              }
               setForm({ title: '', description: '', stack: '', image_url: '', demo_url: '', github_url: '' })
               setImageFile(null)
+              setPreviewUrl(null)
+              setEditingId(null)
               const data = await listProjects()
               setProjects(data)
               setError(null)
@@ -144,15 +158,23 @@ export default function Projects() {
             </div>
             <div>
               <label className="sb-label" htmlFor="prj_demo">Live Demo URL</label>
-              <input id="prj_demo" className="sb-input" value={form.demo_url} onChange={e => setForm({ ...form, demo_url: e.target.value })} placeholder="https://demo.example.com" />
+              <input id="prj_demo" type="url" inputMode="url" autoCapitalize="off" autoCorrect="off" className="sb-input" value={form.demo_url} onChange={e => setForm({ ...form, demo_url: e.target.value })} placeholder="https://demo.example.com" />
             </div>
             <div>
               <label className="sb-label" htmlFor="prj_code">GitHub URL</label>
-              <input id="prj_code" className="sb-input" value={form.github_url} onChange={e => setForm({ ...form, github_url: e.target.value })} placeholder="https://github.com/user/repo" />
+              <input id="prj_code" type="url" inputMode="url" autoCapitalize="off" autoCorrect="off" className="sb-input" value={form.github_url} onChange={e => setForm({ ...form, github_url: e.target.value })} placeholder="https://github.com/user/repo" />
             </div>
           </div>
           <div style={{ display:'flex', justifyContent:'flex-end', gap: 8 }}>
-            <button className="sb-btn sb-btn-primary" type="submit" disabled={saving}>{saving ? 'Saving…' : 'Add Project'}</button>
+            {editingId && (
+              <button type="button" className="sb-btn sb-btn-ghost" onClick={() => {
+                setEditingId(null)
+                setForm({ title: '', description: '', stack: '', image_url: '', demo_url: '', github_url: '' })
+                setImageFile(null)
+                setPreviewUrl(null)
+              }}>Cancel</button>
+            )}
+            <button className="sb-btn sb-btn-primary" type="submit" disabled={saving}>{saving ? (editingId ? 'Updating…' : 'Saving…') : (editingId ? 'Update Project' : 'Add Project')}</button>
           </div>
         </form>
       )}
@@ -191,11 +213,26 @@ export default function Projects() {
                   ))}
                 </div>
               )}
-              <div style={{ display:'flex', gap: 8, alignItems:'center' }}>
-                {p.demo_url && <a className="sb-btn" style={{ minHeight: 36, display:'inline-flex', alignItems:'center' }} href={p.demo_url} target="_blank" rel="noreferrer">Live Demo</a>}
-                {p.github_url && <a className="sb-btn" style={{ minHeight: 36, display:'inline-flex', alignItems:'center' }} href={p.github_url} target="_blank" rel="noreferrer">GitHub</a>}
+              <div style={{ display:'flex', gap: 8, alignItems:'center', flexWrap:'wrap' }}>
+                {p.demo_url && <a className="sb-btn sb-btn-outline" style={{ minHeight: 36, display:'inline-flex', alignItems:'center' }} href={p.demo_url} target="_blank" rel="noreferrer">Live Demo</a>}
+                {p.github_url && <a className="sb-btn sb-btn-outline" style={{ minHeight: 36, display:'inline-flex', alignItems:'center' }} href={p.github_url} target="_blank" rel="noreferrer">GitHub</a>}
                 {isAdmin && (
-                  <button className="sb-btn" style={{ minHeight: 36, display:'inline-flex', alignItems:'center' }} onClick={() => { setPendingDeleteId(p.id); setConfirmOpen(true) }}>Delete</button>
+                  <>
+                    <button className="sb-btn" style={{ minHeight: 36, display:'inline-flex', alignItems:'center' }} onClick={() => {
+                      setEditingId(p.id)
+                      setForm({
+                        title: p.title ?? '',
+                        description: p.description ?? '',
+                        stack: p.stack ?? '',
+                        image_url: p.image_url ?? '',
+                        demo_url: p.demo_url ?? '',
+                        github_url: p.github_url ?? '',
+                      })
+                      setPreviewUrl(null)
+                      window?.scrollTo?.({ top: 0, behavior: 'smooth' })
+                    }}>Edit</button>
+                    <button className="sb-btn sb-btn-danger" style={{ minHeight: 36, display:'inline-flex', alignItems:'center' }} onClick={() => { setPendingDeleteId(p.id); setConfirmOpen(true) }}>Delete</button>
+                  </>
                 )}
               </div>
               </article>

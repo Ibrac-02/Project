@@ -64,6 +64,11 @@ a:hover { color: #b4bdfd; }
 /* Destructive action button */
 .sb-btn-danger { background: #ef4444; color: #fff; border-color: #ef4444; }
 .sb-btn-danger:hover { background: #dc2626; border-color: #dc2626; }
+/* Outline/secondary buttons */
+.sb-btn-outline { background: transparent; color: var(--sb-accent); border-color: var(--sb-accent); }
+.sb-btn-outline:hover { background: color-mix(in oklab, var(--sb-accent) 12%, transparent); border-color: var(--sb-accent-700); color: var(--sb-accent-700); }
+.sb-btn-ghost { background: transparent; color: var(--sb-text-dim); border-color: color-mix(in oklab, var(--sb-border) 80%, transparent); }
+.sb-btn-ghost:hover { background: rgba(255,255,255,0.06); color: var(--sb-text); }
 
 /* Password field: wrapper and toggle */
 .sb-password-wrap { position: relative; }
@@ -280,9 +285,11 @@ a:hover { color: #b4bdfd; }
   background-size: 300% 100%;
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent;
+  color: transparent !important;
   /* Improve compatibility with some mobile browsers */
-  -webkit-text-fill-color: transparent;
+  -webkit-text-fill-color: transparent !important;
+  display: inline-block;
+  white-space: nowrap;
   animation: brand-wave 6s ease-in-out infinite;
   text-decoration: none;
 }
@@ -298,25 +305,33 @@ a:hover { color: #b4bdfd; }
   - Move nav to its own row on small screens
 */
 @media (max-width: 720px) {
+  /* Single-row header using grid: brand | nav (scroll) | auth */
   .sb-header {
-    flex-wrap: wrap;
-    row-gap: 8px;
-    column-gap: 12px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    column-gap: 10px;
   }
-  .sb-brand {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-  .sb-auth {
-    margin-left: auto;
-    order: 2;
-  }
+  .sb-brand { min-width: 0; }
   .sb-nav {
-    order: 3;
-    width: 100%;
+    min-width: 0; /* allow to shrink */
     overflow-x: auto;
-    padding-bottom: 4px;
-    gap: 10px;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+  .sb-nav::-webkit-scrollbar { display: none; }
+  .sb-auth { justify-self: end; }
+}
+
+/* Fallback: if gradient text still fails, allow solid color when user prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .sb-brand.wave {
+    animation: none;
+    background: none;
+    -webkit-background-clip: initial;
+    background-clip: initial;
+    -webkit-text-fill-color: inherit !important;
+    color: var(--sb-text) !important;
   }
 }
 
