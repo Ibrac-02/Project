@@ -285,11 +285,9 @@ a:hover { color: #b4bdfd; }
   background-size: 300% 100%;
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent !important;
+  color: transparent;
   /* Improve compatibility with some mobile browsers */
-  -webkit-text-fill-color: transparent !important;
-  display: inline-block;
-  white-space: nowrap;
+  -webkit-text-fill-color: transparent;
   animation: brand-wave 6s ease-in-out infinite;
   text-decoration: none;
 }
@@ -321,18 +319,6 @@ a:hover { color: #b4bdfd; }
   }
   .sb-nav::-webkit-scrollbar { display: none; }
   .sb-auth { justify-self: end; }
-}
-
-/* Fallback: if gradient text still fails, allow solid color when user prefers reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .sb-brand.wave {
-    animation: none;
-    background: none;
-    -webkit-background-clip: initial;
-    background-clip: initial;
-    -webkit-text-fill-color: inherit !important;
-    color: var(--sb-text) !important;
-  }
 }
 
 /* Responsive grid helpers for Projects form */
