@@ -15,7 +15,7 @@ export default function Layout() {
   return (
     <div className="sb-root">
       <header className="sb-header">
-        <Link to="/" className="sb-brand wave">☆𝑰𝒃𝒓̃𝒂𝒄-02☆ ~ Portfolio-Blog ~</Link>
+        <Link to="/" className="sb-brand wave">☆Ibrac-02☆ ~ Portfolio-Blog ~</Link>
         <nav className="sb-nav">
           <NavLink to="/" className="sb-link">Home</NavLink>
           <NavLink to="/projects" className="sb-link">Portfolio</NavLink>
@@ -35,7 +35,7 @@ export default function Layout() {
       <main className="sb-main">
         <Outlet />
       </main>
-      <footer className="sb-footer">{new Date().getFullYear()} © ☆𝑰𝒃𝒓̃𝒂𝒄-02☆ ~ Portfolio-Blog ~ </footer>
+      <footer className="sb-footer">{new Date().getFullYear()} © ☆Ibrac-02☆ ~ Portfolio-Blog ~ </footer>
     </div>
   )
 }
