@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { getSiteOwner } from '@/lib/site'
- 
+import { QRCodeCanvas } from 'qrcode.react'   // <-- ADD THIS
 
 export default function About() {
   const { isAdmin } = useAuth()
   const [ownerName, setOwnerName] = useState<string | null>(null)
   const [ownerEmail, setOwnerEmail] = useState<string | null>(null)
+
   const ENV_NAME = (import.meta.env.VITE_ADMIN_NAME as string | undefined) ?? 'Ibrac-02'
   const ENV_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL as string | undefined) ?? 'ibrahim@example.com'
 
@@ -54,7 +55,7 @@ I enjoy solving real-world problems with code, learning new technologies, and sh
           </div>
         </div>
 
-        {/* Show biography to everyone */}
+        {/* Biography */}
         <div>
           <div className="muted" style={{ marginBottom: 6 }}>Biography</div>
           <div className="sb-card" style={{ whiteSpace: 'pre-wrap' }}>{ABOUT_TEXT}</div>
@@ -70,6 +71,33 @@ I enjoy solving real-world problems with code, learning new technologies, and sh
             <div>WhatsApp: <a className="sb-link" href={CONTACT.whatsapp} target="_blank" rel="noreferrer">{CONTACT.whatsapp}</a></div>
           </div>
         )}
+
+        {/* ✅ QR CODE SECTION — SHOWN TO EVERYONE */}
+        <div
+          className="surface"
+          style={{
+            marginTop: 10,
+            padding: 20,
+            textAlign: 'center',
+            borderRadius: 12,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 10,
+            alignItems: 'center'
+          }}
+        >
+          <div className="muted">Scan to visit my Portfolio/Blog</div>
+
+          <QRCodeCanvas
+            value="https://portfolio-blog-blond-eight.vercel.app"
+            size={140}
+            bgColor="#ffffff"
+            fgColor="#000000"
+          />
+
+          <p className="muted" style={{ fontSize: 13 }}>Works on any phone camera</p>
+        </div>
+
       </div>
     </section>
   )
