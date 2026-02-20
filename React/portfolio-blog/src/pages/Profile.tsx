@@ -64,7 +64,18 @@ export default function Profile() {
       setTimeout(() => setVisible(false), 3000)
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Failed to update profile'
-      setError(msg)
+      // User-friendly error messages
+      if (msg.includes('duplicate key')) {
+        setError('This profile information is already in use.')
+      } else if (msg.includes('password')) {
+        setError('Password update failed. Please choose a stronger password.')
+      } else if (msg.includes('network') || msg.includes('connection')) {
+        setError('Connection issue. Please check your internet and try again.')
+      } else if (msg.includes('permission') || msg.includes('unauthorized')) {
+        setError('You don\'t have permission to make these changes.')
+      } else {
+        setError('Something went wrong while updating your profile. Please try again.')
+      }
     } finally {
       setSaving(false)
     }
@@ -82,7 +93,18 @@ export default function Profile() {
       setSuccess('Avatar uploaded. Click "Save changes" to persist to your profile.')
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Failed to upload avatar'
-      setError(msg)
+      // User-friendly error messages for avatar upload
+      if (msg.includes('file size') || msg.includes('too large')) {
+        setError('Image file is too large. Please choose a smaller image (under 5MB).')
+      } else if (msg.includes('file type') || msg.includes('format')) {
+        setError('Invalid image format. Please use JPG, PNG, or GIF files.')
+      } else if (msg.includes('network') || msg.includes('connection')) {
+        setError('Upload failed due to connection issues. Please check your internet and try again.')
+      } else if (msg.includes('storage') || msg.includes('bucket')) {
+        setError('Image storage is currently unavailable. Please try again later.')
+      } else {
+        setError('Failed to upload image. Please choose a different file and try again.')
+      }
     } finally {
       setUploading(false)
     }

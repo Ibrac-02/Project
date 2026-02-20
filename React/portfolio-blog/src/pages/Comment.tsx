@@ -40,7 +40,17 @@ export default function Post() {
         author_profile: Array.isArray(row.author_profile) ? row.author_profile[0] : (row.author_profile ?? null),
       })
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Failed to load post')
+      const msg = e instanceof Error ? e.message : 'Failed to load post'
+      // User-friendly error messages for post loading
+      if (msg.includes('not found') || msg.includes('404')) {
+        setError('This post doesn\'t exist or has been removed.')
+      } else if (msg.includes('permission') || msg.includes('unauthorized')) {
+        setError('You don\'t have permission to view this post.')
+      } else if (msg.includes('network') || msg.includes('connection')) {
+        setError('Unable to load post due to connection issues. Please check your internet and try again.')
+      } else {
+        setError('Failed to load this post. Please refresh the page and try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -100,7 +110,15 @@ function PostComments({ postId }: { postId: string }) {
       const data = await listComments(postId)
       setItems(data)
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Failed to load comments')
+      const msg = e instanceof Error ? e.message : 'Failed to load comments'
+      // User-friendly error messages for comment loading
+      if (msg.includes('network') || msg.includes('connection')) {
+        setError('Unable to load comments due to connection issues. Please check your internet.')
+      } else if (msg.includes('permission') || msg.includes('unauthorized')) {
+        setError('You don\'t have permission to view comments on this post.')
+      } else {
+        setError('Failed to load comments. Please refresh the page to try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -118,7 +136,19 @@ function PostComments({ postId }: { postId: string }) {
       if (!user) { setGuestName(''); setGuestEmail('') }
       await load()
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Failed to add comment')
+      const msg = e instanceof Error ? e.message : 'Failed to add comment'
+      // User-friendly error messages for comment submission
+      if (msg.includes('profanity') || msg.includes('inappropriate')) {
+        setError('Please keep comments respectful and appropriate.')
+      } else if (msg.includes('too long') || msg.includes('length')) {
+        setError('Comment is too long. Please keep it under 1000 characters.')
+      } else if (msg.includes('rate limit') || msg.includes('too many')) {
+        setError('You\'re commenting too quickly. Please wait a moment before posting again.')
+      } else if (msg.includes('network') || msg.includes('connection')) {
+        setError('Failed to post comment due to connection issues. Please try again.')
+      } else {
+        setError('Unable to post your comment. Please try again in a moment.')
+      }
     }
   }
 
@@ -130,7 +160,17 @@ function PostComments({ postId }: { postId: string }) {
       await deleteComment(id)
       setItems(prev => prev.filter(i => i.id !== id))
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Failed to delete comment')
+      const msg = e instanceof Error ? e.message : 'Failed to delete comment'
+      // User-friendly error messages for comment deletion
+      if (msg.includes('permission') || msg.includes('unauthorized')) {
+        setError('You can only delete your own comments.')
+      } else if (msg.includes('not found') || msg.includes('404')) {
+        setError('This comment has already been deleted.')
+      } else if (msg.includes('network') || msg.includes('connection')) {
+        setError('Failed to delete comment due to connection issues. Please try again.')
+      } else {
+        setError('Unable to delete this comment. Please try again in a moment.')
+      }
     } finally {
       setConfirmOpen(false)
       setPendingDeleteId(null)

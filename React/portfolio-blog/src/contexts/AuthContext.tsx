@@ -92,32 +92,76 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user?.email, adminEmail])
 
   const login = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) return { error: error.message }
-    // Ensure user exists in users table and set role
-    const role = adminEmail && email.toLowerCase() === adminEmail.toLowerCase() ? 'admin' : 'guest'
-    const uid = data.user?.id
-    if (uid) {
-      // Do not overwrite existing name on login; only ensure row exists and role/email are set
-      await supabase.from('users').upsert({ id: uid, email, role }).select('id').single()
-      // Ensure a matching profile row exists for FK targets (avoid clobbering name on login)
-      await supabase.from('profiles').upsert({ id: uid, email }).select('id').single()
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) {
+        // Return user-friendly error messages
+        if (error.message.includes('Invalid login credentials')) {
+          return { error: 'Incorrect email or password. Please check your credentials and try again.' }
+        } else if (error.message.includes('Email not confirmed')) {
+          return { error: 'Please check your email and confirm your account before logging in.' }
+        } else if (error.message.includes('rate limit')) {
+          return { error: 'Too many login attempts. Please wait a moment before trying again.' }
+        } else if (error.message.includes('network') || error.message.includes('connection')) {
+          return { error: 'Connection issue. Please check your internet and try again.' }
+        } else {
+          return { error: error.message }
+        }
+      }
+      // Ensure user exists in users table and set role
+      const role = adminEmail && email.toLowerCase() === adminEmail.toLowerCase() ? 'admin' : 'guest'
+      const uid = data.user?.id
+      if (uid) {
+        // Do not overwrite existing name on login; only ensure row exists and role/email are set
+        await supabase.from('users').upsert({ id: uid, email, role }).select('id').single()
+        // Ensure a matching profile row exists for FK targets (avoid clobbering name on login)
+        await supabase.from('profiles').upsert({ id: uid, email }).select('id').single()
+      }
+      return {}
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Login failed'
+      if (msg.includes('network') || msg.includes('connection')) {
+        return { error: 'Connection issue. Please check your internet and try again.' }
+      }
+      return { error: 'Login failed. Please try again.' }
     }
-    return {}
   }
 
   const signup = async (email: string, password: string, name: string) => {
-    const { data, error } = await supabase.auth.signUp({ email, password })
-    if (error) return { error: error.message }
-    // On sign up, record user with role
-    const role = adminEmail && email.toLowerCase() === adminEmail.toLowerCase() ? 'admin' : 'guest'
-    const uid = data.user?.id
-    if (uid) {
-      await supabase.from('users').upsert({ id: uid, email, name, role }).select('id').single()
-      // Create matching profile row for FK references
-      await supabase.from('profiles').upsert({ id: uid, email, name }).select('id').single()
+    try {
+      const { data, error } = await supabase.auth.signUp({ email, password })
+      if (error) {
+        // Return user-friendly error messages
+        if (error.message.includes('User already registered')) {
+          return { error: 'An account with this email already exists. Try logging in instead.' }
+        } else if (error.message.includes('password') && error.message.includes('weak')) {
+          return { error: 'Password is too weak. Please choose a stronger password with at least 8 characters.' }
+        } else if (error.message.includes('email') && error.message.includes('invalid')) {
+          return { error: 'Please enter a valid email address.' }
+        } else if (error.message.includes('rate limit')) {
+          return { error: 'Too many signup attempts. Please wait a moment before trying again.' }
+        } else if (error.message.includes('network') || error.message.includes('connection')) {
+          return { error: 'Connection issue. Please check your internet and try again.' }
+        } else {
+          return { error: error.message }
+        }
+      }
+      // On sign up, record user with role
+      const role = adminEmail && email.toLowerCase() === adminEmail.toLowerCase() ? 'admin' : 'guest'
+      const uid = data.user?.id
+      if (uid) {
+        await supabase.from('users').upsert({ id: uid, email, name, role }).select('id').single()
+        // Create matching profile row for FK references
+        await supabase.from('profiles').upsert({ id: uid, email, name }).select('id').single()
+      }
+      return {}
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Signup failed'
+      if (msg.includes('network') || msg.includes('connection')) {
+        return { error: 'Connection issue. Please check your internet and try again.' }
+      }
+      return { error: 'Signup failed. Please try again.' }
     }
-    return {}
   }
 
   const logout = async () => {

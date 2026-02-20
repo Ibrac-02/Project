@@ -86,7 +86,7 @@ I enjoy solving real-world problems with code, learning new technologies, and sh
             alignItems: 'center'
           }}
         >
-          <div className="muted">Scan to visit my Portfolio/Blog</div>
+          <div className="muted">Scan to visit my Portfolio-Blog</div>
 
           <QRCodeCanvas
             value="https://portfolio-blog-blond-eight.vercel.app"

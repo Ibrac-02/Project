@@ -24,7 +24,27 @@ export default function Login() {
     } else {
       res = await signup(email.trim(), password, name.trim())
     }
-    if (res.error) setError(res.error)
+    if (res.error) {
+      const msg = res.error
+      // User-friendly error messages for authentication
+      if (msg.includes('Invalid login credentials')) {
+        setError('Incorrect email or password. Please check your credentials and try again.')
+      } else if (msg.includes('User already registered')) {
+        setError('An account with this email already exists. Try logging in instead.')
+      } else if (msg.includes('Email not confirmed')) {
+        setError('Please check your email and confirm your account before logging in.')
+      } else if (msg.includes('password') && msg.includes('weak')) {
+        setError('Password is too weak. Please choose a stronger password with at least 8 characters.')
+      } else if (msg.includes('email') && msg.includes('invalid')) {
+        setError('Please enter a valid email address.')
+      } else if (msg.includes('network') || msg.includes('connection')) {
+        setError('Connection issue. Please check your internet and try again.')
+      } else if (msg.includes('rate limit') || msg.includes('too many')) {
+        setError('Too many login attempts. Please wait a moment before trying again.')
+      } else {
+        setError('Authentication failed. Please try again or contact support if the issue persists.')
+      }
+    }
     setLoading(false)
   }
 

@@ -35,7 +35,15 @@ export default function Projects() {
         const data = await listProjects()
         setProjects(data)
       } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : 'Failed to load projects')
+        const msg = e instanceof Error ? e.message : 'Failed to load projects'
+        // User-friendly error messages for project loading
+        if (msg.includes('network') || msg.includes('connection')) {
+          setError('Unable to load projects due to connection issues. Please check your internet.')
+        } else if (msg.includes('permission') || msg.includes('unauthorized')) {
+          setError('You don\'t have permission to view these projects.')
+        } else {
+          setError('Failed to load projects. Please refresh the page to try again.')
+        }
       } finally {
         setLoading(false)
       }
@@ -60,7 +68,7 @@ export default function Projects() {
           style={{ display:'grid', gap: 12 }}
           onSubmit={async (e) => {
             e.preventDefault()
-            if (!form.title.trim()) { setError('Title is required'); return }
+            if (!form.title.trim()) { setError('Please enter a project title.'); return }
             try {
               setSaving(true)
               let finalImageUrl = form.image_url.trim() || undefined
@@ -95,7 +103,21 @@ export default function Projects() {
               setProjects(data)
               setError(null)
             } catch (e: unknown) {
-              setError(e instanceof Error ? e.message : 'Failed to create project')
+              const msg = e instanceof Error ? e.message : 'Failed to create project'
+              // User-friendly error messages for project creation/update
+              if (msg.includes('duplicate') || msg.includes('unique')) {
+                setError('A project with this title already exists. Please choose a different title.')
+              } else if (msg.includes('file size') || msg.includes('too large')) {
+                setError('Image file is too large. Please choose a smaller image (under 5MB).')
+              } else if (msg.includes('file type') || msg.includes('format')) {
+                setError('Invalid image format. Please use JPG, PNG, or GIF files.')
+              } else if (msg.includes('network') || msg.includes('connection')) {
+                setError('Failed to save project due to connection issues. Please check your internet and try again.')
+              } else if (msg.includes('permission') || msg.includes('unauthorized')) {
+                setError('You don\'t have permission to create or edit projects.')
+              } else {
+                setError('Failed to save project. Please try again in a moment.')
+              }
             } finally {
               setSaving(false)
             }
@@ -250,29 +272,77 @@ export default function Projects() {
             setPendingFile(null)
           }}
           onConfirm={async ({ croppedAreaPixels, rotation }) => {
+            if (!pendingFile) return;
+            
             try {
-              // Produce cropped blob using canvas
-              const blob = await cropImage(pendingFile, {
-                x: croppedAreaPixels.x,
-                y: croppedAreaPixels.y,
-                width: croppedAreaPixels.width,
-                height: croppedAreaPixels.height,
-              }, { rotate: rotation, outputType: 'image/jpeg', quality: 0.9 })
-              // Convert to File so downstream code treats it uniformly
-              const croppedFile = new File([blob], pendingFile.name.replace(/\.[^.]+$/, '.jpg'), { type: blob.type })
-              setImageFile(croppedFile)
-              // Update preview
-              if (previewUrl) URL.revokeObjectURL(previewUrl)
-              const nextPreview = URL.createObjectURL(croppedFile)
-              setPreviewUrl(nextPreview)
-              setError(null)
+              // Create a new image element to get the natural dimensions
+              const img = new Image();
+              img.src = cropSrc || '';
+              
+              // Wait for image to load
+              await new Promise((resolve) => {
+                img.onload = resolve;
+                // In case the image is already loaded
+                if (img.complete) resolve(true);
+              });
+              
+              // Calculate the scale factor between displayed image and original file
+              const scaleX = img.naturalWidth / img.width;
+              const scaleY = img.naturalHeight / img.height;
+              
+              // Scale the crop area to match the original image dimensions
+              const scaledCropArea = {
+                x: croppedAreaPixels.x * scaleX,
+                y: croppedAreaPixels.y * scaleY,
+                width: croppedAreaPixels.width * scaleX,
+                height: croppedAreaPixels.height * scaleY
+              };
+              
+              // Crop and rotate the image
+              const blob = await cropImage(pendingFile, scaledCropArea, { 
+                rotate: rotation, 
+                outputType: 'image/jpeg', 
+                quality: 0.9 
+              });
+              
+              // Create a new file with the cropped image
+              const fileName = pendingFile.name.replace(/\.[^.]*$/, '') + '.jpg';
+              const croppedFile = new File(
+                [blob], 
+                fileName, 
+                { type: 'image/jpeg' }
+              );
+              
+              // Update state with the new cropped file and preview
+              setImageFile(croppedFile);
+              
+              // Clean up previous preview URL if it exists
+              if (previewUrl) URL.revokeObjectURL(previewUrl);
+              
+              // Create a new preview URL from the blob
+              const nextPreview = URL.createObjectURL(blob);
+              setPreviewUrl(nextPreview);
+              
+              setError(null);
             } catch (e: unknown) {
-              setError(e instanceof Error ? e.message : 'Failed to crop image')
+              console.error('Error cropping image:', e);
+              const msg = e instanceof Error ? e.message : 'Failed to crop image'
+              // User-friendly error messages for image cropping
+              if (msg.includes('file size') || msg.includes('too large')) {
+                setError('Image is too large to process. Please choose a smaller image.')
+              } else if (msg.includes('file type') || msg.includes('format')) {
+                setError('This image format is not supported. Please use JPG, PNG, or GIF.')
+              } else if (msg.includes('memory') || msg.includes('out of memory')) {
+                setError('Image is too complex to process. Please try a simpler image.')
+              } else {
+                setError('Failed to process image. Please try a different image.')
+              }
             } finally {
-              if (cropSrc) URL.revokeObjectURL(cropSrc)
-              setCropOpen(false)
-              setCropSrc(null)
-              setPendingFile(null)
+              // Clean up
+              if (cropSrc) URL.revokeObjectURL(cropSrc);
+              setCropOpen(false);
+              setCropSrc(null);
+              setPendingFile(null);
             }
           }}
           aspect={16/9}
@@ -292,7 +362,17 @@ export default function Projects() {
             await deleteProject(id)
             setProjects(prev => prev.filter(x => x.id !== id))
           } catch (e: unknown) {
-            setError(e instanceof Error ? e.message : 'Failed to delete project')
+            const msg = e instanceof Error ? e.message : 'Failed to delete project'
+            // User-friendly error messages for project deletion
+            if (msg.includes('permission') || msg.includes('unauthorized')) {
+              setError('You don\'t have permission to delete this project.')
+            } else if (msg.includes('not found') || msg.includes('404')) {
+              setError('This project has already been deleted.')
+            } else if (msg.includes('network') || msg.includes('connection')) {
+              setError('Failed to delete project due to connection issues. Please try again.')
+            } else {
+              setError('Unable to delete this project. Please try again in a moment.')
+            }
           } finally {
             setPendingDeleteId(null)
             setConfirmOpen(false)
