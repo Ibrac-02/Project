@@ -93,7 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) {
         // Return user-friendly error messages
         if (error.message.includes('Invalid login credentials')) {
@@ -108,16 +108,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return { error: error.message }
         }
       }
-      // Ensure user exists in users table and set role
-      const role = adminEmail && email.toLowerCase() === adminEmail.toLowerCase() ? 'admin' : 'guest'
-      const uid = data.user?.id
-      if (uid) {
-        // Do not overwrite existing name on login; only ensure row exists and role/email are set
-        await supabase.from('users').upsert({ id: uid, email, role }).select('id').single()
-        // Ensure a matching profile row exists for FK targets (avoid clobbering name on login)
-        await supabase.from('profiles').upsert({ id: uid, email }).select('id').single()
-      }
-      return {}
+    // Ensure user exists in users table and set role
+    const role = adminEmail && email.toLowerCase() === adminEmail.toLowerCase() ? 'admin' : 'guest'
+    const uid = data.user?.id
+    if (uid) {
+      // Do not overwrite existing name on login; only ensure row exists and role/email are set
+      await supabase.from('users').upsert({ id: uid, email, role }).select('id').single()
+      // Ensure a matching profile row exists for FK targets (avoid clobbering name on login)
+      await supabase.from('profiles').upsert({ id: uid, email }).select('id').single()
+    }
+    return {}
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Login failed'
       if (msg.includes('network') || msg.includes('connection')) {
@@ -129,7 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signup = async (email: string, password: string, name: string) => {
     try {
-      const { data, error } = await supabase.auth.signUp({ email, password })
+    const { data, error } = await supabase.auth.signUp({ email, password })
       if (error) {
         // Return user-friendly error messages
         if (error.message.includes('User already registered')) {
@@ -146,15 +146,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return { error: error.message }
         }
       }
-      // On sign up, record user with role
-      const role = adminEmail && email.toLowerCase() === adminEmail.toLowerCase() ? 'admin' : 'guest'
-      const uid = data.user?.id
-      if (uid) {
-        await supabase.from('users').upsert({ id: uid, email, name, role }).select('id').single()
-        // Create matching profile row for FK references
-        await supabase.from('profiles').upsert({ id: uid, email, name }).select('id').single()
-      }
-      return {}
+    // On sign up, record user with role
+    const role = adminEmail && email.toLowerCase() === adminEmail.toLowerCase() ? 'admin' : 'guest'
+    const uid = data.user?.id
+    if (uid) {
+      await supabase.from('users').upsert({ id: uid, email, name, role }).select('id').single()
+      // Create matching profile row for FK references
+      await supabase.from('profiles').upsert({ id: uid, email, name }).select('id').single()
+    }
+    return {}
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Signup failed'
       if (msg.includes('network') || msg.includes('connection')) {

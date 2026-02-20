@@ -326,17 +326,7 @@ export default function Projects() {
               setError(null);
             } catch (e: unknown) {
               console.error('Error cropping image:', e);
-              const msg = e instanceof Error ? e.message : 'Failed to crop image'
-              // User-friendly error messages for image cropping
-              if (msg.includes('file size') || msg.includes('too large')) {
-                setError('Image is too large to process. Please choose a smaller image.')
-              } else if (msg.includes('file type') || msg.includes('format')) {
-                setError('This image format is not supported. Please use JPG, PNG, or GIF.')
-              } else if (msg.includes('memory') || msg.includes('out of memory')) {
-                setError('Image is too complex to process. Please try a simpler image.')
-              } else {
-                setError('Failed to process image. Please try a different image.')
-              }
+              setError(e instanceof Error ? e.message : 'Failed to crop image');
             } finally {
               // Clean up
               if (cropSrc) URL.revokeObjectURL(cropSrc);
