@@ -18,23 +18,16 @@ export default function Layout() {
       <header className="sb-header">
         <Link to="/" className="sb-brand wave">☆Ibrac-02☆ ~ Portfolio-Blog ~</Link>
         
-        {/* Mobile hamburger menu button */}
-        <button 
-          className="sb-mobile-menu-btn" 
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          <span className={`hamburger-line ${mobileMenuOpen ? 'open' : ''}`}></span>
-          <span className={`hamburger-line ${mobileMenuOpen ? 'open' : ''}`}></span>
-          <span className={`hamburger-line ${mobileMenuOpen ? 'open' : ''}`}></span>
-        </button>
-
-        {/* Navigation - desktop visible, mobile in dropdown */}
-        <nav className={`sb-nav ${mobileMenuOpen ? 'mobile-open' : ''}`}>
-          <NavLink to="/" className="sb-link" onClick={() => setMobileMenuOpen(false)}>Home</NavLink>
-          <NavLink to="/projects" className="sb-link" onClick={() => setMobileMenuOpen(false)}>Portfolio</NavLink>
-          <NavLink to="/blog" className="sb-link" onClick={() => setMobileMenuOpen(false)}>Blog</NavLink>
-          <NavLink to="/about" className="sb-link" onClick={() => setMobileMenuOpen(false)}>About</NavLink>
+        {/* Navigation - Home always visible, others in dropdown */}
+        <nav className="sb-nav">
+          <NavLink to="/" className="sb-link" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>Home</NavLink>
+          
+          {/* Dropdown menu for other links */}
+          <div className={`nav-dropdown ${mobileMenuOpen ? 'open' : ''}`}>
+            <NavLink to="/projects" className="sb-link" onClick={() => setMobileMenuOpen(false)}>Portfolio</NavLink>
+            <NavLink to="/blog" className="sb-link" onClick={() => setMobileMenuOpen(false)}>Blog</NavLink>
+            <NavLink to="/about" className="sb-link" onClick={() => setMobileMenuOpen(false)}>About</NavLink>
+          </div>
         </nav>
         
         <div className="sb-auth">
