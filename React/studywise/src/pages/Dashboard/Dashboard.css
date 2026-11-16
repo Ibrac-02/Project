@@ -1,0 +1,18 @@
+.dashboard {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  background: var(--sw-bg);
+  overflow-x: hidden;
+}
+
+.dashboard__main {
+  flex: 1;
+  padding-bottom: calc(var(--sw-mobile-nav-height) + 0.5rem);
+}
+
+@media (min-width: 768px) {
+  .dashboard__main {
+    padding-bottom: 0;
+  }
+}
