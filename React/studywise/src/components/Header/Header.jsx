@@ -1,10 +1,10 @@
 import { TAGLINE } from '../../data/dashboardData'
 import {
-  ChevronDownIcon,
+  
   GraduationCapIcon,
-  MenuIcon,
+
   SearchIcon,
-  SunIcon,
+  
 } from '../icons/Icons'
 import './Header.css'
 
@@ -38,22 +38,7 @@ export default function Header() {
           />
         </div>
 
-        <div className="site-header__actions">
-          <button type="button" className="site-header__icon-btn site-header__theme-btn" aria-label="Toggle theme">
-            <SunIcon width={22} height={22} />
-          </button>
-          <button type="button" className="site-header__grade-pill" aria-haspopup="listbox">
-            Grade 11
-            <ChevronDownIcon width={16} height={16} />
-          </button>
-          <button
-            type="button"
-            className="site-header__icon-btn site-header__menu-btn"
-            aria-label="Open menu"
-          >
-            <MenuIcon width={22} height={22} />
-          </button>
-        </div>
+        
       </div>
 
       <div className="site-header__search site-header__search--mobile">

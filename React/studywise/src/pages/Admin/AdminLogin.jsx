@@ -1,13 +1,14 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
-import { useNavigation } from '../../context/useNavigation'
-import { GraduationCapIcon } from '../../components/icons/Icons'
+import { EyeIcon, EyeOffIcon, GraduationCapIcon } from '../../components/icons/Icons'
 import './Admin.css'
 
 export default function AdminLogin() {
-  const { navigate } = useNavigation()
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -33,6 +34,8 @@ export default function AdminLogin() {
           ? 'Incorrect email or password.'
           : error.message,
       )
+    } else {
+      navigate('/admin')
     }
   }
 
@@ -68,15 +71,29 @@ export default function AdminLogin() {
               <label className="admin-form__label" htmlFor="admin-password">
                 Password
               </label>
-              <input
-                id="admin-password"
-                type="password"
-                className="admin-form__input"
-                autoComplete="current-password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-              />
+              <div className="admin-form__password-wrapper">
+                <input
+                  id="admin-password"
+                  type={showPassword ? 'text' : 'password'}
+                  className="admin-form__input"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="admin-form__password-toggle"
+                >
+                  {showPassword ? (
+                    <EyeOffIcon width={20} height={20} />
+                  ) : (
+                    <EyeIcon width={20} height={20} />
+                  )}
+                </button>
+              </div>
             </div>
 
             {errorMessage ? (
@@ -97,7 +114,7 @@ export default function AdminLogin() {
           <button
             type="button"
             className="admin-back"
-            onClick={() => navigate('home')}
+            onClick={() => navigate('/')}
             style={{ marginTop: '1rem' }}
           >
             ← Back to Home

@@ -5,7 +5,7 @@ export const PAPERS_BUCKET = 'past-papers'
 export async function fetchAllPapers() {
   const { data, error } = await supabase
     .from('past_papers')
-    .select('id, subject_id, year, title, term, paper_number, paper_url, memo_url, is_published, created_at, updated_at')
+    .select('id, subject_id, year, title, term, paper_number, paper_url, memo_url, created_at')
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -21,9 +21,7 @@ export async function fetchAllPapers() {
     paperNumber: row.paper_number || '',
     paperUrl: row.paper_url || null,
     memoUrl: row.memo_url || null,
-    isPublished: Boolean(row.is_published),
     createdAt: row.created_at,
-    updatedAt: row.updated_at,
   }))
 }
 
@@ -55,7 +53,7 @@ export async function uploadPdfToStorage(file, storagePath) {
 export async function findPaperRecord({ subjectId, year, term, paperNumber }) {
   let query = supabase
     .from('past_papers')
-    .select('id, paper_url, memo_url, is_published')
+    .select('id, paper_url, memo_url')
     .eq('subject_id', subjectId)
     .eq('year', year)
 
@@ -81,7 +79,6 @@ export async function savePaperDocument({
   title,
   docType, // 'paper' | 'memo'
   url,
-  isPublished,
 }) {
   const urlField = docType === 'paper' ? 'paper_url' : 'memo_url'
   const existing = await findPaperRecord({ subjectId, year, term, paperNumber })
@@ -113,7 +110,6 @@ export async function savePaperDocument({
       term: term || null,
       paper_number: paperNumber || null,
       [urlField]: url,
-      is_published: isPublished,
     })
     .select('id')
     .single()
@@ -125,10 +121,12 @@ export async function savePaperDocument({
   return { id: data.id, created: true }
 }
 
-export async function setPaperPublished(id, isPublished) {
+// Replaces only the given document type's URL on an existing row.
+export async function updatePaperDocumentUrl(id, docType, url) {
+  const urlField = docType === 'paper' ? 'paper_url' : 'memo_url'
   const { error } = await supabase
     .from('past_papers')
-    .update({ is_published: isPublished })
+    .update({ [urlField]: url })
     .eq('id', id)
 
   if (error) {
@@ -162,6 +160,15 @@ export function storagePathFromUrl(publicUrl) {
     return decodeURIComponent(url.pathname.slice(index + marker.length))
   } catch {
     return null
+  }
+}
+
+export async function deleteStorageFile(publicUrl) {
+  const path = storagePathFromUrl(publicUrl)
+  if (!path) return
+  const { error } = await supabase.storage.from(PAPERS_BUCKET).remove([path])
+  if (error) {
+    throw error
   }
 }
 

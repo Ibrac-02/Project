@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Footer from '../../components/Footer/Footer'
 import Header from '../../components/Header/Header'
 import { ChevronRightIcon } from '../../components/icons/Icons'
-import { useNavigation } from '../../context/useNavigation'
 import { SUBJECTS } from '../../data/dashboardData'
 import {
   buildPaperTitle,
@@ -28,11 +28,10 @@ const emptyForm = {
   paperNumber: '',
   docType: 'paper',
   file: null,
-  isPublished: true,
 }
 
 export default function UploadPaper() {
-  const { navigate } = useNavigation()
+  const navigate = useNavigate()
   const fileInputRef = useRef(null)
   const [form, setForm] = useState(emptyForm)
   const [errorMessage, setErrorMessage] = useState('')
@@ -48,7 +47,7 @@ export default function UploadPaper() {
     setErrorMessage('')
     setSuccessMessage('')
 
-    const { subjectId, year, term, paperNumber, docType, file, isPublished } = form
+    const { subjectId, year, term, paperNumber, docType, file } = form
 
     if (!subjectId || !year || !term || !paperNumber) {
       setErrorMessage('Choose a subject, year, term and paper number.')
@@ -86,7 +85,6 @@ export default function UploadPaper() {
         title,
         docType,
         url: publicUrl,
-        isPublished,
       })
 
       const docLabel = docType === 'paper' ? 'question paper' : 'memorandum'
@@ -97,7 +95,7 @@ export default function UploadPaper() {
           : `${docTitle} added to the existing ${title} record.`,
       )
 
-      setForm({ ...emptyForm, docType, isPublished })
+      setForm({ ...emptyForm, docType })
       if (fileInputRef.current) {
         fileInputRef.current.value = ''
       }
@@ -115,7 +113,7 @@ export default function UploadPaper() {
         <button
           type="button"
           className="admin-back"
-          onClick={() => navigate('admin')}
+          onClick={() => navigate('/admin')}
         >
           <ChevronRightIcon
             width={16}
@@ -255,15 +253,6 @@ export default function UploadPaper() {
             />
           </div>
 
-          <label className="admin-form__check">
-            <input
-              type="checkbox"
-              checked={form.isPublished}
-              onChange={(event) => updateField('isPublished', event.target.checked)}
-            />
-            Publish this paper (visible to students)
-          </label>
-
           {errorMessage ? (
             <p className="admin-alert admin-alert--error" role="alert">
               {errorMessage}
@@ -280,7 +269,7 @@ export default function UploadPaper() {
             <button
               type="button"
               className="admin-btn"
-              onClick={() => navigate('admin')}
+              onClick={() => navigate('/admin')}
               disabled={loading}
             >
               Cancel

@@ -1,25 +1,21 @@
 -- StudyWise admin papers migration.
 -- Run this ONCE in the Supabase SQL editor AFTER past_papers.sql.
--- Adds publish control, term/paper number metadata, admin authorization,
--- and a public-read / admin-write storage bucket for the PDFs.
+-- Matches the existing past_papers schema:
+--   id, subject_id, year, title, paper_url, memo_url, created_at, term, paper_number
+-- This migration adds admin authorization + storage policies only.
+-- It does NOT add or modify any past_papers columns.
 
--- 1. Extra columns on the existing table (existing columns are untouched).
-alter table public.past_papers
-  add column if not exists is_published boolean not null default false,
-  add column if not exists term text,
-  add column if not exists paper_number text,
-  add column if not exists updated_at timestamptz not null default now();
-
--- 2. Admin allowlist. Add admin emails here (lowercase not required).
-create table if not exists public.admin_emails (
-  email text primary key,
+-- 1. Admin allowlist. One row per authorized administrator.
+--    id must match auth.users.id of the admin account.
+create table if not exists public.admin_users (
+  id uuid primary key references auth.users (id) on delete cascade,
   created_at timestamptz not null default now()
 );
 
-alter table public.admin_emails enable row level security;
--- No policies on admin_emails: only the security-definer function below can read it.
+alter table public.admin_users enable row level security;
+-- No policies on admin_users: only the security-definer function below can read it.
 
--- 3. is_admin(): true when the logged-in user's JWT email is in admin_emails.
+-- 2. is_admin(): true when the logged-in user's UUID is in admin_users.
 create or replace function public.is_admin()
 returns boolean
 language sql
@@ -29,33 +25,26 @@ set search_path = public
 as $$
   select exists (
     select 1
-    from public.admin_emails
-    where lower(email) = lower(auth.jwt() ->> 'email')
+    from public.admin_users
+    where id = auth.uid()
   );
 $$;
 
--- 4. Row Level Security on past_papers.
---    Students (anon) see published rows only.
---    Admins (authenticated + is_admin) see and manage everything.
+-- 3. Row Level Security on past_papers.
+--    Students (anon) can read all rows.
+--    Admins (authenticated + is_admin) can insert/update/delete.
 
 drop policy if exists "Public can read past papers" on public.past_papers;
-drop policy if exists "Published papers are public" on public.past_papers;
 drop policy if exists "Admins can read all papers" on public.past_papers;
 drop policy if exists "Admins can insert papers" on public.past_papers;
 drop policy if exists "Admins can update papers" on public.past_papers;
 drop policy if exists "Admins can delete papers" on public.past_papers;
 
-create policy "Published papers are public"
+create policy "Public can read past papers"
   on public.past_papers
   for select
-  to anon
-  using (is_published = true);
-
-create policy "Admins can read all papers"
-  on public.past_papers
-  for select
-  to authenticated
-  using (public.is_admin());
+  to anon, authenticated
+  using (true);
 
 create policy "Admins can insert papers"
   on public.past_papers
@@ -76,24 +65,7 @@ create policy "Admins can delete papers"
   to authenticated
   using (public.is_admin());
 
--- Keep updated_at fresh on every update.
-create or replace function public.touch_past_papers_updated_at()
-returns trigger
-language plpgsql
-as $$
-begin
-  new.updated_at = now();
-  return new;
-end;
-$$;
-
-drop trigger if exists past_papers_touch_updated_at on public.past_papers;
-create trigger past_papers_touch_updated_at
-  before update on public.past_papers
-  for each row
-  execute function public.touch_past_papers_updated_at();
-
--- 5. Storage bucket for the PDF files.
+-- 4. Storage bucket for the PDF files.
 --    Public bucket so students can open files without logging in.
 --    Only admins can write/delete objects inside it.
 insert into storage.buckets (id, name, public)
@@ -129,3 +101,13 @@ create policy "Admins can delete past paper files"
   for delete
   to authenticated
   using (bucket_id = 'past-papers' and public.is_admin());
+
+-- 5. Register the first administrator.
+--    Replace the UUID below with the admin user's ID from
+--    Authentication -> Users in the Supabase dashboard.
+-- insert into public.admin_users (id)
+-- values ('00000000-0000-0000-0000-000000000000');
+--
+--    Or register by email (run after creating the auth user):
+-- insert into public.admin_users (id)
+-- select id from auth.users where email = 'admin@example.com';

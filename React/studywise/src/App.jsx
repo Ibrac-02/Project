@@ -1,37 +1,71 @@
-import NavigationProvider from './context/NavigationProvider'
-import { useNavigation } from './context/useNavigation'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Dashboard from './pages/Dashboard/Dashboard'
 import Paper from './pages/Papers/Paper'
-import AdminLayout from './pages/Admin/AdminLayout'
+import Notes from './pages/Notes/Notes'
+import AdminLogin from './pages/Admin/AdminLogin'
 import AdminDashboard from './pages/Admin/AdminDashboard'
 import UploadPaper from './pages/Admin/UploadPaper'
 import ManagePapers from './pages/Admin/ManagePapers'
-
-function AppRoutes() {
-  const { page } = useNavigation()
-
-  if (page === 'past-papers') {
-    return <Paper />
-  }
-
-  if (page === 'admin' || page === 'admin-upload' || page === 'admin-manage') {
-    return (
-      <AdminLayout>
-        {page === 'admin-upload' ? <UploadPaper /> : null}
-        {page === 'admin-manage' ? <ManagePapers /> : null}
-        {page === 'admin' ? <AdminDashboard /> : null}
-      </AdminLayout>
-    )
-  }
-
-  return <Dashboard />
-}
+import UploadNote from './pages/Admin/UploadNote'
+import ManageNotes from './pages/Admin/ManageNotes'
+import AdminProtectedRoute from './pages/Admin/AdminProtectedRoute'
 
 function App() {
   return (
-    <NavigationProvider>
-      <AppRoutes />
-    </NavigationProvider>
+    <BrowserRouter>
+      <Routes>
+        {/* Student routes */}
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/past-papers" element={<Paper />} />
+        <Route path="/notes" element={<Notes />} />
+
+        {/* Admin routes */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route
+          path="/admin"
+          element={
+            <AdminProtectedRoute>
+              <AdminDashboard />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/papers/upload"
+          element={
+            <AdminProtectedRoute>
+              <UploadPaper />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/papers"
+          element={
+            <AdminProtectedRoute>
+              <ManagePapers />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/notes/upload"
+          element={
+            <AdminProtectedRoute>
+              <UploadNote />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/notes"
+          element={
+            <AdminProtectedRoute>
+              <ManageNotes />
+            </AdminProtectedRoute>
+          }
+        />
+
+        {/* Redirect unknown routes to home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 

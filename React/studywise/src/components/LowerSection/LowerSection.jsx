@@ -1,15 +1,14 @@
-import { useNavigation } from '../../context/useNavigation'
+import { useNavigate } from 'react-router-dom'
 import {
   LATEST_UPDATES,
   MOTIVATION_MESSAGES,
-  QUICK_ACCESS,
+  
 } from '../../data/dashboardData'
 import { HeartIcon, MegaphoneIcon } from '../icons/Icons'
-import { quickAccessIconId } from '../icons/quickAccessIcons'
 import './LowerSection.css'
 
 export default function LowerSection() {
-  const { navigate } = useNavigation()
+  const navigate = useNavigate()
 
   return (
     <section className="lower-section" aria-label="Updates and quick links">
@@ -26,7 +25,7 @@ export default function LowerSection() {
                 className="update-item"
                 onClick={() => {
                   if (item.text.toLowerCase().includes('paper')) {
-                    navigate('past-papers')
+                    navigate('/past-papers')
                   }
                 }}
               >
@@ -55,22 +54,7 @@ export default function LowerSection() {
         </div>
       </div>
 
-      <div className="lower-panel">
-        <h2 className="lower-panel__title">Quick Access</h2>
-        <ul className="quick-access">
-          {QUICK_ACCESS.map((item) => {
-            const Icon = quickAccessIconId(item.id)
-            return (
-              <li key={item.id}>
-                <button type="button" className="quick-access__btn">
-                  <Icon width={18} height={18} />
-                  {item.label}
-                </button>
-              </li>
-            )
-          })}
-        </ul>
-      </div>
+    
     </section>
   )
 }

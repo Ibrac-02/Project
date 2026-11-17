@@ -193,6 +193,38 @@
   font-family: inherit;
 }
 
+.admin-form__password-wrapper {
+  position: relative;
+}
+
+.admin-form__password-wrapper .admin-form__input {
+  padding-right: 2.5rem;
+}
+
+.admin-form__password-toggle {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: var(--sw-text-muted);
+  display: flex;
+  align-items: center;
+}
+
+.admin-form__password-toggle:hover {
+  color: var(--sw-text-heading);
+}
+
+.admin-form__password-toggle:focus-visible {
+  outline: 2px solid var(--sw-primary);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
 .admin-form__input:focus,
 .admin-form__select:focus,
 .admin-form__textarea:focus {

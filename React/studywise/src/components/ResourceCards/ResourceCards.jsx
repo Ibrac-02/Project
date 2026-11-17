@@ -1,15 +1,17 @@
-import { useNavigation } from '../../context/useNavigation'
+import { useNavigate } from 'react-router-dom'
 import { RESOURCE_CARDS } from '../../data/dashboardData'
 import { ChevronRightIcon } from '../icons/Icons'
 import { resourceIconId } from '../icons/resourceIcons'
 import './ResourceCards.css'
 
 export default function ResourceCards() {
-  const { navigate } = useNavigation()
+  const navigate = useNavigate()
 
   function handleCardClick(cardId) {
     if (cardId === 'past-papers') {
-      navigate('past-papers')
+      navigate('/past-papers')
+    } else if (cardId === 'notes') {
+      navigate('/notes')
     }
   }
 

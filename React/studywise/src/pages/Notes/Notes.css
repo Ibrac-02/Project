@@ -1,0 +1,241 @@
+.notes-page {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  background: var(--sw-bg);
+  overflow-x: hidden;
+}
+
+.notes-page__main {
+  flex: 1;
+  max-width: var(--sw-max-width);
+  width: 100%;
+  margin: 0 auto;
+  padding: 1rem 1rem calc(var(--sw-mobile-nav-height) + 1rem);
+  box-sizing: border-box;
+}
+
+.notes-page__top {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  text-align: left;
+}
+
+.notes-page__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  align-self: flex-start;
+  border: none;
+  background: none;
+  padding: 0.25rem 0;
+  color: var(--sw-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.notes-page__back:hover {
+  text-decoration: underline;
+}
+
+.notes-page__back:focus-visible {
+  outline: 2px solid var(--sw-primary);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+.notes-page__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--sw-primary-dark);
+  letter-spacing: -0.02em;
+}
+
+.notes-page__subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--sw-text-muted);
+}
+
+.notes-filters {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.notes-filters__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  text-align: left;
+}
+
+.notes-filters__label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--sw-text-heading);
+}
+
+.notes-filters__select {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--sw-border);
+  border-radius: 0.625rem;
+  background: var(--sw-surface);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--sw-text-heading);
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.notes-filters__select:focus {
+  outline: 2px solid var(--sw-primary-light);
+  outline-offset: 1px;
+  border-color: var(--sw-primary);
+}
+
+.notes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.875rem;
+}
+
+.note-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding: 1rem;
+  border: 1px solid var(--sw-border);
+  border-left: 4px solid var(--note-color, var(--sw-primary));
+  border-radius: 0.875rem;
+  background: var(--sw-surface);
+  box-shadow: var(--sw-shadow-sm);
+  text-align: left;
+}
+
+.note-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.note-card__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  background: var(--note-color, var(--sw-primary));
+  color: #fff;
+}
+
+.note-card__meta {
+  min-width: 0;
+  flex: 1;
+}
+
+.note-card__title {
+  margin: 0 0 0.25rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--sw-text-heading);
+}
+
+.note-card__details {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--sw-text-muted);
+}
+
+.note-card__desc {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--sw-text);
+  line-height: 1.5;
+}
+
+.note-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.note-card__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid var(--sw-border);
+  border-radius: 999px;
+  background: #f8fafc;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--sw-text-heading);
+  cursor: pointer;
+}
+
+.note-card__btn--primary {
+  background: var(--note-color, var(--sw-primary));
+  border-color: var(--note-color, var(--sw-primary));
+  color: #fff;
+}
+
+.note-card__btn--primary:hover:not(:disabled) {
+  filter: brightness(0.95);
+}
+
+.note-card__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.note-card__btn:focus-visible {
+  outline: 2px solid var(--sw-primary);
+  outline-offset: 2px;
+}
+
+.notes-empty {
+  margin: 0;
+  padding: 2rem 1rem;
+  border: 1px dashed var(--sw-border);
+  border-radius: 0.875rem;
+  background: var(--sw-surface);
+  text-align: center;
+  color: var(--sw-text-muted);
+  font-size: 0.875rem;
+}
+
+.notes-empty--error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+@media (min-width: 768px) {
+  .notes-page__main {
+    padding: 1.5rem 1.5rem 2rem;
+  }
+
+  .notes-page__title {
+    font-size: 1.875rem;
+  }
+
+  .notes-filters {
+    grid-template-columns: minmax(12rem, 16rem);
+  }
+
+  .notes-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}

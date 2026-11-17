@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Footer from '../../components/Footer/Footer'
 import Header from '../../components/Header/Header'
 import MobileBottomNav from '../../components/MobileBottomNav/MobileBottomNav'
-import { ChevronRightIcon, DocumentIcon } from '../../components/icons/Icons'
-import { useNavigation } from '../../context/useNavigation'
+import { ChevronRightIcon, DocumentIcon, DownloadIcon } from '../../components/icons/Icons'
 import { SUBJECTS } from '../../data/dashboardData'
 import { fetchPastPapers } from './fetchPastPapers'
 import { getSubjectColor, getSubjectName, PAPER_YEARS } from './subjectMeta'
@@ -13,8 +13,15 @@ function openPublishedFile(url) {
   window.open(url, '_blank', 'noopener,noreferrer')
 }
 
+function formatPaperTitle(paper) {
+  const parts = [getSubjectName(paper.subjectId), paper.year]
+  if (paper.term) parts.push(`(${paper.term})`)
+  if (paper.paperNumber) parts.push(paper.paperNumber)
+  return parts.join(' - ')
+}
+
 export default function Paper() {
-  const { navigate } = useNavigation()
+  const navigate = useNavigate()
   const [subjectFilter, setSubjectFilter] = useState('all')
   const [yearFilter, setYearFilter] = useState('all')
   const [papers, setPapers] = useState([])
@@ -62,7 +69,7 @@ export default function Paper() {
           <button
             type="button"
             className="papers-page__back"
-            onClick={() => navigate('home')}
+            onClick={() => navigate('/')}
           >
             <ChevronRightIcon
               width={18}
@@ -70,14 +77,11 @@ export default function Paper() {
               style={{ transform: 'rotate(180deg)' }}
               aria-hidden="true"
             />
-            Back to Home
+            Back to Subjects
           </button>
           <h1 className="papers-page__title">Past Papers</h1>
           <p className="papers-page__subtitle">
-            Browse Grade 11 past papers by subject and year (2017–2024).
-          </p>
-          <p className="papers-page__note">
-            Papers are loaded from Supabase. View paper and View memo open a file only when a URL is published.
+            Browse Grade 11 past papers by subject and year (2017–2026).
           </p>
         </div>
 
@@ -119,6 +123,14 @@ export default function Paper() {
               ))}
             </select>
           </div>
+
+          <button
+            type="button"
+            className="papers-filters__search-btn"
+            aria-label="Search papers"
+          >
+            Search
+          </button>
         </div>
 
         {status === 'loading' ? (
@@ -146,35 +158,40 @@ export default function Paper() {
                 <div className="paper-card__header">
                   <span className="paper-card__badge" aria-hidden="true" />
                   <div className="paper-card__meta">
-                    <h2 className="paper-card__title">{paper.title}</h2>
-                    <p className="paper-card__details">
-                      {getSubjectName(paper.subjectId)} · {paper.year}
-                    </p>
+                    <h2 className="paper-card__title">{formatPaperTitle(paper)}</h2>
                   </div>
                 </div>
                 <div className="paper-card__actions">
                   <button
                     type="button"
-                    className="paper-card__btn"
+                    className="paper-card__doc-btn"
                     disabled={!paper.hasPaper}
                     onClick={() => openPublishedFile(paper.paperUrl)}
                   >
                     <DocumentIcon width={16} height={16} aria-hidden="true" />
-                    View paper
+                    <span>Question Paper</span>
+                    {paper.hasPaper && <DownloadIcon width={16} height={16} aria-hidden="true" />}
                   </button>
                   <button
                     type="button"
-                    className="paper-card__btn"
+                    className="paper-card__doc-btn"
                     disabled={!paper.hasMemo}
                     onClick={() => openPublishedFile(paper.memoUrl)}
                   >
                     <DocumentIcon width={16} height={16} aria-hidden="true" />
-                    View memo
+                    <span>Memorandum</span>
+                    {paper.hasMemo && <DownloadIcon width={16} height={16} aria-hidden="true" />}
                   </button>
                 </div>
               </li>
             ))}
           </ul>
+        ) : null}
+
+        {status === 'ready' && filteredPapers.length > 0 ? (
+          <p className="papers-source">
+            Source: Department of Basic Education (DBE)
+          </p>
         ) : null}
       </main>
       <Footer />

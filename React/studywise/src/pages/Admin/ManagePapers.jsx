@@ -1,14 +1,17 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Footer from '../../components/Footer/Footer'
 import Header from '../../components/Header/Header'
 import { ChevronRightIcon } from '../../components/icons/Icons'
-import { useNavigation } from '../../context/useNavigation'
 import { SUBJECTS } from '../../data/dashboardData'
 import {
   deletePaper,
+  deleteStorageFile,
   fetchAllPapers,
-  setPaperPublished,
+  makeStoragePath,
   updatePaperDetails,
+  updatePaperDocumentUrl,
+  uploadPdfToStorage,
 } from './adminPapers'
 import { getSubjectName } from '../Papers/subjectMeta'
 import './Admin.css'
@@ -31,7 +34,8 @@ function AvailabilityBadge({ url }) {
 }
 
 export default function ManagePapers() {
-  const { navigate } = useNavigation()
+  const navigate = useNavigate()
+  const replaceInputRef = useRef(null)
   const [papers, setPapers] = useState([])
   const [status, setStatus] = useState('loading')
   const [errorMessage, setErrorMessage] = useState('')
@@ -44,6 +48,7 @@ export default function ManagePapers() {
   const [editingId, setEditingId] = useState(null)
   const [editForm, setEditForm] = useState({ title: '', term: '', paperNumber: '' })
   const [busyId, setBusyId] = useState(null)
+  const [replaceTarget, setReplaceTarget] = useState(null) // { id, docType }
 
   useEffect(() => {
     let cancelled = false
@@ -89,19 +94,64 @@ export default function ManagePapers() {
     }
   }
 
-  async function handleTogglePublish(paper) {
-    setBusyId(paper.id)
+  function startReplace(paper, docType) {
+    setReplaceTarget({ id: paper.id, docType })
+    if (replaceInputRef.current) {
+      replaceInputRef.current.value = ''
+      replaceInputRef.current.click()
+    }
+  }
+
+  async function handleReplaceFile(event) {
+    const file = event.target.files?.[0]
+    const target = replaceTarget
+    setReplaceTarget(null)
+    if (!file || !target) return
+
+    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+      setErrorMessage('Only PDF files are allowed.')
+      return
+    }
+
+    const paper = papers.find((row) => row.id === target.id)
+    if (!paper) return
+
+    setBusyId(target.id)
     setNotice('')
     setErrorMessage('')
     try {
-      await setPaperPublished(paper.id, !paper.isPublished)
+      const storagePath = makeStoragePath({
+        subjectId: paper.subjectId,
+        year: paper.year,
+        docType: target.docType === 'paper' ? 'question-paper' : 'memo',
+        fileName: file.name,
+      })
+      const publicUrl = await uploadPdfToStorage(file, storagePath)
+      await updatePaperDocumentUrl(target.id, target.docType, publicUrl)
+
+      const oldUrl = target.docType === 'paper' ? paper.paperUrl : paper.memoUrl
+      try {
+        await deleteStorageFile(oldUrl)
+      } catch {
+        // Old file cleanup is best-effort; the new URL is already saved.
+      }
+
       setPapers((current) =>
         current.map((row) =>
-          row.id === paper.id ? { ...row, isPublished: !row.isPublished } : row,
+          row.id === target.id
+            ? {
+                ...row,
+                paperUrl: target.docType === 'paper' ? publicUrl : row.paperUrl,
+                memoUrl: target.docType === 'memo' ? publicUrl : row.memoUrl,
+              }
+            : row,
         ),
       )
+      setNotice(
+        `${target.docType === 'paper' ? 'Question paper' : 'Memorandum'} replaced for "${paper.title}".`,
+      )
     } catch (error) {
-      setErrorMessage(error?.message || 'Could not update publication status.')
+      setErrorMessage(error?.message || 'Could not replace the file.')
     } finally {
       setBusyId(null)
     }
@@ -161,10 +211,20 @@ export default function ManagePapers() {
     <div className="admin-page">
       <Header />
       <main id="main-content" className="admin-page__main">
+        <input
+          ref={replaceInputRef}
+          type="file"
+          accept="application/pdf,.pdf"
+          className="visually-hidden"
+          aria-hidden="true"
+          tabIndex={-1}
+          onChange={handleReplaceFile}
+        />
+
         <button
           type="button"
           className="admin-back"
-          onClick={() => navigate('admin')}
+          onClick={() => navigate('/admin')}
         >
           <ChevronRightIcon
             width={16}
@@ -186,7 +246,7 @@ export default function ManagePapers() {
           <button
             type="button"
             className="admin-btn admin-btn--primary"
-            onClick={() => navigate('admin-upload')}
+            onClick={() => navigate('/admin/papers/upload')}
           >
             Upload Paper
           </button>
@@ -267,7 +327,6 @@ export default function ManagePapers() {
                   <th>Paper No.</th>
                   <th>Question Paper</th>
                   <th>Memo</th>
-                  <th>Status</th>
                   <th>Uploaded</th>
                   <th>Actions</th>
                 </tr>
@@ -282,7 +341,7 @@ export default function ManagePapers() {
                     setEditForm={setEditForm}
                     busy={busyId === paper.id}
                     onOpenFile={openFile}
-                    onTogglePublish={handleTogglePublish}
+                    onReplace={startReplace}
                     onStartEdit={startEdit}
                     onSaveEdit={saveEdit}
                     onCancelEdit={() => setEditingId(null)}
@@ -306,7 +365,7 @@ function PaperRow({
   setEditForm,
   busy,
   onOpenFile,
-  onTogglePublish,
+  onReplace,
   onStartEdit,
   onSaveEdit,
   onCancelEdit,
@@ -315,7 +374,7 @@ function PaperRow({
   if (isEditing) {
     return (
       <tr className="admin-edit-row">
-        <td colSpan={10}>
+        <td colSpan={9}>
           <form
             className="admin-edit-form"
             onSubmit={(event) => {
@@ -390,11 +449,6 @@ function PaperRow({
       <td>
         <AvailabilityBadge url={paper.memoUrl} />
       </td>
-      <td>
-        <span className={`admin-badge ${paper.isPublished ? 'admin-badge--published' : 'admin-badge--draft'}`}>
-          {paper.isPublished ? 'Published' : 'Draft'}
-        </span>
-      </td>
       <td>{formatDate(paper.createdAt)}</td>
       <td>
         <div className="admin-row-actions">
@@ -409,21 +463,29 @@ function PaperRow({
           <button
             type="button"
             className="admin-btn"
+            disabled={!paper.paperUrl || busy}
+            onClick={() => onReplace(paper, 'paper')}
+          >
+            Replace paper
+          </button>
+          <button
+            type="button"
+            className="admin-btn"
             disabled={!paper.memoUrl || busy}
             onClick={() => onOpenFile(paper.memoUrl)}
           >
             View memo
           </button>
-          <button type="button" className="admin-btn" disabled={busy} onClick={() => onStartEdit(paper)}>
-            Edit
-          </button>
           <button
             type="button"
             className="admin-btn"
-            disabled={busy}
-            onClick={() => onTogglePublish(paper)}
+            disabled={!paper.memoUrl || busy}
+            onClick={() => onReplace(paper, 'memo')}
           >
-            {paper.isPublished ? 'Unpublish' : 'Publish'}
+            Replace memo
+          </button>
+          <button type="button" className="admin-btn" disabled={busy} onClick={() => onStartEdit(paper)}>
+            Edit
           </button>
           <button
             type="button"

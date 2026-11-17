@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase'
 export async function fetchPastPapers() {
   const { data, error } = await supabase
     .from('past_papers')
-    .select('id, subject_id, year, title, paper_url, memo_url')
+    .select('id, subject_id, year, title, term, paper_number, paper_url, memo_url')
     .order('year', { ascending: false })
 
   if (error) {
@@ -15,6 +15,8 @@ export async function fetchPastPapers() {
     subjectId: row.subject_id,
     year: Number(row.year),
     title: row.title,
+    term: row.term || '',
+    paperNumber: row.paper_number || '',
     paperUrl: row.paper_url || null,
     memoUrl: row.memo_url || null,
     hasPaper: Boolean(row.paper_url),
