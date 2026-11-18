@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Footer from '../../components/Footer/Footer'
 import Header from '../../components/Header/Header'
-import { ChevronRightIcon, DocumentIcon, ListIcon, NotesIcon } from '../../components/icons/Icons'
+import { ChevronRightIcon, DocumentIcon, ListIcon, LightbulbIcon } from '../../components/icons/Icons'
 import { fetchAllPapers } from './adminPapers'
-import { fetchAllNotes } from './adminNotes'
 import { adminSignOut } from './useAdminAuth'
 import { getSubjectName } from '../Papers/subjectMeta'
 import './Admin.css'
@@ -21,18 +20,16 @@ function formatDate(iso) {
 export default function AdminDashboard() {
   const navigate = useNavigate()
   const [papers, setPapers] = useState([])
-  const [notes, setNotes] = useState([])
   const [status, setStatus] = useState('loading')
   const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     let cancelled = false
 
-    Promise.all([fetchAllPapers(), fetchAllNotes()])
-      .then(([paperRows, noteRows]) => {
+    fetchAllPapers()
+      .then((rows) => {
         if (cancelled) return
-        setPapers(paperRows)
-        setNotes(noteRows)
+        setPapers(rows)
         setStatus('ready')
       })
       .catch((error) => {
@@ -47,7 +44,6 @@ export default function AdminDashboard() {
   }, [])
 
   const totalPapers = papers.length
-  const publishedNotes = notes.filter((note) => note.published).length
   const recent = papers.slice(0, 5)
 
   return (
@@ -87,14 +83,6 @@ export default function AdminDashboard() {
               <div className="admin-stat">
                 <p className="admin-stat__value">{totalPapers}</p>
                 <p className="admin-stat__label">Total papers</p>
-              </div>
-              <div className="admin-stat">
-                <p className="admin-stat__value">{publishedNotes}</p>
-                <p className="admin-stat__label">Published notes</p>
-              </div>
-              <div className="admin-stat">
-                <p className="admin-stat__value">{notes.length}</p>
-                <p className="admin-stat__label">Total notes</p>
               </div>
             </div>
 
@@ -150,41 +138,17 @@ export default function AdminDashboard() {
               <button
                 type="button"
                 className="admin-card-link"
-                onClick={() => navigate('/admin/notes/upload')}
+                onClick={() => navigate('/admin/motivation')}
               >
                 <span className="admin-card-link__icon" aria-hidden="true">
-                  <NotesIcon width={24} height={24} />
+                  <LightbulbIcon width={24} height={24} />
                 </span>
                 <span>
                   <span className="admin-card-link__title" style={{ display: 'block' }}>
-                    Upload Note
+                    Manage Motivation
                   </span>
                   <span className="admin-card-link__desc">
-                    Add a note PDF with subject, title and summary.
-                  </span>
-                </span>
-                <ChevronRightIcon
-                  width={18}
-                  height={18}
-                  style={{ marginLeft: 'auto', color: 'var(--sw-text-muted)' }}
-                  aria-hidden="true"
-                />
-              </button>
-
-              <button
-                type="button"
-                className="admin-card-link"
-                onClick={() => navigate('/admin/notes')}
-              >
-                <span className="admin-card-link__icon" aria-hidden="true">
-                  <ListIcon width={24} height={24} />
-                </span>
-                <span>
-                  <span className="admin-card-link__title" style={{ display: 'block' }}>
-                    Manage Notes
-                  </span>
-                  <span className="admin-card-link__desc">
-                    Edit, publish, replace or delete uploaded notes.
+                    Add, edit, or delete daily motivation phrases.
                   </span>
                 </span>
                 <ChevronRightIcon

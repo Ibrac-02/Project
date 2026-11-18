@@ -53,8 +53,3 @@ export const QUICK_ACCESS = [
   { id: 'help', label: 'Help / FAQ' },
   { id: 'about', label: 'About StudyWise' },
 ]
-
-export const MOTIVATION_MESSAGES = [
-  'You are closer than you think.',
-  'Keep going, you got this!',
-]

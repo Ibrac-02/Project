@@ -1,6 +1,6 @@
 import { supabase } from '../../lib/supabase'
 
-export const PAPERS_BUCKET = 'past-papers'
+export const PAPERS_BUCKET = 'studywise-papers'
 
 export async function fetchAllPapers() {
   const { data, error } = await supabase

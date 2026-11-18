@@ -8,6 +8,7 @@ import UploadPaper from './pages/Admin/UploadPaper'
 import ManagePapers from './pages/Admin/ManagePapers'
 import UploadNote from './pages/Admin/UploadNote'
 import ManageNotes from './pages/Admin/ManageNotes'
+import ManageMotivation from './pages/Admin/ManageMotivation'
 import AdminProtectedRoute from './pages/Admin/AdminProtectedRoute'
 
 function App() {
@@ -58,6 +59,14 @@ function App() {
           element={
             <AdminProtectedRoute>
               <ManageNotes />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/motivation"
+          element={
+            <AdminProtectedRoute>
+              <ManageMotivation />
             </AdminProtectedRoute>
           }
         />
