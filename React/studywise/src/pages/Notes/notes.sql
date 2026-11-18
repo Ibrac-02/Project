@@ -10,10 +10,14 @@ create table if not exists public.notes (
   title text not null,
   description text,
   file_url text,
-  published boolean not null default false,
+  published boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Notes are published by default. Safe to re-run: fixes tables created earlier
+-- with a `false` default so new rows publish unless the app explicitly sends false.
+alter table public.notes alter column published set default true;
 
 alter table public.notes enable row level security;
 

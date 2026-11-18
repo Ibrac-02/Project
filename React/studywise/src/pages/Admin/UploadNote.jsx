@@ -12,7 +12,7 @@ const emptyForm = {
   title: '',
   description: '',
   file: null,
-  published: false,
+  published: true,
 }
 
 export default function UploadNote() {
