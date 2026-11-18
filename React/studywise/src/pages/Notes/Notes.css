@@ -8,10 +8,10 @@
 
 .notes-page__main {
   flex: 1;
-  max-width: var(--sw-max-width);
+  max-width: calc(var(--sw-max-width) + 2 * var(--sw-gutter));
   width: 100%;
   margin: 0 auto;
-  padding: 1rem 1rem calc(var(--sw-mobile-nav-height) + 1rem);
+  padding: 1rem var(--sw-gutter) calc(var(--sw-mobile-nav-height) + 1rem);
   box-sizing: border-box;
 }
 
@@ -224,7 +224,7 @@
 
 @media (min-width: 768px) {
   .notes-page__main {
-    padding: 1.5rem 1.5rem 2rem;
+    padding: 1.5rem var(--sw-gutter) 2rem;
   }
 
   .notes-page__title {

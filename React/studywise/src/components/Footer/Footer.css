@@ -6,9 +6,9 @@
 }
 
 .site-footer__inner {
-  max-width: var(--sw-max-width);
+  max-width: calc(var(--sw-max-width) + 2 * var(--sw-gutter));
   margin: 0 auto;
-  padding: 1.25rem 1rem;
+  padding: 1.25rem var(--sw-gutter);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -96,7 +96,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 1.5rem;
-    padding: 1rem 1.5rem;
+    padding: 1rem var(--sw-gutter);
   }
 
   .site-footer__nav {

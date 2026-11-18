@@ -9,7 +9,8 @@
   --sw-text-heading: #0f172a;
   --sw-text-muted: #64748b;
   --sw-footer-bg: #1e3a5f;
-  --sw-max-width: 1200px;
+  --sw-max-width: 1440px;
+  --sw-gutter: 16px;
   --sw-mobile-nav-height: 4rem;
   --sw-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
   --sw-shadow-md: 0 4px 14px rgba(15, 23, 42, 0.08);
@@ -25,6 +26,24 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --sw-gutter: 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --sw-gutter: 24px;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --sw-gutter: 32px;
+  }
 }
 
 *,

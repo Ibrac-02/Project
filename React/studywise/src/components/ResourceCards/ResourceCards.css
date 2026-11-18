@@ -1,5 +1,7 @@
 .resource-cards {
-  padding: 0 1rem;
+  padding: 0 var(--sw-gutter);
+  max-width: calc(var(--sw-max-width) + 2 * var(--sw-gutter));
+  margin-inline: auto;
 }
 
 .resource-cards__grid {

@@ -8,9 +8,9 @@
 .admin-page__main {
   flex: 1;
   width: 100%;
-  max-width: var(--sw-max-width);
+  max-width: calc(var(--sw-max-width) + 2 * var(--sw-gutter));
   margin: 0 auto;
-  padding: 1rem 1rem 2rem;
+  padding: 1rem var(--sw-gutter) 2rem;
   box-sizing: border-box;
 }
 
@@ -580,7 +580,7 @@
 
 @media (min-width: 768px) {
   .admin-page__main {
-    padding: 1.5rem 1.5rem 2rem;
+    padding: 1.5rem var(--sw-gutter) 2rem;
   }
 
   .admin-top__title {

@@ -1,5 +1,7 @@
 .subjects-section {
-  padding: 1.25rem 1rem 0;
+  padding: 1.25rem var(--sw-gutter) 0;
+  max-width: calc(var(--sw-max-width) + 2 * var(--sw-gutter));
+  margin-inline: auto;
 }
 
 .subjects-section__header {

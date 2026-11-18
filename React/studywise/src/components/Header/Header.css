@@ -10,8 +10,8 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  max-width: var(--sw-max-width);
+  padding: 0.75rem var(--sw-gutter);
+  max-width: calc(var(--sw-max-width) + 2 * var(--sw-gutter));
   margin: 0 auto;
 }
 
@@ -67,8 +67,8 @@
 }
 
 .site-header__search--mobile {
-  padding: 0 1rem 0.75rem;
-  max-width: var(--sw-max-width);
+  padding: 0 var(--sw-gutter) 0.75rem;
+  max-width: calc(var(--sw-max-width) + 2 * var(--sw-gutter));
   margin: 0 auto;
   width: 100%;
 }
