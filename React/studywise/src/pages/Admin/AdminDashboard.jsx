@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Footer from '../../components/Footer/Footer'
 import Header from '../../components/Header/Header'
-import { ChevronRightIcon, DocumentIcon, ListIcon, LightbulbIcon } from '../../components/icons/Icons'
+import { ChevronRightIcon, DocumentIcon, ListIcon, LightbulbIcon, NotesIcon } from '../../components/icons/Icons'
 import { fetchAllPapers } from './adminPapers'
 import { adminSignOut } from './useAdminAuth'
 import { getSubjectName } from '../Papers/subjectMeta'
@@ -125,6 +125,54 @@ export default function AdminDashboard() {
                   </span>
                   <span className="admin-card-link__desc">
                     Edit, publish, or delete uploaded papers.
+                  </span>
+                </span>
+                <ChevronRightIcon
+                  width={18}
+                  height={18}
+                  style={{ marginLeft: 'auto', color: 'var(--sw-text-muted)' }}
+                  aria-hidden="true"
+                />
+              </button>
+
+              <button
+                type="button"
+                className="admin-card-link"
+                onClick={() => navigate('/admin/notes/upload')}
+              >
+                <span className="admin-card-link__icon" aria-hidden="true">
+                  <DocumentIcon width={24} height={24} />
+                </span>
+                <span>
+                  <span className="admin-card-link__title" style={{ display: 'block' }}>
+                    Upload Note
+                  </span>
+                  <span className="admin-card-link__desc">
+                    Add a note PDF for a subject.
+                  </span>
+                </span>
+                <ChevronRightIcon
+                  width={18}
+                  height={18}
+                  style={{ marginLeft: 'auto', color: 'var(--sw-text-muted)' }}
+                  aria-hidden="true"
+                />
+              </button>
+
+              <button
+                type="button"
+                className="admin-card-link"
+                onClick={() => navigate('/admin/notes')}
+              >
+                <span className="admin-card-link__icon" aria-hidden="true">
+                  <NotesIcon width={24} height={24} />
+                </span>
+                <span>
+                  <span className="admin-card-link__title" style={{ display: 'block' }}>
+                    Manage Notes
+                  </span>
+                  <span className="admin-card-link__desc">
+                    Edit, publish, or delete uploaded notes.
                   </span>
                 </span>
                 <ChevronRightIcon
