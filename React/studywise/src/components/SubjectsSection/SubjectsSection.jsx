@@ -1,5 +1,5 @@
 import { SUBJECTS } from '../../data/dashboardData'
-import { ChevronRightIcon, SubjectIcon } from '../icons/Icons'
+import { ChevronRightIcon, StarIcon, SubjectIcon } from '../icons/Icons'
 import './SubjectsSection.css'
 
 export default function SubjectsSection() {
@@ -7,11 +7,11 @@ export default function SubjectsSection() {
     <section className="subjects-section" aria-labelledby="subjects-heading">
       <div className="subjects-section__header">
         <h2 id="subjects-heading" className="section-heading">
-          Subjects
+          <StarIcon width={20} height={20} />
+          Our Subjects
         </h2>
         <button type="button" className="subjects-section__view-all">
-          View all
-          <ChevronRightIcon width={18} height={18} />
+          Browse All Subjects →
         </button>
       </div> 
 
@@ -27,6 +27,9 @@ export default function SubjectsSection() {
                 <SubjectIcon type={subject.icon} width={32} height={32} />
               </span>
               <span className="subject-card__name">{subject.name}</span>
+              <span className="subject-card__arrow" aria-hidden="true">
+                <ChevronRightIcon width={16} height={16} />
+              </span>
             </button>
           </li>
         ))}

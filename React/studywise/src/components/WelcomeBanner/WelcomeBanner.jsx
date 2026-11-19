@@ -7,8 +7,8 @@ export default function WelcomeBanner() {
         <h1 id="welcome-heading" className="welcome-banner__title">
           Welcome to StudyWise
         </h1>
-        <p className="welcome-banner__subtitle">Your one stop Grade 11 study hub.</p>
-        <p className="welcome-banner__message">Small steps every day lead to big results!</p>
+        <p className="welcome-banner__subtitle">Your one-stop Grade 11 study hub.</p>
+        <p className="welcome-banner__message">Study smart, achieve more!</p>
       </div>
       <div className="welcome-banner__art" aria-hidden="true">
         <div className="hero-illustration">

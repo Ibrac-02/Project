@@ -1,4 +1,5 @@
 import { GraduationCapIcon, HeartIcon } from '../icons/Icons'
+import { TAGLINE } from '../../data/dashboardData'
 import './Footer.css'
 
 export default function Footer() {
@@ -14,6 +15,8 @@ export default function Footer() {
           <HeartIcon width={16} height={16} aria-hidden="true" />
           Free for all learners
         </p>
+
+        <p className="site-footer__motto">{TAGLINE}</p>
       </div>
     </footer>
   )

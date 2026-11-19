@@ -4,7 +4,7 @@ export const RESOURCE_CARDS = [
   {
     id: 'past-papers',
     title: 'Past Papers',
-    description: '2017 – 2024',
+    description: '2007 – 2026',
     accent: '#1d4ed8',
     bgTint: '#eff6ff',
   },
@@ -18,27 +18,27 @@ export const RESOURCE_CARDS = [
   {
     id: 'scope',
     title: 'Scope',
-    description: 'Final exam topics',
+    description: 'Final Exam Topics',
     accent: '#7c3aed',
     bgTint: '#f5f3ff',
   },
   {
-    id: 'motivation',
-    title: 'Motivation',
-    description: 'Daily inspiration',
+    id: 'study-tips',
+    title: 'Study Tips',
+    description: 'Study smarter',
     accent: '#ea580c',
     bgTint: '#fffbeb',
   },
 ]
 
 export const SUBJECTS = [
-  { id: 'mathematics', name: 'Mathematics', color: '#475569', icon: 'calc' },
-  { id: 'isixhosa', name: 'isiXhosa', color: '#7c3aed', icon: 'chat' },
+  { id: 'mathematics', name: 'Mathematics', color: '#1d4ed8', icon: 'calc' },
   { id: 'english', name: 'English', color: '#16a34a', icon: 'openbook' },
-  { id: 'life-orientation', name: 'Life Orientation', color: '#ef4444', icon: 'user' },
-  { id: 'business-accounting', name: 'Business Accounting', color: '#0d9488', icon: 'barchart' },
-  { id: 'business-studies', name: 'Business Studies', color: '#f97316', icon: 'briefcase' },
-  { id: 'economics', name: 'Economics', color: '#2563eb', icon: 'trend' },
+  { id: 'isixhosa', name: 'isiXhosa', color: '#7c3aed', icon: 'chat' },
+  { id: 'life-orientation', name: 'Life Orientation (LO)', color: '#f97316', icon: 'user' },
+  { id: 'business-studies', name: 'Business Studies', color: '#0d9488', icon: 'briefcase' },
+  { id: 'economics', name: 'Economics', color: '#1e40af', icon: 'trend' },
+  { id: 'accounting', name: 'Accounting', color: '#15803d', icon: 'barchart' },
 ]
 
 export const LATEST_UPDATES = [

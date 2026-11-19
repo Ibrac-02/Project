@@ -1,10 +1,6 @@
-import { TAGLINE } from '../../data/dashboardData'
 import {
-  
   GraduationCapIcon,
-
   SearchIcon,
-  
 } from '../icons/Icons'
 import './Header.css'
 
@@ -20,7 +16,6 @@ export default function Header() {
           </span>
           <div className="site-header__titles">
             <span className="site-header__name">StudyWise</span>
-            <span className="site-header__tagline">{TAGLINE}</span>
           </div>
         </div>
 
@@ -38,7 +33,9 @@ export default function Header() {
           />
         </div>
 
-        
+        <div className="site-header__actions">
+          <span className="site-header__tagline">Grade 11</span>
+        </div>
       </div>
 
       <div className="site-header__search site-header__search--mobile">

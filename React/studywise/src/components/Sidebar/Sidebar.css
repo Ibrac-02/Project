@@ -1,0 +1,105 @@
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: calc(100vh - var(--sw-mobile-nav-height));
+  overflow-y: auto;
+  background: linear-gradient(180deg, #1e40af 0%, #1d4ed8 100%);
+  border-right: 1px solid var(--sw-border);
+  padding: 1.5rem 1rem;
+  display: none;
+  position: relative;
+}
+
+.sidebar::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background:
+    radial-gradient(circle at 20% 100%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 60% 100%, rgba(255, 255, 255, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 85% 100%, rgba(255, 255, 255, 0.08) 0%, transparent 35%);
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 240px;
+    flex-shrink: 0;
+  }
+}
+
+.sidebar__nav {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.sidebar__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sidebar__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-align: left;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.sidebar__item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.sidebar__item--active {
+  background: #fff;
+  color: #1d4ed8;
+}
+
+.sidebar__item--active:hover {
+  background: #f1f5f9;
+}
+
+.sidebar__label {
+  white-space: nowrap;
+}
+
+.sidebar__quote {
+  margin-top: auto;
+  padding-top: 1.5rem;
+  padding-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.sidebar__quote-icon {
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.sidebar__quote-text {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.4;
+}

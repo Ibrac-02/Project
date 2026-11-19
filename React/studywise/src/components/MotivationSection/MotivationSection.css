@@ -1,0 +1,239 @@
+.motivation-section {
+  padding: 0;
+  max-width: none;
+  margin: 0;
+}
+
+.motivation-section__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.875rem;
+}
+
+.motivation-section__card {
+  position: relative;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  background: linear-gradient(155deg, #eaf3ff 0%, #d9e9ff 48%, #bdd7ff 100%);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.16);
+  border: 1px solid rgba(147, 197, 253, 0.85);
+}
+
+/* Decorative layers — clouds, mountains, graduation cap */
+.motivation-section__deco {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.motivation-section__cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 999px;
+  filter: blur(1px);
+}
+
+.motivation-section__cloud--1 {
+  top: 18%;
+  left: 10%;
+  width: 4.5rem;
+  height: 1.4rem;
+}
+
+.motivation-section__cloud--1::before,
+.motivation-section__cloud--1::after {
+  content: '';
+  position: absolute;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+}
+
+.motivation-section__cloud--1::before {
+  width: 2rem;
+  height: 2rem;
+  top: -0.9rem;
+  left: 0.6rem;
+}
+
+.motivation-section__cloud--1::after {
+  width: 1.4rem;
+  height: 1.4rem;
+  top: -0.5rem;
+  right: 0.7rem;
+}
+
+.motivation-section__cloud--2 {
+  top: 32%;
+  right: 8%;
+  width: 3.5rem;
+  height: 1.1rem;
+  opacity: 0.7;
+}
+
+.motivation-section__cloud--2::before {
+  content: '';
+  position: absolute;
+  width: 1.6rem;
+  height: 1.6rem;
+  top: -0.7rem;
+  left: 0.4rem;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+}
+
+/* Mountain silhouette at the bottom */
+.motivation-section__mountains {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 45%;
+  z-index: 0;
+}
+
+.motivation-section__mountain {
+  position: absolute;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+.motivation-section__mountain--1 {
+  left: -5%;
+  border-width: 0 5rem 6rem 5rem;
+  border-color: transparent transparent rgba(30, 64, 175, 0.55) transparent;
+}
+
+.motivation-section__mountain--2 {
+  left: 22%;
+  border-width: 0 6.5rem 8.5rem 6.5rem;
+  border-color: transparent transparent rgba(29, 78, 216, 0.7) transparent;
+}
+
+.motivation-section__mountain--3 {
+  right: 0;
+  border-width: 0 5.5rem 7rem 5.5rem;
+  border-color: transparent transparent rgba(37, 99, 235, 0.5) transparent;
+}
+
+/* Graduation cap silhouette — bottom right */
+.motivation-section__cap {
+  position: absolute;
+  right: 10%;
+  bottom: 14%;
+  width: 3rem;
+  height: 2.4rem;
+  z-index: 1;
+  opacity: 0.85;
+}
+
+.motivation-section__cap::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0.4rem;
+  width: 0;
+  height: 0;
+  border-left: 1.1rem solid transparent;
+  border-right: 1.1rem solid transparent;
+  border-bottom: 0.5rem solid #1e3a8a;
+}
+
+.motivation-section__cap::after {
+  content: '';
+  position: absolute;
+  top: 0.45rem;
+  left: 0;
+  width: 3rem;
+  height: 0.35rem;
+  background: #1e3a8a;
+  border-radius: 2px;
+}
+
+.motivation-section__cap-tassel {
+  position: absolute;
+  right: 0.1rem;
+  top: 0.35rem;
+  width: 0.12rem;
+  height: 1.1rem;
+  background: #f59e0b;
+  border-radius: 1px;
+}
+
+.motivation-section__cap-tassel::after {
+  content: '';
+  position: absolute;
+  bottom: -0.35rem;
+  left: -0.18rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: #f59e0b;
+  border-radius: 50%;
+}
+
+.motivation-section__content {
+  position: relative;
+  z-index: 2;
+  padding: clamp(1.25rem, 3.5vw, 2rem) clamp(1.25rem, 5vw, 2.25rem) clamp(1.5rem, 4vw, 2.25rem);
+  color: #1e3a8a;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 15.5rem;
+}
+
+.motivation-section__quote {
+  margin: 0.35rem 0 1.25rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1.28;
+  color: #1e3a8a;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4);
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  max-width: 19ch;
+  position: relative;
+}
+
+.motivation-section__quote::before {
+  content: '“';
+  display: block;
+  height: 1.6rem;
+  margin-bottom: 0.1rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 3.5rem;
+  line-height: 0.7;
+  font-style: normal;
+  color: #2563eb;
+}
+
+.motivation-section__label {
+  position: relative;
+  margin: 0;
+  padding-top: 0.75rem;
+  font-size: clamp(0.68rem, 1.5vw, 0.78rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #1e3a8a;
+  white-space: nowrap;
+}
+
+.motivation-section__label::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 11rem;
+  max-width: 70%;
+  height: 1px;
+  transform: translateX(-50%);
+  background: rgba(37, 99, 235, 0.32);
+}

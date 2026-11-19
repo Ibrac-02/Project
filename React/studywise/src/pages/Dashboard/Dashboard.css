@@ -6,13 +6,44 @@
   overflow-x: hidden;
 }
 
-.dashboard__main {
+.dashboard__layout {
   flex: 1;
+}
+
+.dashboard__main {
+  width: 100%;
+  max-width: calc(var(--sw-max-width) + 2 * var(--sw-gutter));
+  min-width: 0;
+  margin-inline: auto;
   padding-bottom: calc(var(--sw-mobile-nav-height) + 0.5rem);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .dashboard__main {
     padding-bottom: 0;
+  }
+}
+
+.dashboard__bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem var(--sw-gutter) 1.5rem;
+  max-width: calc(var(--sw-max-width) + 2 * var(--sw-gutter));
+  margin-inline: auto;
+}
+
+.dashboard__bottom-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+@media (min-width: 1024px) {
+  .dashboard__bottom {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(17rem, 0.85fr);
+    gap: clamp(1rem, 2vw, 1.5rem);
+    align-items: start;
   }
 }

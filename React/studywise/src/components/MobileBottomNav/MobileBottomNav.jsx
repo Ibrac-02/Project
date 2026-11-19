@@ -1,10 +1,10 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import {
   DocumentIcon,
+  HeartIcon,
   HomeIcon,
   MoreIcon,
   NotesIcon,
-  TargetIcon,
 } from '../icons/Icons'
 import './MobileBottomNav.css'
 
@@ -12,7 +12,7 @@ const NAV_ITEMS = [
   { id: 'home', label: 'Home', icon: HomeIcon, path: '/' },
   { id: 'past-papers', label: 'Past Papers', icon: DocumentIcon, path: '/past-papers' },
   { id: 'notes', label: 'Notes', icon: NotesIcon, path: '/notes' },
-  { id: 'scope', label: 'Scope', icon: TargetIcon, path: null },
+  { id: 'motivation', label: 'Motivation', icon: HeartIcon, path: null },
   { id: 'more', label: 'More', icon: MoreIcon, path: null },
 ]
 

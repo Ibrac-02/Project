@@ -48,10 +48,18 @@
 }
 
 .site-header__tagline {
-  font-size: 0.625rem;
-  color: var(--sw-text-muted);
-  letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.25rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: var(--sw-primary);
+  font-size: 0.8125rem;
+  letter-spacing: 0;
   white-space: nowrap;
+  font-weight: 800;
 }
 
 .site-header__search {
@@ -183,7 +191,8 @@
   }
 
   .site-header__tagline {
-    font-size: 0.6875rem;
+    display: inline-flex;
+    font-size: 0.875rem;
   }
 
   .site-header__name {

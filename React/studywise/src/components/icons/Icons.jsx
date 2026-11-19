@@ -177,6 +177,31 @@ export function MoreIcon(props) {
   )
 }
 
+export function ClockIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" {...iconProps} {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 6v6l4 2" />
+    </svg>
+  )
+}
+
+export function BoltIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" {...iconProps} {...props}>
+      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+    </svg>
+  )
+}
+
+export function StarIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" {...iconProps} {...props}>
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  )
+}
+
 export function EyeIcon(props) {
   return (
     <svg viewBox="0 0 24 24" {...iconProps} {...props}>

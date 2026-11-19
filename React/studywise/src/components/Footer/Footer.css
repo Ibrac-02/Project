@@ -79,6 +79,13 @@
   color: #fda4af;
 }
 
+.site-footer__motto {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+}
+
 .site-footer__tagline svg {
   color: #fb7185;
   fill: #fb7185;

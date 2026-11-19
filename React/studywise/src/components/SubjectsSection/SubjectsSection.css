@@ -15,9 +15,11 @@
 .section-heading {
   margin: 0;
   font-size: 1.125rem;
-  font-weight: 800;
-  color: var(--sw-primary-dark);
-  text-align: left;
+  font-weight: 700;
+  color: var(--sw-text-heading);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .subjects-section__view-all {
@@ -147,6 +149,18 @@
   font-size: 0.8125rem;
   text-align: center;
   line-height: 1.25;
+}
+
+.subject-card__arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  flex-shrink: 0;
 }
 
 @media (min-width: 768px) {

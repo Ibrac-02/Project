@@ -12,6 +12,8 @@ export default function ResourceCards() {
       navigate('/past-papers')
     } else if (cardId === 'notes') {
       navigate('/notes')
+    } else if (cardId === 'study-tips') {
+      // Study tips modal or section will be added
     }
   }
 

@@ -1,0 +1,47 @@
+.study-tips {
+  padding: 1.25rem var(--sw-gutter) 0;
+  max-width: calc(var(--sw-max-width) + 2 * var(--sw-gutter));
+  margin-inline: auto;
+}
+
+.study-tips__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.875rem;
+}
+
+.section-heading {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--sw-text-heading);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.study-tips__card {
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  border-radius: 1rem;
+  padding: 1.5rem 1.25rem;
+  color: #fff;
+  box-shadow: var(--sw-shadow-md);
+}
+
+.study-tips__tip {
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+@media (min-width: 768px) {
+  .study-tips__card {
+    padding: 1.75rem 2rem;
+  }
+
+  .study-tips__tip {
+    font-size: 1.125rem;
+  }
+}

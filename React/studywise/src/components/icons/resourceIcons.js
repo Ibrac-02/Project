@@ -1,5 +1,6 @@
 import {
   DocumentIcon,
+  HeartIcon,
   LightbulbIcon,
   NotesIcon,
   TargetIcon,
@@ -13,8 +14,10 @@ export function resourceIconId(id) {
       return NotesIcon
     case 'scope':
       return TargetIcon
-    case 'motivation':
+    case 'study-tips':
       return LightbulbIcon
+    case 'motivation':
+      return HeartIcon
     default:
       return DocumentIcon
   }
